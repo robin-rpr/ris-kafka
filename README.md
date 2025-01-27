@@ -22,12 +22,17 @@ This service connects to the [RIS Live](https://ris-live.ripe.net/) websocket en
 
 ## Quick Start
 
-To start the service with all dependencies (Kafka, Zookeeper, Redis):
-
+1. Clone the repository:
 ```bash
-docker compose up
+git clone git@github.com:robin-rpr/ris-kafka.git
+cd ris-kafka
 ```
 
-## Configuration
+2. Start all services:
+```bash
+docker compose up -d
+```
 
-The service is configured via environment variables. See the [Dockerfile](Dockerfile) for the full list of available variables.
+> **Heads up:** This will start collecting from RRC13. You can change the `RIS_HOST` in `docker-compose.yaml` to collect from another RIS Collector.
+
+3. Open http://localhost:8080
