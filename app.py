@@ -1,8 +1,8 @@
 
 from confluent_kafka import Producer
 from protocols.bmp import BMPv3
+import redis.asyncio as redis
 import websocket
-import aioredis
 import asyncio
 import json
 import socket
@@ -21,11 +21,12 @@ RIS_HOST = os.getenv("RIS_HOST")
 # Main Coroutine
 async def main():
     # Redis Connection
-    redis = await aioredis.create_redis_pool(
-        (REDIS_HOST, REDIS_PORT),
+    redis_client = redis.Redis(
+        host=REDIS_HOST,
+        port=REDIS_PORT,
         db=REDIS_DB,
         encoding="utf-8",
-        maxsize=10
+        max_connections=10  # Equivalent to maxsize
     )
 
     # Kafka Producer
@@ -47,7 +48,7 @@ async def main():
             marshal = json.loads(data)['data']
 
             # Check if the message is a duplicate
-            is_duplicate = await redis.exists(marshal['id'])
+            is_duplicate = await redis_client.exists(marshal['id'])
             if is_duplicate:
                 continue
 
@@ -87,10 +88,9 @@ async def main():
                 producer.poll(0)
             
             # Mark as processed in Redis (expire 24 hours)
-            await redis.set(marshal['id'], "processed", expire=86400)
+            await redis_client.set(marshal['id'], "processed", expire=86400)
     finally:
-        redis.close()
-        await redis.wait_closed()
+        await redis_client.close()
         producer.flush()
 
 if __name__ == "__main__":

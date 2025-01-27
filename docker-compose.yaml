@@ -1,11 +1,10 @@
 services:
     app:
         build: .
-        container_name: core-proxy
+        container_name: app
         restart: unless-stopped
         environment:
             KAFKA_FQDN: kafka:29092
-            KAFKA_TOPIC: bgpdata
             REDIS_HOST: redis
             REDIS_PORT: 6379
             REDIS_DB: 0
@@ -26,7 +25,7 @@ services:
         image: redis:latest
         restart: unless-stopped
         healthcheck:
-            test: ["CMD", "redis-server", "--ping"]
+            test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
             interval: 30s
             timeout: 60s
             retries: 10
@@ -42,7 +41,7 @@ services:
         image: confluentinc/cp-zookeeper:7.7.1
         restart: unless-stopped
         volumes:
-            - obmp_zk_data:/var/lib/zookeeper
+            - zookeeper_data:/var/lib/zookeeper
         environment:
             ZOOKEEPER_CLIENT_PORT: 2181
             ZOOKEEPER_TICK_TIME: 2000
@@ -59,7 +58,7 @@ services:
         # Change the mount point to where you want to store Kafka data.
         #   Normally 80GB or more
         volumes:
-            - obmp_kf_data:/var/lib/kafka/data
+            - kafka_data:/var/lib/kafka/data
         ports:
             - "9092:9092"
         environment:
@@ -83,5 +82,6 @@ services:
 
 # Define volumes
 volumes:
-    obmp_zk_data:
-    obmp_kf_data:
+    zookeeper_data:
+    kafka_data:
+    redis_data:
