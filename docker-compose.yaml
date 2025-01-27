@@ -80,6 +80,19 @@ services:
             KAFKA_MESSAGE_MAX_BYTES: 100000000
             KAFKA_LOG_CLEANER_THREADS: 2
 
+    kafbat:
+        container_name: kafbat
+        image: ghcr.io/kafbat/kafka-ui:latest
+        ports:
+            - 8080:8080
+        depends_on:
+            kafka:
+                condition: service_healthy
+        environment:
+            DYNAMIC_CONFIG_ENABLED: 'true'
+        volumes:
+            - ./kafbat.yaml:/etc/kafkaui/dynamic_config.yaml
+
 # Define volumes
 volumes:
     zookeeper_data:
