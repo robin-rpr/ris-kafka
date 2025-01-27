@@ -54,7 +54,7 @@ async def main():
 
             # Construct the BMP message
             # JSON Schema: https://ris-live.ripe.net/manual/
-            messages =BMPv3.construct(
+            messages = BMPv3.construct(
                 collector=RIS_HOST,
                 peer_ip=marshal['peer'],
                 peer_asn=int(marshal['peer_asn']), # Cast to int from string
