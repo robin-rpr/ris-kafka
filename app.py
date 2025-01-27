@@ -88,7 +88,7 @@ async def main():
                 producer.poll(0)
             
             # Mark as processed in Redis (expire 24 hours)
-            await redis_client.set(marshal['id'], "processed", expire=86400)
+            await redis_client.set(marshal['id'], "processed", ex=86400)
     finally:
         await redis_client.close()
         producer.flush()
