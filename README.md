@@ -23,3 +23,11 @@ This service connects to the [RIS Live](https://ris-live.ripe.net/) websocket en
 ## Quick Start
 
 To start the service with all dependencies (Kafka, Zookeeper, Redis):
+
+```bash
+docker compose up
+```
+
+## Configuration
+
+The service is configured via environment variables. See the [Dockerfile](Dockerfile) for the full list of available variables.
