@@ -24,8 +24,8 @@ This service connects to the [RIS Live](https://ris-live.ripe.net/) websocket en
 
 1. Clone the repository:
 ```bash
-git clone git@github.com:robin-rpr/ris-kafka.git
-cd ris-kafka
+git clone git@github.com:robin-rpr/ris-kafka-proxy.git
+cd ris-kafka-proxy
 ```
 
 2. Start all services:
