@@ -1,6 +1,0 @@
-kafka:
-  clusters:
-    -
-      name: RIS Kafka
-      bootstrapServers: kafka:29092
-      readOnly: true

@@ -53,10 +53,8 @@ services:
         healthcheck:
             test: ["CMD", "kafka-broker-api-versions", "--bootstrap-server", "kafka:29092"]
             interval: 30s
-            timeout: 60s # Command may take some time.
+            timeout: 60s
             retries: 10
-        # Change the mount point to where you want to store Kafka data.
-        #   Normally 80GB or more
         volumes:
             - kafka_data:/var/lib/kafka/data
         ports:
@@ -65,11 +63,7 @@ services:
             KAFKA_BROKER_ID: 1
             KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
             KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:29092,PLAINTEXT_HOST://0.0.0.0:9092
-            # Change/add listeners based on your FQDN that the host and other containers can access.  You can use
-            #    an IP address as well. By default, only within the compose/containers can Kafka be accesssed
-            #    using port 29092. Outside access can be enabled, but you should use an FQDN listener.
-            #KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://<FQDN>:9092
-            KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+            KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://example.com:9092
             KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
             KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
             KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
@@ -83,15 +77,16 @@ services:
     kafbat:
         container_name: kafbat
         image: ghcr.io/kafbat/kafka-ui:latest
+        restart: unless-stopped
         ports:
             - 8080:8080
         depends_on:
             kafka:
                 condition: service_healthy
         environment:
-            DYNAMIC_CONFIG_ENABLED: 'true'
-        volumes:
-            - ./kafbat.yaml:/etc/kafkaui/dynamic_config.yaml
+            KAFKA_CLUSTERS_0_NAME: ris-kafka
+            KAFKA_CLUSTERS_0_BOOTSTRAP_SERVERS: kafka:29092
+            KAFKA_CLUSTERS_0_READONLY: true
 
 # Define volumes
 volumes:
