@@ -47,6 +47,15 @@ consumer = Consumer({
   - Seamless failover with no message loss
   - Consistent message ordering maintained during failover
 
+## Kafka Topics
+
+The topic names are structured as `<collector_name>.<peer_asn>.bmp_raw`.
+Consult the [RIS Route Collector Documentation](https://ris.ripe.net/docs/route-collectors/) for more information on the available collectors.
+
+- `<collector_name>.<peer_asn>.bmp_raw`
+- `rrc13.2854.bmp_raw`
+- ...
+
 ## Quick Start
 
 1. Clone the repository:
