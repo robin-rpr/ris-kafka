@@ -1,8 +1,8 @@
+from websockets.asyncio.client import connect
 from confluent_kafka import Producer
 from collections import deque
 from protocols.bmp import BMPv3
 import redis.asyncio as redis
-import websockets
 import logging
 import asyncio
 import socket
@@ -23,6 +23,7 @@ logger.addHandler(ch)
 WEBSOCKET_URI = "wss://ris-live.ripe.net/v1/ws/"
 WEBSOCKET_IDENTITY = f"ris-kafka-{socket.gethostname()}"
 KAFKA_FQDN = os.getenv("KAFKA_FQDN")
+REDIS_MAX_CONNECTIONS = os.getenv("REDIS_MAX_CONNECTIONS")
 REDIS_HOST = os.getenv("REDIS_HOST")
 REDIS_PORT = os.getenv("REDIS_PORT")
 REDIS_DB = os.getenv("REDIS_DB")
@@ -97,7 +98,7 @@ async def renew_leader_task(redis_client, memory, logger):
         await asyncio.sleep(5)
         if memory['is_leader']:
             try:
-                current_leader = await redis_client.get(f"{RIS_HOST}_leader", encoding='utf-8')
+                current_leader = await redis_client.get(f"{RIS_HOST}_leader")
                 if current_leader == memory['leader_id']:
                     await redis_client.expire(f"{RIS_HOST}_leader", 10)
                 else:
@@ -108,23 +109,24 @@ async def renew_leader_task(redis_client, memory, logger):
         
 # Consumer Task
 async def consumer_task(buffer, memory):
-    async with websockets.connect(f"{WEBSOCKET_URI}?client={WEBSOCKET_IDENTITY}") as ws:
+    async with connect(f"{WEBSOCKET_URI}?client={WEBSOCKET_IDENTITY}") as ws:
         await ws.send(json.dumps({"type": "ris_subscribe", "data": {"host": RIS_HOST}}))
 
         async for data in ws:
             memory['receive_counter'][0] += len(data)  # Increment received data size
             marshal = json.loads(data)['data']
-            buffer.append(marshal)
+            buffer.add(marshal)
 
 # Sender Task
 async def sender_task(producer, redis_client, buffer, memory):
+    loop = asyncio.get_event_loop()
     iterator = PersistentIterator(buffer)
 
     while True:
         # Get last message id and index# Get last message id and index
-        last_id = await redis_client.get(f"{RIS_HOST}_last_id", encoding='utf-8')
-        last_index = await redis_client.get(f"{RIS_HOST}_last_index", encoding='utf-8')
-        last_completed = await redis_client.get(f"{RIS_HOST}_last_completed", encoding='utf-8')
+        last_id = await redis_client.get(f"{RIS_HOST}_last_id")
+        last_index = await redis_client.get(f"{RIS_HOST}_last_index")
+        last_completed = await redis_client.get(f"{RIS_HOST}_last_completed")
 
         # If we are the leader
         if memory['is_leader']:
@@ -167,9 +169,15 @@ async def sender_task(producer, redis_client, buffer, memory):
                     # Delivery Report Callback
                     def delivery_report(err, _):
                         if err is None:
-                            redis_client.set(f"{RIS_HOST}_last_id", item['id'])
-                            redis_client.set(f"{RIS_HOST}_last_index", str(i))
-                            redis_client.set(f"{RIS_HOST}_last_completed", "True" if i == len(messages) - 1 else "False")
+                            asyncio.run_coroutine_threadsafe(
+                                redis_client.set(f"{RIS_HOST}_last_id", item['id']), loop
+                            )
+                            asyncio.run_coroutine_threadsafe(
+                                redis_client.set(f"{RIS_HOST}_last_index", str(i)), loop
+                            )
+                            asyncio.run_coroutine_threadsafe(
+                                redis_client.set(f"{RIS_HOST}_last_completed", "True" if i == len(messages) - 1 else "False"), loop
+                            )
                         else:
                             raise Exception(f"Message delivery failed: {err}")
 
@@ -197,12 +205,13 @@ async def sender_task(producer, redis_client, buffer, memory):
 
             
 # Logging Task
-async def logging_task(memory):
+async def logging_task(redis_client, memory):
     while True:
         timeout = 10 # seconds
         received_kbps = (memory['receive_counter'][0] * 8) / 1024 / timeout  # Convert bytes to kilobits
         sent_kbps = (memory['send_counter'][0] * 8) / 1024 / timeout
-        logger.info(f"host={RIS_HOST} is_leader={memory['is_leader']} receive={received_kbps:.2f} kbps send={sent_kbps:.2f} kbps")
+        redis_connections = redis_client.connection_pool._created_connections
+        logger.info(f"host={RIS_HOST} is_leader={memory['is_leader']} receive={received_kbps:.2f} kbps send={sent_kbps:.2f} kbps redis_connections={redis_connections}")
         memory['receive_counter'][0] = 0  # Reset counters
         memory['send_counter'][0] = 0
         await asyncio.sleep(timeout)
@@ -216,7 +225,8 @@ async def main():
         port=REDIS_PORT,
         db=REDIS_DB,
         encoding="utf-8",
-        max_connections=10
+        max_connections=REDIS_MAX_CONNECTIONS,
+        decode_responses=True
     )
 
     # Kafka Producer
@@ -229,7 +239,7 @@ async def main():
     })
 
     # Buffer
-    buffer = CircularBuffer(100000)
+    buffer = CircularBuffer(500000)
 
     # Memory
     memory = {
@@ -239,23 +249,41 @@ async def main():
         'leader_id': str(uuid.uuid4())  # Random UUID as leader ID
     }
 
+    # Tasks
+    tasks = []
+
     try:
+        # Create an event to signal shutdown
+        shutdown_event = asyncio.Event()
+
         # Start the leader tasks
-        asyncio.create_task(acquire_leader_task(redis_client, memory))
-        asyncio.create_task(renew_leader_task(redis_client, memory, logger))
+        tasks.append(asyncio.create_task(acquire_leader_task(redis_client, memory)))
+        tasks.append(asyncio.create_task(renew_leader_task(redis_client, memory, logger)))
 
-        # Start the consumer task
-        asyncio.create_task(consumer_task(buffer, memory))
-
-        # Start the sender task
-        asyncio.create_task(sender_task(producer, redis_client, buffer, memory))
+        # Start the consumer and sender tasks
+        tasks.append(asyncio.create_task(consumer_task(buffer, memory)))
+        tasks.append(asyncio.create_task(sender_task(producer, redis_client, buffer, memory)))
 
         # Start the logging task
-        asyncio.create_task(logging_task(memory))
+        tasks.append(asyncio.create_task(logging_task(redis_client, memory)))
 
-        # Run indefinitely
-        await asyncio.Event().wait()
+        # Monitor tasks for exceptions
+        for task in tasks:
+            task.add_done_callback(lambda t: shutdown_event.set() if t.exception() else None)
+
+        # Wait for the shutdown event
+        await shutdown_event.wait()
     finally:
+        logger.info("Shutting down...")
+
+        # Cancel all running tasks
+        for task in tasks:
+            task.cancel()
+            try:
+                await task
+            except asyncio.CancelledError:
+                pass
+
         # Relinquish leadership
         if memory['is_leader']:
             await redis_client.delete(f"{RIS_HOST}_leader")

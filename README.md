@@ -10,16 +10,15 @@
 A high-performance message broker that streams BGP updates from RIPE NCC's Routing Information Service (RIS) Live websocket feed to Apache Kafka, with real-time JSON to BMPv3 protocol conversion.
 
 > [!NOTE]
-> This is an experimental service and not operated by or affiliated with the RIPE NCC. This service is relying on the RIPE NCC's Routing Information Service (RIS) websocket feed and is therefore subject to the same usage policies as the RIS itself. We want to acknowledge the RIPE NCC and RIPE Community for providing this invaluable service and for making it available to the public.
+> This is an independent experimental service and not operated by or affiliated with the RIPE NCC. This service is relying on the RIPE NCC's Routing Information Service (RIS) websocket feed and is therefore subject to the same usage policies as the RIS itself. We want to acknowledge the RIPE NCC and RIPE Community for providing this invaluable service and for making it available to the public.
 
 ## Overview
 
 This service connects to the [RIS Live](https://ris-live.ripe.net/) websocket endpoint to receive real-time BGP routing updates from RIPE NCC's global network of Route Collectors. It processes these messages by:
 
 1. Converting the JSON-encoded BGP messages to BMPv3 wire format
-2. Deduplicating messages using Redis
-3. Publishing to Kafka topics organized by collector and peer ASN
-4. Maintaining message ordering with timestamps
+2. Publishing to Kafka topics organized by collector and peer ASN
+3. Maintaining message ordering with timestamps and unique IDs
 
 We provide a public read-only cluster at `stream.ris-kafka.com:9092`:
 
@@ -40,10 +39,8 @@ consumer = Consumer({
 
 - Real-time BGP update streaming
 - Native BMPv3 protocol support
-- Message deduplication
 - Horizontally scalable architecture
 - Docker containerized deployment
-- Fault-tolerant message delivery
 - High Availability with automatic failover
   - Collector instances can run with unlimited replicas
   - Automatic leader election using Redis
@@ -80,3 +77,10 @@ This will start 3 collector instances with automatic leader election and failove
 - Automatic failover if the leader becomes unavailable
 - No message loss during failover
 - Consistent message ordering maintained
+
+# WhatsApp Communication
+
+Join our WhatsApp group to discuss the service and get help.
+
+<img title="WhatsApp" src="whatsapp.svg" height="128" align="left" />
+

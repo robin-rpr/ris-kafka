@@ -1,10 +1,10 @@
 services:
     app:
         build: .
-        container_name: app
         restart: unless-stopped
         environment:
             KAFKA_FQDN: kafka:29092
+            REDIS_MAX_CONNECTIONS: 50
             REDIS_HOST: redis
             REDIS_PORT: 6379
             REDIS_DB: 0
@@ -21,7 +21,6 @@ services:
             python app.py
 
     redis:
-        container_name: redis
         image: redis:latest
         restart: unless-stopped
         healthcheck:
@@ -47,7 +46,6 @@ services:
             ZOOKEEPER_TICK_TIME: 2000
 
     kafka:
-        container_name: kafka
         image: confluentinc/cp-kafka:7.7.1
         restart: unless-stopped
         healthcheck:
@@ -75,7 +73,6 @@ services:
             KAFKA_LOG_CLEANER_THREADS: 2
 
     kafbat:
-        container_name: kafbat
         image: ghcr.io/kafbat/kafka-ui:latest
         restart: unless-stopped
         ports:
