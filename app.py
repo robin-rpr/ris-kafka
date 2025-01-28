@@ -126,15 +126,16 @@ async def sender_task(producer, redis_client, buffer, memory):
         last_index = await redis_client.get("last_index", encoding='utf-8')
         last_completed = await redis_client.get("last_completed", encoding='utf-8')
 
-        # Set iterator to last message id
-        if last_id and last_index:
-            iterator.find("id", last_id)
-
+        # If we are the leader
         if memory['is_leader']:
             item = None
 
+            # Set iterator to last message id
+            if last_id:
+                item = iterator.find("id", last_id)
+
             # If last transmission was completed
-            if last_completed == "True":
+            if last_completed == "True" or last_completed is None:
                 item = iterator.next()
 
             # If we reached the end of the buffer
