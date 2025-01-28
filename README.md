@@ -65,7 +65,7 @@ docker compose up
 
 > **Note:** This will start collecting from RRC13 by default. You can change the `RIS_HOST` in `docker-compose.yaml` to collect from another RIS Collector.
 
-3. Open http://localhost:8080
+3. Open http://localhost:8080 (Kafbat Dashboard)
 
 ## High Availability Deployment
 
