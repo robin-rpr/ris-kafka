@@ -1,4 +1,4 @@
-<img title="RIS Kafka" src="logo.svg" height="64" align="left" />
+<img title="RIS Kafka" src="logo.svg" height="74" align="left" />
 
 <br />
 <br />
