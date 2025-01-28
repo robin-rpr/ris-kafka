@@ -8,7 +8,7 @@ services:
             REDIS_HOST: redis
             REDIS_PORT: 6379
             REDIS_DB: 0
-            RIS_HOST: rrc13 # Change as needed
+            RIS_HOST: rrc13
         depends_on:
             redis:
                 condition: service_healthy

@@ -85,7 +85,7 @@ async def acquire_leader_task(redis_client, memory):
         await asyncio.sleep(2)
         if not memory['is_leader']: 
             memory['is_leader'] = await redis_client.set(
-                "leader",
+                f"{RIS_HOST}_leader",
                 memory['leader_id'],
                 nx=True,
                 ex=10 # seconds
@@ -97,9 +97,9 @@ async def renew_leader_task(redis_client, memory, logger):
         await asyncio.sleep(5)
         if memory['is_leader']:
             try:
-                current_leader = await redis_client.get("leader", encoding='utf-8')
+                current_leader = await redis_client.get(f"{RIS_HOST}_leader", encoding='utf-8')
                 if current_leader == memory['leader_id']:
-                    await redis_client.expire("leader", 10)
+                    await redis_client.expire(f"{RIS_HOST}_leader", 10)
                 else:
                     memory['is_leader'] = False
             except Exception as e:
@@ -122,9 +122,9 @@ async def sender_task(producer, redis_client, buffer, memory):
 
     while True:
         # Get last message id and index# Get last message id and index
-        last_id = await redis_client.get("last_id", encoding='utf-8')
-        last_index = await redis_client.get("last_index", encoding='utf-8')
-        last_completed = await redis_client.get("last_completed", encoding='utf-8')
+        last_id = await redis_client.get(f"{RIS_HOST}_last_id", encoding='utf-8')
+        last_index = await redis_client.get(f"{RIS_HOST}_last_index", encoding='utf-8')
+        last_completed = await redis_client.get(f"{RIS_HOST}_last_completed", encoding='utf-8')
 
         # If we are the leader
         if memory['is_leader']:
@@ -167,9 +167,9 @@ async def sender_task(producer, redis_client, buffer, memory):
                     # Delivery Report Callback
                     def delivery_report(err, _):
                         if err is None:
-                            redis_client.set("last_id", item['id'])
-                            redis_client.set("last_index", str(i))
-                            redis_client.set("last_completed", "True" if i == len(messages) - 1 else "False")
+                            redis_client.set(f"{RIS_HOST}_last_id", item['id'])
+                            redis_client.set(f"{RIS_HOST}_last_index", str(i))
+                            redis_client.set(f"{RIS_HOST}_last_completed", "True" if i == len(messages) - 1 else "False")
                         else:
                             raise Exception(f"Message delivery failed: {err}")
 
@@ -258,7 +258,7 @@ async def main():
     finally:
         # Relinquish leadership
         if memory['is_leader']:
-            await redis_client.delete("leader")
+            await redis_client.delete(f"{RIS_HOST}_leader")
             memory['is_leader'] = False
 
         await redis_client.close()
