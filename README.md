@@ -82,5 +82,5 @@ This will start 3 collector instances with automatic leader election and failove
 
 Join our WhatsApp group to discuss the service and get help.
 
-<img title="WhatsApp" src="whatsapp.svg" height="128" align="left" />
+<img title="WhatsApp" src="whatsapp.svg" height="165" align="left" />
 
