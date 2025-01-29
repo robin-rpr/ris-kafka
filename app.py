@@ -23,10 +23,10 @@ logger.addHandler(ch)
 WEBSOCKET_URI = "wss://ris-live.ripe.net/v1/ws/"
 WEBSOCKET_IDENTITY = f"ris-kafka-{socket.gethostname()}"
 KAFKA_FQDN = os.getenv("KAFKA_FQDN")
-REDIS_MAX_CONNECTIONS = os.getenv("REDIS_MAX_CONNECTIONS")
+REDIS_MAX_CONNECTIONS = int(os.getenv("REDIS_MAX_CONNECTIONS"))
 REDIS_HOST = os.getenv("REDIS_HOST")
-REDIS_PORT = os.getenv("REDIS_PORT")
-REDIS_DB = os.getenv("REDIS_DB")
+REDIS_PORT = int(os.getenv("REDIS_PORT"))
+REDIS_DB = int(os.getenv("REDIS_DB"))
 RIS_HOST = os.getenv("RIS_HOST")
 
 class CircularBuffer:
@@ -85,12 +85,12 @@ async def acquire_leader_task(redis_client, memory):
     while True:
         await asyncio.sleep(2)
         if not memory['is_leader']: 
-            memory['is_leader'] = await redis_client.set(
+            memory['is_leader'] = False if await redis_client.set(
                 f"{RIS_HOST}_leader",
                 memory['leader_id'],
                 nx=True,
                 ex=10 # seconds
-            )
+            ) is None else True
 
 # Renew Leader Task
 async def renew_leader_task(redis_client, memory, logger):
@@ -210,9 +210,9 @@ async def logging_task(redis_client, memory):
         timeout = 10 # seconds
         received_kbps = (memory['receive_counter'][0] * 8) / 1024 / timeout  # Convert bytes to kilobits
         sent_kbps = (memory['send_counter'][0] * 8) / 1024 / timeout
-        redis_connections = redis_client.connection_pool._created_connections
+        redis_connections = len(redis_client.connection_pool._in_use_connections)
         logger.info(f"host={RIS_HOST} is_leader={memory['is_leader']} receive={received_kbps:.2f} kbps send={sent_kbps:.2f} kbps redis_connections={redis_connections}")
-        memory['receive_counter'][0] = 0  # Reset counters
+        memory['receive_counter'][0] = 0 # Reset counters
         memory['send_counter'][0] = 0
         await asyncio.sleep(timeout)
 
