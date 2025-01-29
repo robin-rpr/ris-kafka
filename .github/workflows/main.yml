@@ -38,4 +38,4 @@ jobs:
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/ris-kafka:latest
             ${{ secrets.DOCKERHUB_USERNAME }}/ris-kafka:${{ env.VERSION }}
-          platforms: linux/amd64,linux/arm64,linux/arm/v7
+          platforms: linux/amd64 # linux/arm64,linux/arm/v7 (coming soon)
