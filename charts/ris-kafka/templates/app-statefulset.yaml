@@ -18,7 +18,7 @@ spec:
       containers:
         {{- range $index, $host := .Values.app.hosts }}
         - name: {{ template "riskafka.fullname" $root }}-app-{{ $host }}
-          image: robin-rpr/ris-kafka:{{ $.Chart.AppVersion }}
+          image: robinrpr/ris-kafka:{{ $.Chart.AppVersion }}
           command: ["python"]
           args: ["app.py"]
           resources:

@@ -1,6 +1,7 @@
 services:
     app:
         build: .
+        # image: robinrpr/ris-kafka:latest
         restart: unless-stopped
         environment:
             KAFKA_FQDN: kafka:29092
