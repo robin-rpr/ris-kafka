@@ -49,6 +49,7 @@ kafka:
     "authorizer.class.name": "kafka.security.authorizer.AclAuthorizer"
     "allow.everyone.if.no.acl.found": "false"
     "super.users": "User:kafka"
+    "log.retention.hours": "1"
   auth:
     enabled: true
     sasl:

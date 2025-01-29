@@ -37,7 +37,6 @@ services:
             - ALLOW_EMPTY_PASSWORD=yes
 
     zookeeper:
-        container_name: zookeeper
         image: confluentinc/cp-zookeeper:7.7.1
         restart: unless-stopped
         volumes:
@@ -66,12 +65,16 @@ services:
             KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
             KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
             KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-            KAFKA_NUM_PARTITIONS: 8
-            KAFKA_LOG_RETENTION_MINUTES: 90
+            KAFKA_NUM_PARTITIONS: 1
+            KAFKA_LOG_RETENTION_HOURS: 48
+            KAFKA_LOG_RETENTION_CHECK_INTERVAL_MS: 600000
             KAFKA_LOG_ROLL_MS: 3600000
-            KAFKA_LOG_SEGMENT_BYTES: 1073741824
+            KAFKA_LOG_SEGMENT_BYTES: 1073741824 # 1GB
             KAFKA_MESSAGE_MAX_BYTES: 100000000
             KAFKA_LOG_CLEANER_THREADS: 2
+            KAFKA_COMPRESSION_TYPE: lz4
+            KAFKA_NUM_NETWORK_THREADS: 8
+            KAFKA_NUM_IO_THREADS: 8
 
     kafbat:
         image: ghcr.io/kafbat/kafka-ui:latest
