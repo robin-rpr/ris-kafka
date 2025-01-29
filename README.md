@@ -25,7 +25,7 @@ We provide a public read-only cluster at `stream.ris-kafka.com:9092`:
 ```python
 # Example Python Kafka Consumer
 consumer = Consumer({
-    'bootstrap.servers': 'stream.ris-kafka.org:9092',
+    'bootstrap.servers': 'stream.ris-kafka.com:9092',
     'group.id': f'my-example-group',
     'partition.assignment.strategy': 'roundrobin',
     'enable.auto.commit': False,
