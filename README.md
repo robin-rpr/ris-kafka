@@ -1,4 +1,4 @@
-<img title="RIS Kafka" src="logo.svg" height="74" align="left" />
+<img title="RIS Kafka" src="images/logo.svg" height="74" align="left" />
 
 <br />
 <br />
@@ -91,5 +91,5 @@ This will start 3 collector instances with automatic leader election and failove
 
 Join our WhatsApp group to discuss the service and get help.
 
-<img title="WhatsApp" src="whatsapp.svg" height="165" align="left" />
+<img title="WhatsApp" src="images/whatsapp.svg" height="165" align="left" />
 

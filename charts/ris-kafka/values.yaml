@@ -1,0 +1,128 @@
+
+app:
+  replicas: 3
+  resources:
+    requests:
+      cpu: "500m"
+      memory: "1Gi"
+    limits:
+      cpu: "2"
+      memory: "2Gi"
+  hosts:
+    - name: rrc01 # London, LINX/LONAP, regional
+    - name: rrc03 # Amsterdam, AMS-IX/NL-IX, regional
+    - name: rrc04 # Geneva, CERN, regional
+    - name: rrc05 # Vienna, VIX, regional
+    - name: rrc06 # Otemachi, RIPE NCC, regional
+    - name: rrc07 # Stockholm, Netnod, regional
+    - name: rrc10 # Milan, MIX, regional
+    - name: rrc11 # New York, Telehouse/GTT, regional
+    - name: rrc12 # Frankfurt, DE-CIX, regional
+    - name: rrc13 # Moscow, MSK-IX, regional
+    - name: rrc14 # Palo Alto, Equinix, regional
+    - name: rrc15 # Sao Paulo, IX.br, regional
+    - name: rrc15 # Sao Paulo, IX.br, regional
+    - name: rrc16 # Miami, RIPE NCC, regional
+    - name: rrc18 # Barcelona, CATNIX, regional
+    - name: rrc19 # Johannesburg, Network Platforms, regional
+    - name: rrc20 # Zurich, SWISS-IX, regional
+    - name: rrc21 # Paris, France-IX, regional
+    - name: rrc22 # Bucharest, InterLAN, regional
+    - name: rrc23 # Singapore, Equinix, regional
+    - name: rrc24 # Montevideo, LACNIC, global
+    - name: rrc25 # Amsterdam, RIPE NCC, global
+    - name: rrc26 # Dubai, Datamena/UAE-IX, regional
+
+kafka:
+  fullnameOverride: "riskafka-kafka"
+  auth:
+    enabled: false
+  externalAccess:
+    enabled: true
+    service:
+      type: LoadBalancer
+    autoDiscovery:
+      enabled: false
+    listeners: PLAINTEXT
+    advertisedListeners: PLAINTEXT://stream.ris-kafka.com:9092
+  configurationOverrides:
+    "listener.security.protocol.map": PLAINTEXT:PLAINTEXT
+    "inter.broker.listener.name": PLAINTEXT
+    "authorizer.class.name": "kafka.security.authorizer.AclAuthorizer"
+    "allow.everyone.if.no.acl.found": "false"
+    "super.users": "User:kafka"
+  auth:
+    enabled: true
+    sasl:
+      mechanism: PLAIN
+      interBrokerMechanism: PLAIN
+  resources:
+    requests:
+      cpu: "1"
+      memory: "4Gi"
+    limits:
+      cpu: "2"
+      memory: "8Gi"
+  persistence:
+    size: 500Gi
+
+zookeeper:
+  fullnameOverride: "riskafka-zookeeper"
+  replicaCount: 3
+  resources:
+    requests:
+      cpu: "500m"
+      memory: "1Gi"
+    limits:
+      cpu: "1"
+      memory: "2Gi"
+  persistence:
+    size: 10Gi
+
+redis:
+  fullnameOverride: "riskafka-redis"
+  architecture: standalone
+  auth:
+    enabled: false
+  resources:
+    requests:
+      cpu: "500m"
+      memory: "2Gi"
+    limits:
+      cpu: "1"
+      memory: "4Gi"
+  persistence:
+    size: 1Gi
+
+kafka-ui:
+  fullnameOverride: "riskafka-kafbat"
+  envs:
+    config:
+      KAFKA_CLUSTERS_0_NAME: "ris-kafka"
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: "riskafka-kafka:29092"
+      KAFKA_CLUSTERS_0_READONLY: "true"
+  service:
+    type: ClusterIP
+    port: 8080
+  ingress:
+    enabled: true
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt-prod
+      traefik.ingress.kubernetes.io/router.entrypoints: web, websecure
+      traefik.ingress.kubernetes.io/router.tls: "true"
+    hosts:
+      - host: ris-kafka.com
+        paths:
+          - path: /
+            pathType: Prefix
+    tls:
+      - hosts:
+          - ris-kafka.com
+        secretName: ris-kafka-tls
+  resources:
+    requests:
+      cpu: "1"
+      memory: "2Gi"
+    limits:
+      cpu: "2"
+      memory: "4Gi"

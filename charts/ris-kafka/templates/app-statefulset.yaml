@@ -1,0 +1,44 @@
+{{- $root := . }}
+{{- $values := .Values }}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ template "riskafka.fullname" . }}-app
+spec:
+  serviceName: "{{ template "riskafka.fullname" . }}-app"
+  replicas: {{ .Values.app.replicas }}
+  selector:
+    matchLabels:
+      app: {{ template "riskafka.fullname" . }}-app
+  template:
+    metadata:
+      labels:
+        app: {{ template "riskafka.fullname" . }}-app
+    spec:
+      containers:
+        {{- range $index, $host := .Values.app.hosts }}
+        - name: {{ template "riskafka.fullname" $root }}-app-{{ $host }}
+          image: robin-rpr/ris-kafka:{{ $.Chart.AppVersion }}
+          command: ["python"]
+          args: ["app.py"]
+          resources:
+            requests:
+              cpu: {{ $.Values.app.resources.requests.cpu | quote }}
+              memory: {{ $.Values.app.resources.requests.memory | quote }}
+            limits:
+              cpu: {{ $.Values.app.resources.limits.cpu | quote }}
+              memory: {{ $.Values.app.resources.limits.memory | quote }}
+          env:
+          - name: KAFKA_FQDN
+            value: "{{ template "riskafka.fullname" $root }}-kafka:29092"
+          - name: REDIS_MAX_CONNECTIONS
+            value: "50"
+          - name: REDIS_HOST
+            value: "{{ template "riskafka.fullname" $root }}-redis"
+          - name: REDIS_PORT
+            value: "6379"
+          - name: REDIS_DB
+            value: "0"
+          - name: RIS_HOST
+            value: "{{ $host }}"
+        {{- end }}

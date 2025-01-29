@@ -1,0 +1,45 @@
+apiVersion: v2
+name: riskafka
+description: Routing Information Service (RIS) Kafka
+type: application
+# Keywords are used to categorize the chart.
+keywords:
+  - kafka
+  - bgp
+  - ripe
+  - ris
+# Dependencies
+dependencies:
+  - name: kafka
+    version: 24.0.2
+    repository: https://charts.bitnami.com/bitnami
+  - name: redis
+    version: 17.12.2
+    repository: https://charts.bitnami.com/bitnami
+  - name: zookeeper
+    version: 12.0.6
+    repository: https://charts.bitnami.com/bitnami
+  - name: kafka-ui
+    version: 1.4.11
+    repository: https://kafbat.github.io/helm-charts
+# Sources are the URLs where users can find more information about the chart.
+sources:
+  - https://github.com/robin-rpr/ris-kafka
+home: https://ris-kafka.com
+icon: https://raw.githubusercontent.com/robin-rpr/ris-kafka/refs/heads/main/images/favicon.svg
+# Maintainers are people who maintain the chart.
+# They are not necessarily the original authors.
+maintainers:
+  - name: Robin Röper
+    email: rr@linux.com
+    url: https://ris-kafka.com
+# This is the chart version. This version number should be incremented each time you make changes
+# to the chart and its templates, including the app version.
+# Versions are expected to follow Semantic Versioning (https://semver.org/)
+version: 0.1.0
+# This is the version number of the application being deployed. This version number should be
+# incremented each time you make changes to the application. Versions are not expected to
+# follow Semantic Versioning. They should reflect the version the application is using.
+# It is recommended to use it with quotes.
+appVersion: "0.1.0"
+

@@ -1,0 +1,28 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ template "riskafka.fullname" . }}-kafka-readonly-policy
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: {{ template "riskafka.fullname" . }}-kafka
+  ingress:
+    - from:
+        - ipBlock:
+            cidr: 0.0.0.0/0  # Public
+      ports:
+        - protocol: TCP
+          port: 9092
+      policyTypes:
+        - Ingress
+      rules:
+        - from:
+            - ipBlock:
+                cidr: 0.0.0.0/0
+          ports:
+            - protocol: TCP
+              port: 9092
+          action: Allow
+          rules:
+            - operation: Read
+        - action: Deny  # Deny all writes/admin actions
