@@ -5,7 +5,7 @@
 
 ---
 
-[https://ris-kafka.com](https://ris-kafka.com/?ref=github) — RIS Kafka
+[https://ris-kafka.com](https://ris-kafka.com/?ref=github) — Routing Information Service (RIS) Kafka
 
 A high-performance message broker that streams BGP updates from RIPE NCC's Routing Information Service (RIS) Live websocket feed to Apache Kafka, with real-time JSON to BMPv3 protocol conversion.
 
