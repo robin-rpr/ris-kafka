@@ -24,11 +24,11 @@ logger.addHandler(ch)
 # Environment Variables
 WEBSOCKET_URI = "wss://ris-live.ripe.net/v1/ws/"
 WEBSOCKET_IDENTITY = f"ris-kafka-{socket.gethostname()}"
-ENSURE_CONTINUITY = os.getenv("ENSURE_CONTINUITY")
-BATCH_CONSUME = int(os.getenv("BATCH_CONSUME"))
-BATCH_SEND = int(os.getenv("BATCH_SEND"))
+ENSURE_CONTINUITY = os.getenv("ENSURE_CONTINUITY", "true")
+BATCH_CONSUME = int(os.getenv("BATCH_CONSUME", 1000))
+BATCH_SEND = int(os.getenv("BATCH_SEND", 1000))
 KAFKA_FQDN = os.getenv("KAFKA_FQDN")
-REDIS_MAX_CONNECTIONS = int(os.getenv("REDIS_MAX_CONNECTIONS"))
+REDIS_MAX_CONNECTIONS = int(os.getenv("REDIS_MAX_CONNECTIONS", 20))
 REDIS_HOST = os.getenv("REDIS_HOST")
 REDIS_PORT = int(os.getenv("REDIS_PORT"))
 REDIS_DB = int(os.getenv("REDIS_DB"))
@@ -290,10 +290,10 @@ async def sender_task(producer, redis_async_client, redis_sync_client, buffer, m
                     logger.warning("Excessive message processing latency detected. Terminating.")
                     memory['terminate'] = True
             else:
-                await asyncio.sleep(1)
+                await asyncio.sleep(0.1)
                 continue
         else:
-            await asyncio.sleep(1)
+            await asyncio.sleep(0.1)
             continue
 
         if memory['terminate']:
@@ -355,8 +355,8 @@ async def main():
         'enable.idempotence': True,
         'acks': 'all',
         'retries': 5,
-        'linger.ms': 1,  # Reduce batching delay
-        'batch.size': 65536,  # Increase batching efficiency
+        'linger.ms': 100,  # Increase batching delay
+        'batch.size': 262144, # Increase batching efficiency
         'compression.type': 'lz4',  # Reduce message size for network efficiency
         'queue.buffering.max.messages': 1000000,  # Allow larger in-memory queues
         'queue.buffering.max.kbytes': 1048576,  # Allow larger in-memory queues
