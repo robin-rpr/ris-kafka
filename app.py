@@ -133,9 +133,10 @@ class CircularBuffer:
     def next(self):
         if self.sorted and self.pointer < len(self.buffer):
             item = self.buffer[self.pointer]
-            if self.genesis[0] is not None and self.genesis[1] is not None:
-                self.genesis = (self.genesis[0], item[self.genesis[0]])
-            self.pointer += 1
+            if item is not None:
+                if self.genesis[0] is not None:
+                    self.genesis = (self.genesis[0], item[self.genesis[0]])
+                self.pointer += 1
             return item
         return None
 
