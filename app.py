@@ -180,13 +180,9 @@ async def consumer_task(buffer, memory):
             memory['receive_counter'][0] += len(data)
             marshal = json.loads(data)['data']
 
-            # Filter out subscribe messages
-            if marshal['type'] == "ris_subscribe_ok":
-                continue
-
             # Filter out non-implemented messages
-            # TODO: Implement these message types
-            if marshal['type'] in ["STATE", "OPEN", "NOTIFICATION"]:
+            # TODO: Implement also "STATE", "OPEN", and "NOTIFICATION"
+            if marshal['type'] not in ["UPDATE", "KEEPALIVE", "RIS_PEER_STATE"]:
                 continue
 
             # Add message to buffer
