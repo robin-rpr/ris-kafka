@@ -14,15 +14,6 @@ import uuid
 import json
 import os
 
-# Logger
-logger = logging.getLogger(__name__)
-log_level = os.getenv('LOG_LEVEL', 'DEBUG').upper()
-logger.setLevel(getattr(logging, log_level, logging.INFO))
-ch = logging.StreamHandler()
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-ch.setFormatter(formatter)
-logger.addHandler(ch)
-
 # Environment Variables
 WEBSOCKET_URI = "wss://ris-live.ripe.net/v1/ws/"
 WEBSOCKET_IDENTITY = f"ris-kafka-{socket.gethostname()}"
@@ -30,6 +21,7 @@ ENSURE_CONTINUITY = os.getenv("ENSURE_CONTINUITY", "true") == "true"
 ENABLE_PROFILING = os.getenv("ENABLE_PROFILING", "false") == "true"
 BUFFER_SIZE = int(os.getenv("BUFFER_SIZE", 10000))
 BUFFER_CRITICAL_SIZE = int(os.getenv("BUFFER_CRITICAL_SIZE", 100))
+TIME_LAG_LIMIT = int(os.getenv("TIME_LAG_LIMIT", 10))
 BATCH_CONSUME = int(os.getenv("BATCH_CONSUME", 1000))
 BATCH_SEND = int(os.getenv("BATCH_SEND", 1000))
 KAFKA_FQDN = os.getenv("KAFKA_FQDN")
@@ -38,6 +30,16 @@ REDIS_HOST = os.getenv("REDIS_HOST")
 REDIS_PORT = int(os.getenv("REDIS_PORT"))
 REDIS_DB = int(os.getenv("REDIS_DB"))
 RIS_HOST = os.getenv("RIS_HOST")
+LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO").upper()
+
+# Logger
+logger = logging.getLogger(__name__)
+log_level = os.getenv('LOG_LEVEL', LOG_LEVEL).upper()
+logger.setLevel(getattr(logging, log_level, logging.INFO))
+ch = logging.StreamHandler()
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+ch.setFormatter(formatter)
+logger.addHandler(ch)
 
 # Profiling
 @contextmanager
@@ -65,7 +67,7 @@ def profile_section(section_name, profile_output_dir="profiles", profile_every=1
             with open(profile_filename, 'w') as f:
                 f.write(f"--- Timing Report: {section_name} at {timestamp} ---\n")
                 f.write(f"Duration: {duration:.6f} seconds\n")
-            logger.info(f"Timing report saved to {profile_filename} with duration {duration:.6f} seconds")
+            logger.debug(f"Timing report saved to {profile_filename} with duration {duration:.6f} seconds")
 
 @contextmanager
 def normal_section():
@@ -192,7 +194,7 @@ async def consumer_task(buffer, memory):
 
             # Sort and reset batch
             if len(batch) > batch_size:
-                with profile_section("Buffer_extend", profile_every=10) if ENABLE_PROFILING else normal_section():
+                with profile_section("Buffer_extend") if ENABLE_PROFILING else normal_section():
                     for item in batch:
                         buffer.append(item)
                     buffer.sort()
@@ -235,12 +237,12 @@ async def sender_task(producer, redis_async_client, redis_sync_client, buffer, m
 
             # (1 & 2 Round) We have not yet reached our batch size
             if memory['batch_counter'] < batch_size:
-                with profile_section("Buffer_next", profile_every=100) if ENABLE_PROFILING else normal_section():
+                with profile_section("Buffer_next", profile_every=1000) if ENABLE_PROFILING else normal_section():
                     item = buffer.next()
 
             if item is not None:
                 # Construct the BMP message
-                with profile_section("BMPv3_construct", profile_every=100) if ENABLE_PROFILING else normal_section():
+                with profile_section("BMPv3_construct", profile_every=1000) if ENABLE_PROFILING else normal_section():
                     messages = BMPv3.construct(
                         collector=RIS_HOST,
                         peer_ip=item['peer'],
@@ -283,7 +285,7 @@ async def sender_task(producer, redis_async_client, redis_sync_client, buffer, m
                             raise Exception(f"Message delivery failed: {err}")
 
                     # Produce message to Kafka
-                    with profile_section("Kafka_produce", profile_every=100) if ENABLE_PROFILING else normal_section():
+                    with profile_section("Kafka_produce", profile_every=1000) if ENABLE_PROFILING else normal_section():
                         producer.produce(
                             topic=f"{RIS_HOST}.{item['peer_asn']}.bmp_raw",
                             key=item['id'],
@@ -312,9 +314,9 @@ async def sender_task(producer, redis_async_client, redis_sync_client, buffer, m
                 # Poll Kafka producer
                 producer.poll(0)
 
-                # Terminate if time lag is greater than 10 minutes
-                if memory['time_lag'].total_seconds() / 60 > 10:
-                    raise Exception("Excessive message processing latency detected. Terminating.")
+                # Terminate if time lag is greater than TIME_LAG_LIMIT minutes
+                if memory['time_lag'].total_seconds() / 60 > TIME_LAG_LIMIT:
+                    raise Exception("Time lag is too high.")
             else:
                 await asyncio.sleep(0.1)
                 continue
