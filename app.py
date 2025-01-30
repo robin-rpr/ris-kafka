@@ -1,13 +1,15 @@
 from websockets.asyncio.client import connect
-from confluent_kafka import Producer
-from protocols.bmp import BMPv3
 from datetime import datetime, timedelta
+from contextlib import contextmanager
+from confluent_kafka import Producer
 import redis.asyncio as redis_async
+from protocols.bmp import BMPv3
 import redis as redis_sync
 import ipaddress
 import logging
 import asyncio
 import socket
+import time
 import uuid
 import json
 import os
@@ -24,7 +26,10 @@ logger.addHandler(ch)
 # Environment Variables
 WEBSOCKET_URI = "wss://ris-live.ripe.net/v1/ws/"
 WEBSOCKET_IDENTITY = f"ris-kafka-{socket.gethostname()}"
-ENSURE_CONTINUITY = os.getenv("ENSURE_CONTINUITY", "true")
+ENSURE_CONTINUITY = os.getenv("ENSURE_CONTINUITY", "true") == "true"
+ENABLE_PROFILING = os.getenv("ENABLE_PROFILING", "false") == "true"
+BUFFER_SIZE = int(os.getenv("BUFFER_SIZE", 10000))
+BUFFER_CRITICAL_SIZE = int(os.getenv("BUFFER_CRITICAL_SIZE", 100))
 BATCH_CONSUME = int(os.getenv("BATCH_CONSUME", 1000))
 BATCH_SEND = int(os.getenv("BATCH_SEND", 1000))
 KAFKA_FQDN = os.getenv("KAFKA_FQDN")
@@ -33,6 +38,38 @@ REDIS_HOST = os.getenv("REDIS_HOST")
 REDIS_PORT = int(os.getenv("REDIS_PORT"))
 REDIS_DB = int(os.getenv("REDIS_DB"))
 RIS_HOST = os.getenv("RIS_HOST")
+
+# Profiling
+@contextmanager
+def profile_section(section_name, profile_output_dir="profiles", profile_every=1, call_count=[0]):
+    """
+    Context manager to wall-clock a specific section of code.
+    
+    Args:
+        section_name (str): Name of the code section being measured.
+        profile_output_dir (str): Directory where timing reports are saved.
+    """
+    call_count[0] += 1
+    if call_count[0] % profile_every != 0:
+        yield  # Do not profile
+    else:
+        start_time = time.perf_counter()
+        try:
+            yield
+        finally:
+            end_time = time.perf_counter()
+            duration = end_time - start_time
+            os.makedirs(profile_output_dir, exist_ok=True)
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            profile_filename = f"{profile_output_dir}/{section_name}_{timestamp}.txt"
+            with open(profile_filename, 'w') as f:
+                f.write(f"--- Timing Report: {section_name} at {timestamp} ---\n")
+                f.write(f"Duration: {duration:.6f} seconds\n")
+            logger.info(f"Timing report saved to {profile_filename} with duration {duration:.6f} seconds")
+
+@contextmanager
+def normal_section():
+    yield
 
 class CircularBuffer:
     def __init__(self, size):
@@ -114,10 +151,6 @@ async def acquire_leader_task(redis_async_client, memory):
                 nx=True,
                 ex=10 # seconds
             ) is None else True
-        
-        # Terminate
-        if memory['terminate']:
-            break
 
 # Renew Leader Task
 async def renew_leader_task(redis_async_client, memory, logger):
@@ -133,10 +166,6 @@ async def renew_leader_task(redis_async_client, memory, logger):
             except Exception as e:
                 logger.error(f"Error renewing leadership: {e}")
                 memory['is_leader'] = False
-        
-        # Terminate
-        if memory['terminate']:
-            break
         
 # Consumer Task
 async def consumer_task(buffer, memory):
@@ -161,15 +190,13 @@ async def consumer_task(buffer, memory):
             # Add message to buffer
             batch.append(marshal)
 
+            # Sort and reset batch
             if len(batch) > batch_size:
-                for item in batch:
-                    buffer.append(item)
-                buffer.sort()
-                batch = []
-
-            # Terminate
-            if memory['terminate']:
-                break
+                with profile_section("Buffer_extend", profile_every=10) if ENABLE_PROFILING else normal_section():
+                    for item in batch:
+                        buffer.append(item)
+                    buffer.sort()
+                    batch = []
 
 # Sender Task
 async def sender_task(producer, redis_async_client, redis_sync_client, buffer, memory):
@@ -187,17 +214,18 @@ async def sender_task(producer, redis_async_client, redis_sync_client, buffer, m
             item = None
 
             # Check if we lost messages
-            if (last_reported == "False" and memory['batch_counter'] != batch_size) or last_delivered == "False":
+            if last_delivered == "False":
                 # Last time we were not able to send all messages.
-                # We have no way of recovering from this without data loss.
-                if ENSURE_CONTINUITY == "true":
-                    raise Exception("Unrecoverable message loss detected. Terminating process.")
+                # We have no safe way of recovering from this without data loss.
+                if ENSURE_CONTINUITY:
+                    raise Exception("Unrecoverable message loss detected.")
                 else:
-                    logger.warning("Unrecoverable message loss detected. Continuing process.")
+                    logger.warning("Unrecoverable message loss detected.")
 
             # (3rd Round) Seek to last message
             if last_id is not None:
-                item = buffer.seek("id", last_id)
+                with profile_section("Buffer_seek", profile_every=100) if ENABLE_PROFILING else normal_section():
+                    item = buffer.seek("id", last_id)
 
             # (3 Round, maybe) We have reached our batch size but not all messages have been delivered yet
             if memory['batch_counter'] == batch_size and last_reported == "False":
@@ -207,24 +235,26 @@ async def sender_task(producer, redis_async_client, redis_sync_client, buffer, m
 
             # (1 & 2 Round) We have not yet reached our batch size
             if memory['batch_counter'] < batch_size:
-                item = buffer.next()
+                with profile_section("Buffer_next", profile_every=100) if ENABLE_PROFILING else normal_section():
+                    item = buffer.next()
 
             if item is not None:
                 # Construct the BMP message
-                messages = BMPv3.construct(
-                    collector=RIS_HOST,
-                    peer_ip=item['peer'],
-                    peer_asn=int(item['peer_asn']),
-                    timestamp=item['timestamp'],
-                    msg_type='PEER_STATE' if item['type'] == 'RIS_PEER_STATE' else item['type'],
-                    path=item.get('path', []),
-                    origin=item.get('origin', 'INCOMPLETE'),
-                    community=item.get('community', []),
-                    announcements=item.get('announcements', []),
-                    withdrawals=item.get('withdrawals', []),
-                    state=item.get('state', None),
-                    med=item.get('med', None)
-                )
+                with profile_section("BMPv3_construct", profile_every=100) if ENABLE_PROFILING else normal_section():
+                    messages = BMPv3.construct(
+                        collector=RIS_HOST,
+                        peer_ip=item['peer'],
+                        peer_asn=int(item['peer_asn']),
+                        timestamp=item['timestamp'],
+                        msg_type='PEER_STATE' if item['type'] == 'RIS_PEER_STATE' else item['type'],
+                        path=item.get('path', []),
+                        origin=item.get('origin', 'INCOMPLETE'),
+                        community=item.get('community', []),
+                        announcements=item.get('announcements', []),
+                        withdrawals=item.get('withdrawals', []),
+                        state=item.get('state', None),
+                        med=item.get('med', None)
+                    )
 
                 # Increment counter for batch
                 memory['batch_counter'] += 1
@@ -253,17 +283,19 @@ async def sender_task(producer, redis_async_client, redis_sync_client, buffer, m
                             raise Exception(f"Message delivery failed: {err}")
 
                     # Produce message to Kafka
-                    producer.produce(
-                        topic=f"{RIS_HOST}.{item['peer_asn']}.bmp_raw",
-                        key=item['id'],
-                        value=message,
-                        timestamp=int(item['timestamp'] * 1000),
-                        callback=lambda err, _: delivery_report(err, delivery, item)
-                    )
+                    with profile_section("Kafka_produce", profile_every=100) if ENABLE_PROFILING else normal_section():
+                        producer.produce(
+                            topic=f"{RIS_HOST}.{item['peer_asn']}.bmp_raw",
+                            key=item['id'],
+                            value=message,
+                            timestamp=int(item['timestamp'] * 1000),
+                            callback=lambda err, _: delivery_report(err, delivery, item)
+                        )
 
-                    # Set last delivered to false
-                    redis_sync_client.set(f"{RIS_HOST}_last_delivered", "False")
-                    
+                    # Set last delivered and reported to false
+                    await redis_async_client.set(f"{RIS_HOST}_last_delivered", "False")
+                    await redis_async_client.set(f"{RIS_HOST}_last_reported", "False")
+
                     # Increment counter for delivery
                     memory['delivery_counter'] += 1
                     delivery.append(item['id'])
@@ -275,29 +307,20 @@ async def sender_task(producer, redis_async_client, redis_sync_client, buffer, m
                     memory['send_counter'][0] += len(message)
                 
                 # Set last delivered to true
-                redis_sync_client.set(f"{RIS_HOST}_last_delivered", "True")
+                await redis_async_client.set(f"{RIS_HOST}_last_delivered", "True")
 
-                # Flush Kafka producer
-                if memory['batch_counter'] == batch_size:
-                    # Set last reported to false
-                    redis_sync_client.set(f"{RIS_HOST}_last_reported", "False")
-
-                    # Flush Kafka producer
-                    producer.flush()
+                # Poll Kafka producer
+                producer.poll(0)
 
                 # Terminate if time lag is greater than 10 minutes
                 if memory['time_lag'].total_seconds() / 60 > 10:
-                    logger.warning("Excessive message processing latency detected. Terminating.")
-                    memory['terminate'] = True
+                    raise Exception("Excessive message processing latency detected. Terminating.")
             else:
                 await asyncio.sleep(0.1)
                 continue
         else:
             await asyncio.sleep(0.1)
             continue
-
-        if memory['terminate']:
-            break
 
             
 # Logging Task
@@ -321,10 +344,6 @@ async def logging_task(memory):
         memory['send_counter'][0] = 0
 
         await asyncio.sleep(timeout)
-
-        # Terminate
-        if memory['terminate']:
-            break
 
 # Main Coroutine
 async def main():
@@ -354,21 +373,20 @@ async def main():
         'bootstrap.servers': KAFKA_FQDN,
         'enable.idempotence': True,
         'acks': 'all',
-        'retries': 5,
-        'linger.ms': 100,  # Increase batching delay
-        'batch.size': 262144, # Increase batching efficiency
+        'retries': 10,
+        'linger.ms': 100,  # Increase batching delay (100ms)
+        'batch.size': 262144, # Increase batching efficiency (100 MB)
         'compression.type': 'lz4',  # Reduce message size for network efficiency
         'queue.buffering.max.messages': 1000000,  # Allow larger in-memory queues
         'queue.buffering.max.kbytes': 1048576,  # Allow larger in-memory queues
-        'message.max.bytes': 10485760,  # Increase message size
-        'socket.send.buffer.bytes': 1048576,  # Speed up network transfers
-        'enable.idempotence': True,  # Ensure order but still efficient
-        'request.timeout.ms': 30000,  # Avoid unnecessary retries
-        'delivery.timeout.ms': 45000,  # Speed up timeout resolution
+        'message.max.bytes': 10485760,  # Increase message size (10 MB)
+        'socket.send.buffer.bytes': 1048576,  # Speed up network transfers (1 MB)
+        'request.timeout.ms': 30000,  # Avoid unnecessary retries (30 Seconds)
+        'delivery.timeout.ms': 45000,  # Speed up timeout resolution (45 Seconds)
     })
 
     # Buffer
-    buffer = CircularBuffer(500000)
+    buffer = CircularBuffer(BUFFER_SIZE)
 
     # Memory
     memory = {
@@ -379,7 +397,6 @@ async def main():
         'is_leader': False, # Leader Lock (Leader Election)
         'leader_id': str(uuid.uuid4()),  # Random UUID as leader ID
         'time_lag': timedelta(0), # Time lag in seconds
-        'terminate': False, # Schedule termination
     }
 
     # Tasks

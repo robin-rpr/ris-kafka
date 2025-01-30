@@ -27,6 +27,9 @@ static/styles/*.css
 # Cache
 .cache/
 
+# Profiling
+profiles/
+
 # =========================
 # Operating System Files
 # =========================
