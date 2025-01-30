@@ -5,6 +5,9 @@ services:
         restart: unless-stopped
         environment:
             KAFKA_FQDN: kafka:29092
+            ENSURE_CONTINUITY: true
+            BATCH_CONSUME: 1000
+            BATCH_SEND: 10000
             REDIS_MAX_CONNECTIONS: 50
             REDIS_HOST: redis
             REDIS_PORT: 6379

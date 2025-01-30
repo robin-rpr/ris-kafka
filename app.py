@@ -14,7 +14,7 @@ import os
 
 # Logger
 logger = logging.getLogger(__name__)
-log_level = os.getenv('LOG_LEVEL', 'INFO').upper()
+log_level = os.getenv('LOG_LEVEL', 'DEBUG').upper()
 logger.setLevel(getattr(logging, log_level, logging.INFO))
 ch = logging.StreamHandler()
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -24,6 +24,9 @@ logger.addHandler(ch)
 # Environment Variables
 WEBSOCKET_URI = "wss://ris-live.ripe.net/v1/ws/"
 WEBSOCKET_IDENTITY = f"ris-kafka-{socket.gethostname()}"
+ENSURE_CONTINUITY = os.getenv("ENSURE_CONTINUITY")
+BATCH_CONSUME = int(os.getenv("BATCH_CONSUME"))
+BATCH_SEND = int(os.getenv("BATCH_SEND"))
 KAFKA_FQDN = os.getenv("KAFKA_FQDN")
 REDIS_MAX_CONNECTIONS = int(os.getenv("REDIS_MAX_CONNECTIONS"))
 REDIS_HOST = os.getenv("REDIS_HOST")
@@ -33,13 +36,17 @@ RIS_HOST = os.getenv("RIS_HOST")
 
 class CircularBuffer:
     def __init__(self, size):
+        self.genesis = (None, None)
+        self.pointer = size - 1
         self.size = size
         self.buffer = [None] * size
         self.start = 0
         self.end = 0
         self.count = 0
+        self.sorted = False
+        self.locked = False
 
-    def add(self, item):
+    def append(self, item):
         self.buffer[self.end] = item
         self.end = (self.end + 1) % self.size
         if self.count < self.size:
@@ -47,59 +54,54 @@ class CircularBuffer:
         else:
             # Overwrite the oldest element
             self.start = (self.start + 1) % self.size
+            
+        # Move pointer to the left
+        self.pointer -= 1
+        if self.pointer < 0:
+            # Pointer out of bounds
+            self.pointer = 0
 
-    def get(self, index):
-        if index < 0 or index >= self.count:
-            raise IndexError("Index out of range")
-        return self.buffer[(self.start + index) % self.size]
+        self.sorted = False
 
-    def __len__(self):
-        return self.count
-
-class PersistentIterator:
-    def __init__(self, buffer):
-        self.buffer = buffer
-        self.current_index = 0
-
-    def next(self):
-        if self.current_index >= len(self.buffer):
-            return None # End of buffer
-
-        # Extract remaining messages and sort them
-        sorted_messages = sorted(
-            (self.buffer.get(i) for i in range(self.current_index, len(self.buffer))),
-            key=lambda item: (
+    def sort(self):
+        if not self.sorted:
+            # Filter out None items
+            non_none_items = [item for item in self.buffer if item is not None]
+            # Sort items that are not None
+            sorted_items = sorted(non_none_items, key=lambda item: (
                 int(ipaddress.ip_address(item["peer"])), # Group by peer (same peer together)
                 item["timestamp"], # Within each peer, sort by timestamp (earliest first).
                 int(item["id"].split('-')[-1], 16)  # If multiple messages have the same timestamp, order by sequence_id.
-            )
-        )
+            ))
+            # Pad the remaining space with None values
+            self.buffer = [None] * (self.size - len(sorted_items)) + sorted_items
+            # Only try to find genesis if it exists
+            if self.genesis[0] is not None and self.genesis[1] is not None:
+                self.seek(self.genesis[0], self.genesis[1], force=True)
+            self.sorted = True
+            
+    def seek(self, key, value, force=False):
+        if self.sorted or force:
+            for i in range(0, len(self.buffer)):
+                if self.buffer[i] is not None:
+                    item = self.buffer[i]
+                    if item[key] == value:
+                        self.genesis = (key, value)
+                        self.pointer = i
+                        return item
+        return None
 
-        if not sorted_messages:
-            return None  # No valid messages
+    def next(self):
+        if self.sorted and self.pointer < len(self.buffer):
+            item = self.buffer[self.pointer]
+            if self.genesis[0] is not None and self.genesis[1] is not None:
+                self.genesis = (self.genesis[0], item[self.genesis[0]])
+            self.pointer += 1
+            return item
+        return None
 
-        # Get the next message in sorted order
-        item = sorted_messages.pop(0)
-
-        # Find the index of this item in the buffer and update current_index
-        for i in range(self.current_index, len(self.buffer)):
-            if self.buffer.get(i) == item:
-                self.current_index = i + 1
-                break
-
-        return item
-
-    def find(self, key, value):
-        for i in range(len(self.buffer)):
-            item = self.buffer.get(i)
-            if item and item.get(key) == value:
-                self.current_index = i
-                return item
-        # Not found
-        return None  
-
-    def reset(self):
-        self.current_index = 0
+    def __len__(self):
+        return self.count
 
 # Acquire Leader Task
 async def acquire_leader_task(redis_async_client, memory):
@@ -140,12 +142,30 @@ async def renew_leader_task(redis_async_client, memory, logger):
 async def consumer_task(buffer, memory):
     async with connect(f"{WEBSOCKET_URI}?client={WEBSOCKET_IDENTITY}") as ws:
         await ws.send(json.dumps({"type": "ris_subscribe", "data": {"host": RIS_HOST}}))
+        batch_size = BATCH_CONSUME
+        batch = []
 
         async for data in ws:
             memory['receive_counter'][0] += len(data)
             marshal = json.loads(data)['data']
+
+            # Filter out subscribe messages
+            if marshal['type'] == "ris_subscribe_ok":
+                continue
+
+            # Filter out non-implemented messages
+            # TODO: Implement these message types
+            if marshal['type'] in ["STATE", "OPEN", "NOTIFICATION"]:
+                continue
+
             # Add message to buffer
-            buffer.add(marshal)
+            batch.append(marshal)
+
+            if len(batch) > batch_size:
+                for item in batch:
+                    buffer.append(item)
+                buffer.sort()
+                batch = []
 
             # Terminate
             if memory['terminate']:
@@ -153,46 +173,43 @@ async def consumer_task(buffer, memory):
 
 # Sender Task
 async def sender_task(producer, redis_async_client, redis_sync_client, buffer, memory):
-    iterator = PersistentIterator(buffer)
+    batch_size = BATCH_SEND
+    delivery = []
 
     while True:
         # Get details about the last message
         last_id = await redis_async_client.get(f"{RIS_HOST}_last_id")
-        last_index = await redis_async_client.get(f"{RIS_HOST}_last_index")
         last_reported = await redis_async_client.get(f"{RIS_HOST}_last_reported")
-        last_completed = await redis_async_client.get(f"{RIS_HOST}_last_completed")
+        last_delivered = await redis_async_client.get(f"{RIS_HOST}_last_delivered")
 
         # If we are the leader
         if memory['is_leader']:
             item = None
 
-            # Set iterator to last message id
-            if last_id:
-                item = iterator.find("id", last_id)
+            # Check if we lost messages
+            if (last_reported == "False" and memory['batch_counter'] != batch_size) or last_delivered == "False":
+                # Last time we were not able to send all messages.
+                # We have no way of recovering from this without data loss.
+                if ENSURE_CONTINUITY == "true":
+                    raise Exception("Unrecoverable message loss detected. Terminating process.")
+                else:
+                    logger.warning("Unrecoverable message loss detected. Continuing process.")
 
-            # If last transmission was not reported yet
-            if last_reported == "False":
-                logger.warn("Kafka message processing is falling behind. Delaying by 200ms")
+            # (3rd Round) Seek to last message
+            if last_id is not None:
+                item = buffer.seek("id", last_id)
+
+            # (3 Round, maybe) We have reached our batch size but not all messages have been delivered yet
+            if memory['batch_counter'] == batch_size and last_reported == "False":
+                logger.warning("Kafka message processing is falling behind. Delaying by 200ms")
                 await asyncio.sleep(0.20)
                 continue
 
-            # If last transmission was completed
-            if last_completed == "True" or last_completed is None:
-                item = iterator.next()
+            # (1 & 2 Round) We have not yet reached our batch size
+            if memory['batch_counter'] < batch_size:
+                item = buffer.next()
 
-            # If we reached the end of the buffer
             if item is not None:
-
-                # Received possibly malformed message
-                # BUG: We know of this weird behaviour, for now we just skip the message.
-                #      https://fosstodon.org/@robinroeper/113909690169940714
-                if item['type'] == "STATE" or item['type'] == "OPEN" or item['type'] == "NOTIFICATION":
-                    redis_sync_client.set(f"{RIS_HOST}_last_id", item['id'])
-                    redis_sync_client.set(f"{RIS_HOST}_last_index", "0")
-                    redis_sync_client.set(f"{RIS_HOST}_last_completed", "True")
-                    redis_sync_client.set(f"{RIS_HOST}_last_reported", "True")
-                    continue
-
                 # Construct the BMP message
                 messages = BMPv3.construct(
                     collector=RIS_HOST,
@@ -209,65 +226,76 @@ async def sender_task(producer, redis_async_client, redis_sync_client, buffer, m
                     med=item.get('med', None)
                 )
 
-                if len(messages) == 0:
-                    logger.info(f"Received malformed message: {item}")
-                    break
+                # Increment counter for batch
+                memory['batch_counter'] += 1
 
                 # Send messages to Kafka
-                for i, message in enumerate(messages):
-                    # If last transmission was not completed
-                    if last_completed == "False":
-                        # Skip messages that were already sent
-                        if i < int(last_index):
-                            continue
+                for message in messages:
                     
                     # Delivery Report Callback
-                    def delivery_report(err, _):
-                        if err is None:
-                            redis_sync_client.set(f"{RIS_HOST}_last_id", item['id'])
-                            redis_sync_client.set(f"{RIS_HOST}_last_index", str(i))
-                            redis_sync_client.set(f"{RIS_HOST}_last_completed", "True" if i == len(messages) - 1 else "False")
-                            # FIXME: If the app crashes right before here we will end up in a deadlock.
-                            #        We'll be infinitely waiting for the _last_reported flag to be set to True.
-                            #        In this scenarion we could query Kafka for the last message id and check if it was reported.
-                            redis_sync_client.set(f"{RIS_HOST}_last_reported", "True")
+                    # NOTE: Kafka does not guarantee that delivery reports will be received in the same order as the messages were sent
+                    def delivery_report(err, delivery, item):
+                        if err is None:                            
+                            # Check if its the last message
+                            if delivery[-1] == item['id']:
+                                redis_sync_client.set(f"{RIS_HOST}_last_id", item['id'])
+                                redis_sync_client.set(f"{RIS_HOST}_last_reported", "True")
+
+                            # Decrement counter for delivery
+                            memory['delivery_counter'] -= 1
+
+                            # Check if we have delivered all messages
+                            if memory['delivery_counter'] == 0:
+                                # Reset counter and delivery
+                                memory['batch_counter'] = 0
+                                delivery = []
                         else:
                             raise Exception(f"Message delivery failed: {err}")
 
+                    # Produce message to Kafka
                     producer.produce(
                         topic=f"{RIS_HOST}.{item['peer_asn']}.bmp_raw",
                         key=item['id'],
                         value=message,
                         timestamp=int(item['timestamp'] * 1000),
-                        callback=delivery_report
+                        callback=lambda err, _: delivery_report(err, delivery, item)
                     )
-                    
-                    # Set last reported to False
-                    redis_sync_client.set(f"{RIS_HOST}_last_reported", "False")
 
-                    # Update the approximated time lag preceived by the sender
+                    # Set last delivered to false
+                    redis_sync_client.set(f"{RIS_HOST}_last_delivered", "False")
+                    
+                    # Increment counter for delivery
+                    memory['delivery_counter'] += 1
+                    delivery.append(item['id'])
+
+                    # Update the approximated time lag
                     memory['time_lag'] = datetime.now() - datetime.fromtimestamp(int(item['timestamp']))
 
                     # Increment sent data size
                     memory['send_counter'][0] += len(message)
+                
+                # Set last delivered to true
+                redis_sync_client.set(f"{RIS_HOST}_last_delivered", "True")
 
-                    # Enforce delivery report callbacks
+                # Flush Kafka producer
+                if memory['batch_counter'] == batch_size:
+                    # Set last reported to false
+                    redis_sync_client.set(f"{RIS_HOST}_last_reported", "False")
+
+                    # Flush Kafka producer
                     producer.flush()
 
                 # Terminate if time lag is greater than 10 minutes
                 if memory['time_lag'].total_seconds() / 60 > 10:
-                    logger.warn("Excessive message processing latency detected. Terminating.")
+                    logger.warning("Excessive message processing latency detected. Terminating.")
                     memory['terminate'] = True
             else:
-                # Reached the end of the buffer
                 await asyncio.sleep(1)
                 continue
-        
         else:
             await asyncio.sleep(1)
             continue
 
-        # Terminate
         if memory['terminate']:
             break
 
@@ -346,16 +374,20 @@ async def main():
     memory = {
         'receive_counter': [0],  # To store received data size in bytes
         'send_counter': [0],  # To store sent data size in bytes
+        'batch_counter': 0, # To store batch counter
+        'delivery_counter': 0, # To store delivery counter
         'is_leader': False, # Leader Lock (Leader Election)
         'leader_id': str(uuid.uuid4()),  # Random UUID as leader ID
         'time_lag': timedelta(0), # Time lag in seconds
-        'terminate': False # Schedule termination
+        'terminate': False, # Schedule termination
     }
 
     # Tasks
     tasks = []
 
     try:
+        logger.info("Starting ...")
+
         # Create an event to signal shutdown
         shutdown_event = asyncio.Event()
 
@@ -392,8 +424,12 @@ async def main():
             await redis_async_client.delete(f"{RIS_HOST}_leader")
             memory['is_leader'] = False
 
-        await redis_async_client.close()
+        # Flush Kafka producer
         producer.flush()
+
+        # Close Redis connections
+        await redis_async_client.close()
+        redis_sync_client.close()
 
 if __name__ == "__main__":
     asyncio.run(main())
