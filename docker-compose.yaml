@@ -5,14 +5,14 @@ services:
         restart: unless-stopped
         environment:
             KAFKA_FQDN: kafka:29092
-            ENSURE_CONTINUITY: true
-            BATCH_CONSUME: 1000
-            BATCH_SEND: 10000
-            REDIS_MAX_CONNECTIONS: 50
+            ENSURE_CONTINUITY: true # Crash in case of unrecoverable message loss
+            BATCH_CONSUME: 1000 # Number of messages to consume in one round from websocket
+            BATCH_SEND: 10000 # Number of messages to send in one round to kafka
+            REDIS_MAX_CONNECTIONS: 50 # Maximum number of connections to redis
             REDIS_HOST: redis
             REDIS_PORT: 6379
             REDIS_DB: 0
-            RIS_HOST: rrc13
+            RIS_HOST: rrc13 # RRC Host
         depends_on:
             redis:
                 condition: service_healthy
