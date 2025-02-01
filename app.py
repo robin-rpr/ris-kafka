@@ -450,12 +450,9 @@ async def main():
         producer.flush()
 
         # Ensure all messages got delivered
-        logger.debug("Waiting for messages to be delivered...")
         while await redis_async_client.get(f"{RIS_HOST}_batch_reported") == "False":
             logger.info("Messages still in queue or transit. Delaying shutdown by 1000ms")
-            await asyncio.sleep(1)
-        logger.debug("All messages delivered. Shutting down...")
-        
+            await asyncio.sleep(1)        
 
         # Close Redis connections
         await redis_async_client.close()
