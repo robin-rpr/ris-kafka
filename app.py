@@ -223,7 +223,6 @@ async def consumer_task(buffer, memory):
                     buffer.sort()
                 batch = []
                 
-
 # Sender Task
 async def sender_task(producer, redis_async_client, redis_sync_client, buffer, memory):
     initialized = False
@@ -336,7 +335,6 @@ async def sender_task(producer, redis_async_client, redis_sync_client, buffer, m
         else:
             await asyncio.sleep(1)
 
-            
 # Logging Task
 async def logging_task(memory):
     while True:
