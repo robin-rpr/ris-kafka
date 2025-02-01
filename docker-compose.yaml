@@ -5,7 +5,7 @@ services:
         restart: no
         environment:
             KAFKA_FQDN: kafka:29092
-            LOG_LEVEL: DEBUG
+            LOG_LEVEL: INFO
             ENSURE_CONTINUITY: true # Deadlock in case of unrecoverable message loss
             ENABLE_PROFILING: false # Enable profiling (outputs to a profiles/ directory)
             BUFFER_SIZE: 10000 # Size of the buffer where messages are buffered before sending
