@@ -2,13 +2,14 @@ services:
     app:
         build: .
         # image: robinrpr/ris-kafka:latest
-        restart: unless-stopped
+        restart: no
         environment:
             KAFKA_FQDN: kafka:29092
+            LOG_LEVEL: DEBUG
             ENSURE_CONTINUITY: true # Deadlock in case of unrecoverable message loss
-            ENABLE_PROFILING: true # Enable profiling (outputs to a profiles/ directory)
+            ENABLE_PROFILING: false # Enable profiling (outputs to a profiles/ directory)
             BUFFER_SIZE: 10000 # Size of the buffer where messages are buffered before sending
-            BUFFER_CRITICAL_SIZE: 100 # Critical section size in the buffer to ensure eventual consistency
+            BUFFER_PADDING: 100 # Padding in the buffer to ensure safe eventual consistency in order
             TIME_LAG_LIMIT: 10 # Maximum Time lag limit in minutes. If exceeded, the process will terminate.
             BATCH_CONSUME: 1000 # Number of messages to consume in one round from websocket
             BATCH_SEND: 10000 # Number of messages to send in one round to kafka

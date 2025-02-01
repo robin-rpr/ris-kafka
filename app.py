@@ -20,7 +20,7 @@ WEBSOCKET_IDENTITY = f"ris-kafka-{socket.gethostname()}"
 ENSURE_CONTINUITY = os.getenv("ENSURE_CONTINUITY", "true") == "true"
 ENABLE_PROFILING = os.getenv("ENABLE_PROFILING", "false") == "true"
 BUFFER_SIZE = int(os.getenv("BUFFER_SIZE", 10000))
-BUFFER_CRITICAL_SIZE = int(os.getenv("BUFFER_CRITICAL_SIZE", 100))
+BUFFER_PADDING = int(os.getenv("BUFFER_PADDING", 100))
 TIME_LAG_LIMIT = int(os.getenv("TIME_LAG_LIMIT", 10))
 BATCH_CONSUME = int(os.getenv("BATCH_CONSUME", 1000))
 BATCH_SEND = int(os.getenv("BATCH_SEND", 1000))
@@ -53,7 +53,7 @@ def profile_section(section_name, profile_output_dir="profiles", profile_every=1
     """
     call_count[0] += 1
     if call_count[0] % profile_every != 0:
-        yield  # Do not profile
+        yield # Do not profile
     else:
         start_time = time.perf_counter()
         try:
@@ -74,25 +74,17 @@ def normal_section():
     yield
 
 class CircularBuffer:
-    def __init__(self, size):
-        self.genesis = (None, None)
-        self.pointer = size - 1
+    def __init__(self, size, padding):
+        self.pointer = size - padding - 1
+        self.padding = padding
         self.size = size
         self.buffer = [None] * size
-        self.start = 0
-        self.end = 0
-        self.count = 0
         self.sorted = False
         self.locked = False
 
     def append(self, item):
-        self.buffer[self.end] = item
-        self.end = (self.end + 1) % self.size
-        if self.count < self.size:
-            self.count += 1
-        else:
-            # Overwrite the oldest element
-            self.start = (self.start + 1) % self.size
+        self.buffer.pop(0)
+        self.buffer.append(item)
             
         # Move pointer to the left
         self.pointer -= 1
@@ -104,44 +96,79 @@ class CircularBuffer:
 
     def sort(self):
         if not self.sorted:
-            # Filter out None items
-            non_none_items = [item for item in self.buffer if item is not None]
+            # Count nones
+            nones = 0
+            for item in self.buffer:
+                if item is not None:
+                    break
+                nones += 1
+
+            # Retrieve current pointed item
+            pointed = self.buffer[self.pointer] if self.pointer >= nones else None
+            
             # Sort items that are not None
-            sorted_items = sorted(non_none_items, key=lambda item: (
+            sorted_slice = sorted(self.buffer[nones:], key=lambda item: (
                 int(ipaddress.ip_address(item["peer"])), # Group by peer (same peer together)
-                item["timestamp"], # Within each peer, sort by timestamp (earliest first).
-                int(item["id"].split('-')[-1], 16)  # If multiple messages have the same timestamp, order by sequence_id.
+                item["timestamp"], # Within each peer, sort by timestamp (earliest first)
+                int(item["id"].split('-')[-1], 16)  # If multiple messages have the same timestamp, order by sequence_id
             ))
-            # Pad the remaining space with None values
-            self.buffer = [None] * (self.size - len(sorted_items)) + sorted_items
-            # Only try to find genesis if it exists
-            if self.genesis[0] is not None and self.genesis[1] is not None:
-                self.seek(self.genesis[0], self.genesis[1], force=True)
+            
+            # Reconstruct buffer with None padding at start
+            self.buffer = [None] * nones + sorted_slice
+
+            # Reset pointer
+            if pointed is not None:
+                self.seek('id', pointed['id'], force=True)
+
+            # Release lock
             self.sorted = True
             
     def seek(self, key, value, force=False):
         if self.sorted or force:
-            for i in range(0, len(self.buffer)):
-                if self.buffer[i] is not None:
-                    item = self.buffer[i]
-                    if item[key] == value:
-                        self.genesis = (key, value)
-                        self.pointer = i
-                        return item
-        return None
+            # Binary search implementation
+            left = 0
+            right = len(self.buffer) - self.padding - 1
+            
+            while left <= right:
+                mid = (left + right) // 2
+                item = self.buffer[mid]
+                
+                if item is None:
+                    right = mid - 1
+                    continue
+                    
+                # Compare based on our sorting criteria
+                if key == "peer":
+                    current_value = int(ipaddress.ip_address(item["peer"]))
+                    search_value = int(ipaddress.ip_address(value))
+                elif key == "timestamp":
+                    current_value = item["timestamp"]
+                    search_value = value
+                elif key == "id":
+                    current_value = int(item["id"].split('-')[-1], 16)
+                    search_value = int(value.split('-')[-1], 16)
+                else:
+                    current_value = item.get(key)
+                    search_value = value
+                
+                if current_value == search_value:
+                    self.pointer = mid
+                    return item
+                elif current_value < search_value:
+                    left = mid + 1
+                else:
+                    right = mid - 1
+                    
+            return None
 
     def next(self):
-        if self.sorted and self.pointer < len(self.buffer):
-            item = self.buffer[self.pointer]
-            if item is not None:
-                if self.genesis[0] is not None:
-                    self.genesis = (self.genesis[0], item[self.genesis[0]])
-                self.pointer += 1
-            return item
+        if self.sorted and self.pointer + 1 < self.size - self.padding:
+            self.pointer += 1
+            return self.buffer[self.pointer]
         return None
 
     def __len__(self):
-        return self.count
+        return self.size
 
 # Acquire Leader Task
 async def acquire_leader_task(redis_async_client, memory):
@@ -174,7 +201,6 @@ async def renew_leader_task(redis_async_client, memory, logger):
 async def consumer_task(buffer, memory):
     async with connect(f"{WEBSOCKET_URI}?client={WEBSOCKET_IDENTITY}") as ws:
         await ws.send(json.dumps({"type": "ris_subscribe", "data": {"host": RIS_HOST}}))
-        batch_size = BATCH_CONSUME
         batch = []
 
         async for data in ws:
@@ -190,54 +216,65 @@ async def consumer_task(buffer, memory):
             batch.append(marshal)
 
             # Sort and reset batch
-            if len(batch) > batch_size:
+            if len(batch) == BATCH_CONSUME:
                 with profile_section("Buffer_extend") if ENABLE_PROFILING else normal_section():
                     for item in batch:
                         buffer.append(item)
                     buffer.sort()
-                    batch = []
+                batch = []
+                
 
 # Sender Task
 async def sender_task(producer, redis_async_client, redis_sync_client, buffer, memory):
-    batch_size = BATCH_SEND
-    delivery = []
+    initialized = False
+    produced_size = 0
+    reported_size = 0
+    batch_size = 0
+    item = None
+
+    # If we lost messages
+    if await redis_async_client.get(f"{RIS_HOST}_batch_reported") == "False":
+        # Last time we were not able to send all messages.
+        # We have no safe way of recovering from this without data loss.
+        if ENSURE_CONTINUITY:
+            raise Exception("Unrecoverable message loss detected.")
+        else:
+            logger.warning("Unrecoverable message loss detected.")
 
     while True:
-        # Get details about the last message
-        last_id = await redis_async_client.get(f"{RIS_HOST}_last_id")
-        last_reported = await redis_async_client.get(f"{RIS_HOST}_last_reported")
-        last_delivered = await redis_async_client.get(f"{RIS_HOST}_last_delivered")
+        # Get details about the last batch
+        batch_id = await redis_async_client.get(f"{RIS_HOST}_batch_id")
 
         # If we are the leader
         if memory['is_leader']:
-            item = None
+            # If we have not yet initialized
+            if batch_id is not None and not initialized:
+                buffer.seek('id', batch_id, force=True)
+                initialized = True
 
-            # Check if we lost messages
-            if last_delivered == "False":
-                # Last time we were not able to send all messages.
-                # We have no safe way of recovering from this without data loss.
-                if ENSURE_CONTINUITY:
-                    raise Exception("Unrecoverable message loss detected.")
-                else:
-                    logger.warning("Unrecoverable message loss detected.")
-
-            # (3rd Round) Seek to last message
-            if last_id is not None:
-                with profile_section("Buffer_seek", profile_every=100) if ENABLE_PROFILING else normal_section():
-                    item = buffer.seek("id", last_id)
-
-            # (3 Round, maybe) We have reached our batch size but not all messages have been delivered yet
-            if memory['batch_counter'] == batch_size and last_reported == "False":
+            # If not all messages have been reported
+            if batch_size == BATCH_SEND and reported_size < produced_size:
                 logger.warning("Kafka message processing is falling behind. Delaying by 200ms")
                 await asyncio.sleep(0.20)
+                producer.flush()
                 continue
 
-            # (1 & 2 Round) We have not yet reached our batch size
-            if memory['batch_counter'] < batch_size:
-                with profile_section("Buffer_next", profile_every=1000) if ENABLE_PROFILING else normal_section():
-                    item = buffer.next()
+            # If all messages have been reported
+            if batch_size == BATCH_SEND and reported_size == produced_size:
+                redis_sync_client.set(f"{RIS_HOST}_batch_id", item['id'])
+                redis_sync_client.set(f"{RIS_HOST}_batch_reported", "True")
+                reported_size = 0
+                produced_size = 0
+                batch_size = 0
+
+            # Retrieve next item in the buffer
+            with profile_section("Buffer_next", profile_every=1000) if ENABLE_PROFILING else normal_section():
+                item = buffer.next()
 
             if item is not None:
+                # Increment counter for batch
+                batch_size += 1
+
                 # Construct the BMP message
                 with profile_section("BMPv3_construct", profile_every=1000) if ENABLE_PROFILING else normal_section():
                     messages = BMPv3.construct(
@@ -255,29 +292,14 @@ async def sender_task(producer, redis_async_client, redis_sync_client, buffer, m
                         med=item.get('med', None)
                     )
 
-                # Increment counter for batch
-                memory['batch_counter'] += 1
-
                 # Send messages to Kafka
                 for message in messages:
-                    
                     # Delivery Report Callback
                     # NOTE: Kafka does not guarantee that delivery reports will be received in the same order as the messages were sent
-                    def delivery_report(err, delivery, item):
-                        if err is None:                            
-                            # Check if its the last message
-                            if delivery[-1] == item['id']:
-                                redis_sync_client.set(f"{RIS_HOST}_last_id", item['id'])
-                                redis_sync_client.set(f"{RIS_HOST}_last_reported", "True")
-
-                            # Decrement counter for delivery
-                            memory['delivery_counter'] -= 1
-
-                            # Check if we have delivered all messages
-                            if memory['delivery_counter'] == 0:
-                                # Reset counter and delivery
-                                memory['batch_counter'] = 0
-                                delivery = []
+                    def delivery_report(err, _):
+                        nonlocal reported_size
+                        if err is None:
+                            reported_size += 1
                         else:
                             raise Exception(f"Message delivery failed: {err}")
 
@@ -288,25 +310,20 @@ async def sender_task(producer, redis_async_client, redis_sync_client, buffer, m
                             key=item['id'],
                             value=message,
                             timestamp=int(item['timestamp'] * 1000),
-                            callback=lambda err, _: delivery_report(err, delivery, item)
+                            callback=delivery_report
                         )
 
-                    # Set last delivered and reported to false
-                    await redis_async_client.set(f"{RIS_HOST}_last_delivered", "False")
-                    await redis_async_client.set(f"{RIS_HOST}_last_reported", "False")
+                    # Set last delivered to false
+                    await redis_async_client.set(f"{RIS_HOST}_batch_reported", "False")
 
-                    # Increment counter for delivery
-                    memory['delivery_counter'] += 1
-                    delivery.append(item['id'])
+                    # Increment counter for produced
+                    produced_size += 1
 
                     # Update the approximated time lag
                     memory['time_lag'] = datetime.now() - datetime.fromtimestamp(int(item['timestamp']))
 
                     # Increment sent data size
                     memory['send_counter'][0] += len(message)
-                
-                # Set last delivered to true
-                await redis_async_client.set(f"{RIS_HOST}_last_delivered", "True")
 
                 # Poll Kafka producer
                 producer.poll(0)
@@ -316,10 +333,8 @@ async def sender_task(producer, redis_async_client, redis_sync_client, buffer, m
                     raise Exception("Time lag is too high.")
             else:
                 await asyncio.sleep(0.1)
-                continue
         else:
-            await asyncio.sleep(0.1)
-            continue
+            await asyncio.sleep(1)
 
             
 # Logging Task
@@ -373,26 +388,17 @@ async def main():
         'enable.idempotence': True,
         'acks': 'all',
         'retries': 10,
-        'linger.ms': 100,  # Increase batching delay (100ms)
-        'batch.size': 262144, # Increase batching efficiency (100 MB)
-        'compression.type': 'lz4',  # Reduce message size for network efficiency
-        'queue.buffering.max.messages': 1000000,  # Allow larger in-memory queues
-        'queue.buffering.max.kbytes': 1048576,  # Allow larger in-memory queues
-        'message.max.bytes': 10485760,  # Increase message size (10 MB)
-        'socket.send.buffer.bytes': 1048576,  # Speed up network transfers (1 MB)
-        'request.timeout.ms': 30000,  # Avoid unnecessary retries (30 Seconds)
-        'delivery.timeout.ms': 45000,  # Speed up timeout resolution (45 Seconds)
+        'compression.type': 'lz4'
     })
 
     # Buffer
-    buffer = CircularBuffer(BUFFER_SIZE)
+    buffer = CircularBuffer(BUFFER_SIZE, BUFFER_PADDING)
 
     # Memory
     memory = {
         'receive_counter': [0],  # To store received data size in bytes
         'send_counter': [0],  # To store sent data size in bytes
         'batch_counter': 0, # To store batch counter
-        'delivery_counter': 0, # To store delivery counter
         'is_leader': False, # Leader Lock (Leader Election)
         'leader_id': str(uuid.uuid4()),  # Random UUID as leader ID
         'time_lag': timedelta(0), # Time lag in seconds
@@ -442,6 +448,14 @@ async def main():
 
         # Flush Kafka producer
         producer.flush()
+
+        # Ensure all messages got delivered
+        logger.debug("Waiting for messages to be delivered...")
+        while await redis_async_client.get(f"{RIS_HOST}_batch_reported") == "False":
+            logger.info("Messages still in queue or transit. Delaying shutdown by 1000ms")
+            await asyncio.sleep(1)
+        logger.debug("All messages delivered. Shutting down...")
+        
 
         # Close Redis connections
         await redis_async_client.close()
