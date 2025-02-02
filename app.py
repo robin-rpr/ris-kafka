@@ -200,16 +200,20 @@ async def renew_leader_task(redis_async_client, memory, logger):
 # Consumer Task
 async def consumer_task(buffer, memory):
     async with connect(f"{WEBSOCKET_URI}?client={WEBSOCKET_IDENTITY}") as ws:
-        await ws.send(json.dumps({"type": "ris_subscribe", "data": {"host": RIS_HOST}}))
+        await ws.send(json.dumps({"type": "ris_subscribe", "data": {"host": RIS_HOST, "socketOptions": {"includeRaw": True}}}))
         batch = []
-
+        
         async for data in ws:
             memory['receive_counter'][0] += len(data)
             marshal = json.loads(data)['data']
 
-            # Filter out non-implemented messages
-            # TODO: Implement also "STATE", "OPEN", and "NOTIFICATION"
-            if marshal['type'] not in ["UPDATE", "KEEPALIVE", "RIS_PEER_STATE"]:
+            if marshal['type'] == "ris_error":
+                raise Exception(f"Websocket error: {marshal['message']}")
+
+            # Allow only specific messages
+            # TODO: Implement also "STATE" and "RIS_PEER_STATE"
+            #       Blocked by: https://fosstodon.org/@robinroeper/113909690169940714
+            if marshal['type'] not in ["UPDATE", "OPEN", "NOTIFICATION", "KEEPALIVE"]:
                 continue
 
             # Add message to buffer
@@ -226,19 +230,11 @@ async def consumer_task(buffer, memory):
 # Sender Task
 async def sender_task(producer, redis_async_client, redis_sync_client, buffer, memory):
     initialized = False
+    restarted = False
     produced_size = 0
     reported_size = 0
     batch_size = 0
     item = None
-
-    # If we lost messages
-    if await redis_async_client.get(f"{RIS_HOST}_batch_reported") == "False":
-        # Last time we were not able to send all messages.
-        # We have no safe way of recovering from this without data loss.
-        if ENSURE_CONTINUITY:
-            raise Exception("Unrecoverable message loss detected.")
-        else:
-            logger.warning("Unrecoverable message loss detected.")
 
     while True:
         # Get details about the last batch
@@ -246,10 +242,22 @@ async def sender_task(producer, redis_async_client, redis_sync_client, buffer, m
 
         # If we are the leader
         if memory['is_leader']:
-            # If we have not yet initialized
-            if batch_id is not None and not initialized:
-                buffer.seek('id', batch_id, force=True)
+            # If we lost messages since the last execution
+            if not initialized:
                 initialized = True
+                if await redis_async_client.get(f"{RIS_HOST}_batch_reported") == "False":
+                    # Last time we were not able to send all messages.
+                    # We have no safe way of recovering from this without data loss.
+                    if ENSURE_CONTINUITY:
+                        # Deadlock.
+                        raise Exception("Unrecoverable message loss detected.")
+
+            # If we are restarting
+            if batch_id is not None and not restarted:
+                buffer.seek('id', batch_id, force=True)
+                restarted = True
+            else:
+                restarted = False
 
             # If not all messages have been reported
             if batch_size == BATCH_SEND and reported_size < produced_size:
@@ -271,58 +279,105 @@ async def sender_task(producer, redis_async_client, redis_sync_client, buffer, m
                 item = buffer.next()
 
             if item is not None:
-                # Increment counter for batch
-                batch_size += 1
+                # Whether message is metadata
+                is_metadata = False
 
                 # Construct the BMP message
                 with profile_section("BMPv3_construct", profile_every=1000) if ENABLE_PROFILING else normal_section():
-                    messages = BMPv3.construct(
-                        collector=RIS_HOST,
-                        peer_ip=item['peer'],
-                        peer_asn=int(item['peer_asn']),
-                        timestamp=item['timestamp'],
-                        msg_type='PEER_STATE' if item['type'] == 'RIS_PEER_STATE' else item['type'],
-                        path=item.get('path', []),
-                        origin=item.get('origin', 'INCOMPLETE'),
-                        community=item.get('community', []),
-                        announcements=item.get('announcements', []),
-                        withdrawals=item.get('withdrawals', []),
-                        state=item.get('state', None),
-                        med=item.get('med', None)
-                    )
+                    match item['type']:
+                        # TODO: Handle RIS Peer State 'STATE' and 'RIS_PEER_STATE'
+                        case 'UPDATE':
+                            message = BMPv3.monitoring_message(
+                                peer_ip=item['peer'],
+                                peer_asn=int(item['peer_asn']),
+                                timestamp=item['timestamp'],
+                                bgp_update=bytes.fromhex(item['raw']),
+                                collector=RIS_HOST
+                            )
+                        case 'OPEN':
+                            message = BMPv3.peer_up_message(
+                                peer_ip=item['peer'],
+                                peer_asn=int(item['peer_asn']),
+                                timestamp=item['timestamp'],
+                                bgp_open=bytes.fromhex(item['raw']),
+                                collector=RIS_HOST
+                            )
+                        case 'NOTIFICATION':
+                            message = BMPv3.peer_down_message(
+                                peer_ip=item['peer'],
+                                peer_asn=int(item['peer_asn']),
+                                timestamp=item['timestamp'],
+                                bgp_notification=bytes.fromhex(item['raw']),
+                                collector=RIS_HOST
+                            )
+                        case 'KEEPALIVE':
+                            message = BMPv3.keepalive_message(
+                                peer_ip=item['peer'],
+                                peer_asn=int(item['peer_asn']),
+                                timestamp=item['timestamp'],
+                                bgp_keepalive=bytes.fromhex(item['raw']),
+                                collector=RIS_HOST
+                            )
+                        case 'RIS_PEER_STATE':
+                            # Internal state of the peer
+                            # NOTE: This is not a BGP state!
+                            is_metadata = True
+                            if item['state'] == 'connected':
+                                message = BMPv3.peer_up_message(
+                                    peer_ip=item['peer'],
+                                    peer_asn=int(item['peer_asn']),
+                                    timestamp=item['timestamp'],
+                                    bgp_open=bytes.fromhex(item['raw']),
+                                    collector=RIS_HOST
+                                )
+                            elif item['state'] == 'down':
+                                message = BMPv3.peer_down_message(
+                                    peer_ip=item['peer'],
+                                    peer_asn=int(item['peer_asn']),
+                                    timestamp=item['timestamp'],
+                                    bgp_notification=bytes.fromhex(item['raw']),
+                                    collector=RIS_HOST
+                                )
+                        case 'STATE':
+                            # Unknown message type
+                            # Read more: https://fosstodon.org/@robinroeper/113909690169940714
+                            continue
+                        case _:
+                            raise Exception(f"Unexpected type: {item['type']}")
+                
+                # Increment counter for batch
+                batch_size += 1
+
+                # Delivery Report Callback
+                # NOTE: Kafka does not guarantee that delivery reports will be received in the same order as the messages were sent
+                def delivery_report(err, _):
+                    nonlocal reported_size
+                    if err is None:
+                        reported_size += 1
+                    else:
+                        raise Exception(f"Message delivery failed: {err}")
 
                 # Send messages to Kafka
-                for message in messages:
-                    # Delivery Report Callback
-                    # NOTE: Kafka does not guarantee that delivery reports will be received in the same order as the messages were sent
-                    def delivery_report(err, _):
-                        nonlocal reported_size
-                        if err is None:
-                            reported_size += 1
-                        else:
-                            raise Exception(f"Message delivery failed: {err}")
+                with profile_section("Kafka_produce", profile_every=1000) if ENABLE_PROFILING else normal_section():
+                    producer.produce(
+                        topic=f"{RIS_HOST}.{item['peer_asn'] if not is_metadata else 'meta'}bmp_raw",
+                        key=item['id'],
+                        value=message,
+                        timestamp=int(item['timestamp'] * 1000),
+                        callback=delivery_report
+                    )
 
-                    # Produce message to Kafka
-                    with profile_section("Kafka_produce", profile_every=1000) if ENABLE_PROFILING else normal_section():
-                        producer.produce(
-                            topic=f"{RIS_HOST}.{item['peer_asn']}.bmp_raw",
-                            key=item['id'],
-                            value=message,
-                            timestamp=int(item['timestamp'] * 1000),
-                            callback=delivery_report
-                        )
+                # Set last delivered to false
+                await redis_async_client.set(f"{RIS_HOST}_batch_reported", "False")
 
-                    # Set last delivered to false
-                    await redis_async_client.set(f"{RIS_HOST}_batch_reported", "False")
+                # Increment counter for produced
+                produced_size += 1
 
-                    # Increment counter for produced
-                    produced_size += 1
+                # Update the approximated time lag
+                memory['time_lag'] = datetime.now() - datetime.fromtimestamp(int(item['timestamp']))
 
-                    # Update the approximated time lag
-                    memory['time_lag'] = datetime.now() - datetime.fromtimestamp(int(item['timestamp']))
-
-                    # Increment sent data size
-                    memory['send_counter'][0] += len(message)
+                # Increment sent data size
+                memory['send_counter'][0] += len(message)
 
                 # Poll Kafka producer
                 producer.poll(0)
@@ -331,8 +386,12 @@ async def sender_task(producer, redis_async_client, redis_sync_client, buffer, m
                 if memory['time_lag'].total_seconds() / 60 > TIME_LAG_LIMIT:
                     raise Exception("Time lag is too high.")
             else:
+                # Wait for 100ms
                 await asyncio.sleep(0.1)
         else:
+            # Deinitialize
+            initialized = False
+            # Wait for 1 second
             await asyncio.sleep(1)
 
 # Logging Task
@@ -450,7 +509,7 @@ async def main():
         # Ensure all messages got delivered
         while await redis_async_client.get(f"{RIS_HOST}_batch_reported") == "False":
             logger.info("Messages still in queue or transit. Delaying shutdown by 1000ms")
-            await asyncio.sleep(1)        
+            await asyncio.sleep(1)
 
         # Close Redis connections
         await redis_async_client.close()
