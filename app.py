@@ -414,10 +414,7 @@ async def sender_task(producer, redis_async_client, redis_sync_client, buffer, m
                 else:
                     # Wait for 100ms
                     await asyncio.sleep(0.1)
-    except Exception as e:
-        during_transacting = await redis_async_client.get(f"{RIS_HOST}_batch_transacting")
-        logger.info(f"All variables are: reported={reported_size} produced={produced_size} batch_size={batch_size} latest={latest} item={item} during_transacting={during_transacting}")
-        
+    except asyncio.CancelledError:
         # If we are interrupted amid an active message delivery transaction
         if not await redis_async_client.get(f"{RIS_HOST}_batch_transacting") == "True":
             # Ensure all messages got delivered
@@ -431,12 +428,10 @@ async def sender_task(producer, redis_async_client, redis_sync_client, buffer, m
 
                 # If all messages have been reported
                 if reported_size == produced_size:
+                    logger.info("Got all in-flight messages delivered")
                     redis_sync_client.set(f"{RIS_HOST}_batch_id", latest['id'])
                     redis_sync_client.set(f"{RIS_HOST}_batch_reported", "True")
-                    reported_size = 0
-                    produced_size = 0
-                    batch_size = 0
-        raise e
+        raise
 
 # Logging Task
 async def logging_task(memory):
