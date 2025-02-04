@@ -282,8 +282,6 @@ async def sender_task(producer, redis_async_client, redis_sync_client, buffer, m
                 if batch_id is not None and not seeked:
                     buffer.seek('id', batch_id)
                     seeked = True
-                else:
-                    seeked = False
 
                 # If not all messages have been reported
                 if batch_size == BATCH_SEND and reported_size < produced_size:
@@ -428,7 +426,7 @@ async def sender_task(producer, redis_async_client, redis_sync_client, buffer, m
 
                 # If all messages have been reported
                 if reported_size == produced_size:
-                    logger.info("Got all in-flight messages delivered")
+                    logger.info("Outstanding messages delivered")
                     redis_sync_client.set(f"{RIS_HOST}_batch_id", latest['id'])
                     redis_sync_client.set(f"{RIS_HOST}_batch_reported", "True")
         raise

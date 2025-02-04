@@ -20,7 +20,6 @@ app:
     # - name: rrc13 # Moscow, MSK-IX, regional
     # - name: rrc14 # Palo Alto, Equinix, regional
     # - name: rrc15 # Sao Paulo, IX.br, regional
-    # - name: rrc15 # Sao Paulo, IX.br, regional
     # - name: rrc16 # Miami, RIPE NCC, regional
     # - name: rrc18 # Barcelona, CATNIX, regional
     # - name: rrc19 # Johannesburg, Network Platforms, regional
