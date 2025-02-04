@@ -2,11 +2,12 @@ services:
     app:
         build: .
         # image: robinrpr/ris-kafka:latest
-        restart: no
+        restart: unless-stopped
+        stop_signal: SIGTERM  # Wind down collector safely before stopping
+        stop_grace_period: 20s # Wait for 20 seconds before forcefully stopping
         environment:
             KAFKA_FQDN: kafka:29092
             LOG_LEVEL: INFO
-            ENSURE_CONTINUITY: true # Deadlock in case of unrecoverable message loss
             ENABLE_PROFILING: false # Enable profiling (outputs to a profiles/ directory)
             BUFFER_SIZE: 10000 # Size of the buffer where messages are buffered before sending
             BUFFER_PADDING: 100 # Padding in the buffer to ensure safe eventual consistency in order
