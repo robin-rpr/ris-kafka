@@ -49,7 +49,7 @@ consumer = Consumer({
 
 ## Kafka Topics
 
-The topic names are structured as lowercase `<collector_name>.<peer_asn>.bmp_raw`.
+The topic names are structured as lowercase `<collector_name>.<peer_asn>.bmp_raw` and one `<collector_name>.meta.bmp_raw`.
 Additionally you can consult the [RIS Route Collector Documentation](https://ris.ripe.net/docs/route-collectors/) for more information on the available collectors.
 
 - `<collector_name>.<peer_asn>.bmp_raw`
