@@ -79,6 +79,7 @@ For production environments, you can run multiple replicas to ensure high availa
 
 ```bash
 docker compose up -d \
+     --scale rrc00=3 \
      --scale rrc01=3 \
      --scale rrc03=3 \
      --scale rrc04=3 \
