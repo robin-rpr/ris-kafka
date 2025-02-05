@@ -196,10 +196,10 @@ async def renew_leader_task(redis_async_client, memory, logger):
                     if current_leader == memory['leader_id']:
                         await redis_async_client.expire(f"{RIS_HOST}_leader", 10)
                     else:
-                        memory['is_leader'] = False
+                        raise Exception("Lost leadership")
                 except Exception as e:
-                    logger.error(f"Error renewing leadership: {e}")
                     memory['is_leader'] = False
+                    raise e
     except asyncio.CancelledError:
         raise
         
