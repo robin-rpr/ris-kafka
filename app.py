@@ -21,7 +21,6 @@ WEBSOCKET_IDENTITY = f"ris-kafka-{socket.gethostname()}"
 ENABLE_PROFILING = os.getenv("ENABLE_PROFILING", "false") == "true"
 BUFFER_SIZE = int(os.getenv("BUFFER_SIZE", 10000))
 BUFFER_PADDING = int(os.getenv("BUFFER_PADDING", 100))
-TIME_LAG_LIMIT = int(os.getenv("TIME_LAG_LIMIT", 10))
 BATCH_CONSUME = int(os.getenv("BATCH_CONSUME", 1000))
 BATCH_SEND = int(os.getenv("BATCH_SEND", 1000))
 KAFKA_FQDN = os.getenv("KAFKA_FQDN")
@@ -99,7 +98,7 @@ class CircularBuffer:
         self.pointer -= 1
         if self.pointer < 0:
             # Pointer out of bounds
-            self.pointer = 0
+            raise Exception("Exceeded buffer size")
 
         self.sorted = False
 
@@ -465,10 +464,6 @@ async def sender_task(producer, redis_async_client, redis_sync_client, buffer, m
 
                     # Poll Kafka producer
                     producer.poll(0)
-
-                    # Terminate if time lag is greater than TIME_LAG_LIMIT minutes
-                    if memory['time_lag'].total_seconds() / 60 > TIME_LAG_LIMIT:
-                        raise Exception("Time lag is too high.")
                 else:
                     # Wait for 100ms
                     await asyncio.sleep(0.1)
@@ -512,7 +507,7 @@ async def logging_task(memory):
             m, s = divmod(remainder, 60)
 
             # Log out
-            logger.info(f"host={RIS_HOST} is_leader={memory['is_leader']} receive={received_kbps:.2f} kbps send={sent_kbps:.2f} kbps lag={int(h)}h {int(m)}m {int(s)}s limit={TIME_LAG_LIMIT}m")
+            logger.info(f"host={RIS_HOST} is_leader={memory['is_leader']} receive={received_kbps:.2f} kbps send={sent_kbps:.2f} kbps lag={int(h)}h {int(m)}m {int(s)}s")
 
             # Reset counters
             memory['receive_counter'][0] = 0 
