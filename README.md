@@ -52,7 +52,7 @@ consumer = Consumer({
 The topic names are structured as lowercase `<collector_name>.<peer_asn>.bmp_raw` and a singular `<collector_name>.meta.bmp_raw`.
 Additionally you can consult the [RIS Route Collector Documentation](https://ris.ripe.net/docs/route-collectors/) for more information on the available collectors.
 
-**Metadata topic with internal RIS Peer up / down messages:**
+**Metadata topic with RIS (internal) Peer up / down messages:**
 > Messages do not represent a BGP state but the RIS collectors internal connection status to its Peers.
 
 - `<collector_name>.meta.bmp_raw`
