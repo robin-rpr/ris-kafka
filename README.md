@@ -77,7 +77,7 @@ cd ris-kafka
 docker compose up
 ```
 
-> **Note:** This will start collecting from RRC13 by default. You can change the `RIS_HOST` in `docker-compose.yaml` to collect from another RIS Collector.
+> **Note:** This will start collecting from all RIS Collectors. You can further specify to collect from a specific host by using e.g. `docker compose up rrc01`. Please mind that the `docker-compose.yaml` file is configured to start all collectors in a staggered manner to avoid overwhelming the services and RIS Live itself.
 
 3. Open http://localhost:8080 (Kafbat Dashboard)
 
