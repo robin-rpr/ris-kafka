@@ -237,7 +237,7 @@ async def consumer_task(buffer, memory):
         raise
                 
 # Sender Task
-async def sender_task(producer, redis_sync_client, buffer, memory):
+async def sender_task(producer, redis_async_client, redis_sync_client, buffer, memory):
     try:
         initialized = False
         seeked = False
@@ -258,7 +258,7 @@ async def sender_task(producer, redis_sync_client, buffer, memory):
 
         while True:
             # Get details about the last batch
-            batch_id = redis_sync_client.get(f"{RIS_HOST}_batch_id")
+            batch_id = await redis_async_client.get(f"{RIS_HOST}_batch_id")
 
             if not memory['is_leader']:
                 # Deinitialize
@@ -271,8 +271,8 @@ async def sender_task(producer, redis_sync_client, buffer, memory):
                 # If we lost messages since the last execution
                 if not initialized:
                     initialized = True
-                    if redis_sync_client.get(f"{RIS_HOST}_batch_reported") == "False" or \
-                        redis_sync_client.get(f"{RIS_HOST}_batch_transacting") == "True":
+                    if await redis_async_client.get(f"{RIS_HOST}_batch_reported") == "False" or \
+                        await redis_async_client.get(f"{RIS_HOST}_batch_transacting") == "True":
                         # Last time we seem to have been not able to send all messages.
                         # We have no safe way of recovering from this without data loss.
                         # A softlock state is the only option to prevent data corruption.
@@ -370,7 +370,7 @@ async def sender_task(producer, redis_sync_client, buffer, memory):
                                 raise Exception(f"Unexpected type: {item['type']}")
                             
                     # Set transacting to true
-                    redis_sync_client.set(f"{RIS_HOST}_batch_transacting", "True")
+                    await redis_async_client.set(f"{RIS_HOST}_batch_transacting", "True")
 
                     # Send messages to Kafka
                     with profile_section("Kafka_produce", profile_every=1000) if ENABLE_PROFILING else normal_section():
@@ -389,13 +389,13 @@ async def sender_task(producer, redis_sync_client, buffer, memory):
                     batch_size += 1
 
                     # Set last delivered to false
-                    redis_sync_client.set(f"{RIS_HOST}_batch_reported", "False")
+                    await redis_async_client.set(f"{RIS_HOST}_batch_reported", "False")
 
                     # Increment counter for produced
                     produced_size += 1
 
                     # Set transacting to false
-                    redis_sync_client.set(f"{RIS_HOST}_batch_transacting", "False")
+                    await redis_async_client.set(f"{RIS_HOST}_batch_transacting", "False")
 
                     # Update the approximated time lag
                     memory['time_lag'] = datetime.now() - datetime.fromtimestamp(int(item['timestamp']))
@@ -414,9 +414,9 @@ async def sender_task(producer, redis_sync_client, buffer, memory):
                     await asyncio.sleep(0.1)
     except asyncio.CancelledError:
         # If we are interrupted amid an active message delivery transaction
-        if not await redis_sync_client.get(f"{RIS_HOST}_batch_transacting") == "True":
+        if not await redis_async_client.get(f"{RIS_HOST}_batch_transacting") == "True":
             # Ensure all messages got delivered
-            while await redis_sync_client.get(f"{RIS_HOST}_batch_reported") == "False":
+            while await redis_async_client.get(f"{RIS_HOST}_batch_reported") == "False":
                 # If not all messages have been reported
                 if reported_size < produced_size:
                     logger.warning("Messages still in queue or transit. Delaying shutdown by 1000ms")
@@ -526,7 +526,7 @@ async def main():
 
         # Start the consumer and sender tasks
         tasks.append(asyncio.create_task(consumer_task(buffer, memory)))
-        tasks.append(asyncio.create_task(sender_task(producer, redis_sync_client, buffer, memory)))
+        tasks.append(asyncio.create_task(sender_task(producer, redis_async_client, redis_sync_client, buffer, memory)))
 
         # Start the logging task
         tasks.append(asyncio.create_task(logging_task(memory)))
@@ -550,10 +550,11 @@ async def main():
 
         # Relinquish leadership
         if memory['is_leader']:
-            redis_sync_client.delete(f"{RIS_HOST}_leader")
+            await redis_async_client.delete(f"{RIS_HOST}_leader")
             memory['is_leader'] = False
 
         # Close Redis connections
+        await redis_async_client.close()
         redis_sync_client.close()
 
         logger.info("Shutdown complete.")
