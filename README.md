@@ -74,7 +74,7 @@ cd ris-kafka
 
 2. Start the service:
 ```bash
-docker compose up
+docker compose up -d
 ```
 
 > **Note:** This will start collecting from all RIS Collectors. You can further specify to collect from a specific host by using e.g. `docker compose up rrc01`. Please mind that the `docker-compose.yaml` file is configured to start all collectors in a staggered manner to avoid overwhelming the services and RIS Live itself.
