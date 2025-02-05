@@ -9,6 +9,7 @@ app:
       cpu: "2"
       memory: "2Gi"
   hosts:
+    - name: rrc00 # Amsterdam, RIPE NCC, global
     - name: rrc01 # London, LINX/LONAP, regional
     - name: rrc03 # Amsterdam, AMS-IX/NL-IX, regional
     - name: rrc04 # Geneva, CERN, regional

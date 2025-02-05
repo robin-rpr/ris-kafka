@@ -1,9 +1,9 @@
 services:
-    base_app:
+    rrc00:
         &base_app
         build: .
         # image: robinrpr/ris-kafka:latest
-        restart: no
+        restart: unless-stopped
         stop_signal: SIGTERM  # Wind down collector safely before stopping
         stop_grace_period: 20s # Wait for 20 seconds before forcefully stopping
         mem_limit: 500m # Maximum memory limit
@@ -20,6 +20,7 @@ services:
             BATCH_CONSUME: 1000 # Number of messages to consume in one round from websocket
             BATCH_SEND: 10000 # Number of messages to send in one round to kafka
             REDIS_MAX_CONNECTIONS: 50 # Maximum number of connections to redis
+            RIS_HOST: rrc00
             REDIS_HOST: redis
             REDIS_PORT: 6379
             REDIS_DB: 0
@@ -33,138 +34,138 @@ services:
             - .:/app
         entrypoint: >
             python app.py
-
+    
     rrc01:
         <<: *base_app
         environment:
             <<: *base_app_environment
-            RIS_HOST: "rrc01"
+            RIS_HOST: rrc01
 
     rrc03:
         <<: *base_app
         environment:
             <<: *base_app_environment
-            RIS_HOST: "rrc03"
+            RIS_HOST: rrc03
 
     rrc04:
         <<: *base_app
         environment:
             <<: *base_app_environment
-            RIS_HOST: "rrc04"
+            RIS_HOST: rrc04
 
     rrc05:
         <<: *base_app
         environment:
             <<: *base_app_environment
-            RIS_HOST: "rrc05"
+            RIS_HOST: rrc05
 
     rrc06:
         <<: *base_app
         environment:
             <<: *base_app_environment
-            RIS_HOST: "rrc06"
+            RIS_HOST: rrc06
 
     rrc07:
         <<: *base_app
         environment:
             <<: *base_app_environment
-            RIS_HOST: "rrc07"
+            RIS_HOST: rrc07
 
     rrc10:
         <<: *base_app
         environment:
             <<: *base_app_environment
-            RIS_HOST: "rrc10"
+            RIS_HOST: rrc10
 
     rrc11:
         <<: *base_app
         environment:
             <<: *base_app_environment
-            RIS_HOST: "rrc11"
+            RIS_HOST: rrc11
 
     rrc12:
         <<: *base_app
         environment:
             <<: *base_app_environment
-            RIS_HOST: "rrc12"
+            RIS_HOST: rrc12
 
     rrc13:
         <<: *base_app
         environment:
             <<: *base_app_environment
-            RIS_HOST: "rrc13"
+            RIS_HOST: rrc13
 
     rrc14:
         <<: *base_app
         environment:
             <<: *base_app_environment
-            RIS_HOST: "rrc14"
+            RIS_HOST: rrc14
 
     rrc15:
         <<: *base_app
         environment:
             <<: *base_app_environment
-            RIS_HOST: "rrc15"
+            RIS_HOST: rrc15
 
     rrc16:
         <<: *base_app
         environment:
             <<: *base_app_environment
-            RIS_HOST: "rrc16"
+            RIS_HOST: rrc16
 
     rrc18:
         <<: *base_app
         environment:
             <<: *base_app_environment
-            RIS_HOST: "rrc18"
+            RIS_HOST: rrc18
 
     rrc19:
         <<: *base_app
         environment:
             <<: *base_app_environment
-            RIS_HOST: "rrc19"
+            RIS_HOST: rrc19
 
     rrc20:
         <<: *base_app
         environment:
             <<: *base_app_environment
-            RIS_HOST: "rrc20"
+            RIS_HOST: rrc20
 
     rrc21:
         <<: *base_app
         environment:
             <<: *base_app_environment
-            RIS_HOST: "rrc21"
+            RIS_HOST: rrc21
 
     rrc22:
         <<: *base_app
         environment:
             <<: *base_app_environment
-            RIS_HOST: "rrc22"
+            RIS_HOST: rrc22
 
     rrc23:
         <<: *base_app
         environment:
             <<: *base_app_environment
-            RIS_HOST: "rrc23"
+            RIS_HOST: rrc23
 
     rrc24:
         <<: *base_app
         environment:
             <<: *base_app_environment
-            RIS_HOST: "rrc24"
+            RIS_HOST: rrc24
 
     rrc25:
         <<: *base_app
         environment:
             <<: *base_app_environment
-            RIS_HOST: "rrc25"
+            RIS_HOST: rrc25
 
     rrc26:
         <<: *base_app
         environment:
             <<: *base_app_environment
-            RIS_HOST: "rrc26"
+            RIS_HOST: rrc26
 
     redis:
         image: redis:latest

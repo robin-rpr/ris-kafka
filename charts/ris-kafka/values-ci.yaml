@@ -8,7 +8,8 @@ app:
       cpu: "1"
       memory: "1Gi"
   hosts:
-    - name: rrc01 # London, LINX/LONAP, regional
+    - name: rrc00 # Amsterdam, RIPE NCC, global
+    #- name: rrc01 # London, LINX/LONAP, regional
     # - name: rrc03 # Amsterdam, AMS-IX/NL-IX, regional
     # - name: rrc04 # Geneva, CERN, regional
     # - name: rrc05 # Vienna, VIX, regional
