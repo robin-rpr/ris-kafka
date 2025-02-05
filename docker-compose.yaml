@@ -1,4 +1,5 @@
 services:
+    # Amsterdam, RIPE NCC, global
     rrc00:
         &base_app
         build: .
@@ -25,6 +26,7 @@ services:
             REDIS_PORT: 6379
             REDIS_DB: 0
         depends_on:
+            &base_app_depends_on
             redis:
                 condition: service_healthy
             kafka:
@@ -35,137 +37,247 @@ services:
         entrypoint: >
             python app.py
     
+    # London, LINX/LONAP, regional
     rrc01:
         <<: *base_app
         environment:
             <<: *base_app_environment
             RIS_HOST: rrc01
+        depends_on:
+            <<: *base_app_depends_on
+            rrc00:
+                condition: service_started
 
+    # Amsterdam, AMS-IX/NL-IX, regional
     rrc03:
         <<: *base_app
         environment:
             <<: *base_app_environment
             RIS_HOST: rrc03
+        depends_on:
+            <<: *base_app_depends_on
+            rrc01:
+                condition: service_started
 
+    # Geneva, CERN, regional
     rrc04:
         <<: *base_app
         environment:
             <<: *base_app_environment
             RIS_HOST: rrc04
+        depends_on:
+            <<: *base_app_depends_on
+            rrc03:
+                condition: service_started
 
+    # Vienna, VIX, regional
     rrc05:
         <<: *base_app
         environment:
             <<: *base_app_environment
             RIS_HOST: rrc05
+        depends_on:
+            <<: *base_app_depends_on
+            rrc04:
+                condition: service_started
 
+    # Otemachi, RIPE NCC, regional
     rrc06:
         <<: *base_app
         environment:
             <<: *base_app_environment
             RIS_HOST: rrc06
+        depends_on:
+            <<: *base_app_depends_on
+            rrc05:
+                condition: service_started
 
+    # Stockholm, Netnod, regional
     rrc07:
         <<: *base_app
         environment:
             <<: *base_app_environment
             RIS_HOST: rrc07
+        depends_on:
+            <<: *base_app_depends_on
+            rrc06:
+                condition: service_started
 
+    # Milan, MIX, regional
     rrc10:
         <<: *base_app
         environment:
             <<: *base_app_environment
             RIS_HOST: rrc10
+        depends_on:
+            <<: *base_app_depends_on
+            rrc07:
+                condition: service_started
 
+    # New York, Telehouse/GTT, regional
     rrc11:
         <<: *base_app
         environment:
             <<: *base_app_environment
             RIS_HOST: rrc11
+        depends_on:
+            <<: *base_app_depends_on
+            rrc10:
+                condition: service_started
 
+    # Frankfurt, DE-CIX, regional
     rrc12:
         <<: *base_app
         environment:
             <<: *base_app_environment
             RIS_HOST: rrc12
+        depends_on:
+            <<: *base_app_depends_on
+            rrc11:
+                condition: service_started
 
+    # Moscow, MSK-IX, regional
     rrc13:
         <<: *base_app
         environment:
             <<: *base_app_environment
             RIS_HOST: rrc13
+        depends_on:
+            <<: *base_app_depends_on
+            rrc12:
+                condition: service_started
 
+    # Palo Alto, Equinix, regional
     rrc14:
         <<: *base_app
         environment:
             <<: *base_app_environment
             RIS_HOST: rrc14
+        depends_on:
+            <<: *base_app_depends_on
+            rrc13:
+                condition: service_started
 
+    # Sao Paulo, IX.br, regional
     rrc15:
         <<: *base_app
         environment:
             <<: *base_app_environment
             RIS_HOST: rrc15
+        depends_on:
+            <<: *base_app_depends_on
+            rrc14:
+                condition: service_started
 
+    # Miami, RIPE NCC, regional
     rrc16:
         <<: *base_app
         environment:
             <<: *base_app_environment
             RIS_HOST: rrc16
+        depends_on:
+            <<: *base_app_depends_on
+            rrc15:
+                condition: service_started
 
+    # Barcelona, CATNIX, regional
     rrc18:
         <<: *base_app
         environment:
             <<: *base_app_environment
             RIS_HOST: rrc18
+        depends_on:
+            <<: *base_app_depends_on
+            rrc16:
+                condition: service_started
 
+    # Johannesburg, Network Platforms, regional
     rrc19:
         <<: *base_app
         environment:
             <<: *base_app_environment
             RIS_HOST: rrc19
+        depends_on:
+            <<: *base_app_depends_on
+            rrc18:
+                condition: service_started
 
+    # Zurich, SWISS-IX, regional
     rrc20:
         <<: *base_app
         environment:
             <<: *base_app_environment
             RIS_HOST: rrc20
+        depends_on:
+            <<: *base_app_depends_on
+            rrc19:
+                condition: service_started
 
+    # Paris, France-IX, regional
     rrc21:
         <<: *base_app
         environment:
             <<: *base_app_environment
             RIS_HOST: rrc21
+        depends_on:
+            <<: *base_app_depends_on
+            rrc20:
+                condition: service_started
 
+    # Bucharest, InterLAN, regional
     rrc22:
         <<: *base_app
         environment:
             <<: *base_app_environment
             RIS_HOST: rrc22
+        depends_on:
+            <<: *base_app_depends_on
+            rrc21:
+                condition: service_started
 
+    # Singapore, Equinix, regional
     rrc23:
         <<: *base_app
         environment:
             <<: *base_app_environment
             RIS_HOST: rrc23
+        depends_on:
+            <<: *base_app_depends_on
+            rrc22:
+                condition: service_started
 
+    # Montevideo, LACNIC, global
     rrc24:
         <<: *base_app
         environment:
             <<: *base_app_environment
             RIS_HOST: rrc24
+        depends_on:
+            <<: *base_app_depends_on
+            rrc23:
+                condition: service_started
 
+    # Amsterdam, RIPE NCC, global
     rrc25:
         <<: *base_app
         environment:
             <<: *base_app_environment
             RIS_HOST: rrc25
+        depends_on:
+            <<: *base_app_depends_on
+            rrc24:
+                condition: service_started
 
+    # Dubai, Datamena/UAE-IX, regional
     rrc26:
         <<: *base_app
         environment:
             <<: *base_app_environment
             RIS_HOST: rrc26
+        depends_on:
+            <<: *base_app_depends_on
+            rrc25:
+                condition: service_started
 
     redis:
         image: redis:latest
