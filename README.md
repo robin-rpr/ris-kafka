@@ -104,7 +104,7 @@ docker compose up -d \
      --scale rrc26=3
 ```
 
-This will start 3 collector instances with automatic leader election and failover capabilities:
+This will start all collector instances with automatic leader election and failover capabilities:
 - Only one instance actively collects data at a time
 - Automatic failover if the leader becomes unavailable
 - No message loss during failover
