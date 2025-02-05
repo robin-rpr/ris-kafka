@@ -75,6 +75,10 @@ def normal_section():
 class CircularBuffer:
     """
     A circular buffer that can be sorted and seeked.
+
+    Args:
+        size (int): The size of the buffer.
+        padding (int): The padding of the buffer.
     """
     def __init__(self, size, padding):
         self.pointer = size - padding - 1
@@ -82,8 +86,7 @@ class CircularBuffer:
         self.size = size
         self.buffer = [None] * size
         self.sorted = False
-        self.locked = False
-
+        self.locked = True
     def append(self, item):
         """
         Append an item to the buffer.
@@ -94,11 +97,13 @@ class CircularBuffer:
         self.buffer.pop(0)
         self.buffer.append(item)
             
-        # Move pointer to the left
-        self.pointer -= 1
-        if self.pointer < 0:
-            # Pointer out of bounds
-            raise Exception("Exceeded buffer size")
+        if not self.locked:
+            # Move pointer to the left
+            self.pointer -= 1
+            if self.pointer < 0:
+                # Pointer out of bounds
+                self.pointer = 0
+                raise Exception("Exceeded buffer size")
 
         self.sorted = False
 
@@ -128,8 +133,9 @@ class CircularBuffer:
             self.buffer = [None] * nones + sorted_slice
 
             # Reset pointer
-            if pointed is not None:
-                self.seek('id', pointed['id'], force=True)
+            if not self.locked:
+                if pointed is not None:
+                    self.seek('id', pointed['id'], force=True)
 
             # Release lock
             self.sorted = True
@@ -143,10 +149,11 @@ class CircularBuffer:
             value (str): The value to seek by.
             force (bool): Whether to force the seek.
         """
+        self.locked = False
         if self.sorted or force:
             # Binary search implementation
             left = 0
-            right = len(self.buffer) - self.padding - 1
+            right = self.size - self.padding - 1
             
             while left <= right:
                 mid = (left + right) // 2
@@ -184,6 +191,7 @@ class CircularBuffer:
         """
         Get the next item in the buffer.
         """
+        self.locked = False
         if self.sorted and self.pointer + 1 < self.size - self.padding:
             self.pointer += 1
             return self.buffer[self.pointer]
@@ -299,10 +307,10 @@ async def sender_task(producer, redis_async_client, redis_sync_client, buffer, m
     """
     try:
         initialized = False
-        seeked = False
         produced_size = 0
         reported_size = 0
         batch_size = 0
+        seeked = False
         latest = None
         item = None
 
@@ -335,7 +343,7 @@ async def sender_task(producer, redis_async_client, redis_sync_client, buffer, m
                         # Last time we seem to have been not able to send all messages.
                         # We have no safe way of recovering from this without data loss.
                         # A softlock state is the only option to prevent data corruption.
-                        raise Exception("Softlock detected.")
+                        raise Exception("Softlocked")
 
                 # If we need to seek
                 if batch_id is not None and not seeked:
@@ -524,7 +532,7 @@ def handle_shutdown(signum, frame, shutdown_event):
 
     Args:
         signum (int): The signal number.
-        frame (frame): The frame.
+        frame (frame): The signal frame.
         shutdown_event (asyncio.Event): The shutdown event.
     """
     logger.info(f"Signal {signum}. Triggering shutdown...")
@@ -562,9 +570,6 @@ async def main():
         'compression.type': 'lz4'
     })
 
-    # Buffer
-    buffer = CircularBuffer(BUFFER_SIZE, BUFFER_PADDING)
-
     # Memory
     memory = {
         'receive_counter': [0],  # To store received data size in bytes
@@ -574,6 +579,9 @@ async def main():
         'leader_id': str(uuid.uuid4()),  # Random UUID as leader ID
         'time_lag': timedelta(0), # Time lag in seconds
     }
+
+    # Buffer
+    buffer = CircularBuffer(BUFFER_SIZE, BUFFER_PADDING)
 
     # Tasks
     tasks = []
