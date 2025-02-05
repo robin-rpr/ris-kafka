@@ -56,12 +56,12 @@ Additionally you can consult the [RIS Route Collector Documentation](https://ris
 > Messages do not represent a BGP state but the RRC's <collector_name> internal connection status to any of its peers <peer_asn>. Contains only Peer up / down BMPv3 Messages.
 
 - `<collector_name>.meta.bmp_raw`
-- `rrc13.meta.bmp_raw`
+- `rrc04.meta.bmp_raw`
 - ...
 
 **Per Peer ASN topic with all BGP Messages:**
 - `<collector_name>.<peer_asn>.bmp_raw`
-- `rrc13.2854.bmp_raw`
+- `rrc04.15547.bmp_raw`
 - ...
 
 ## Quick Start
