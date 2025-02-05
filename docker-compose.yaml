@@ -6,7 +6,7 @@ services:
         # image: robinrpr/ris-kafka:latest
         restart: unless-stopped
         stop_signal: SIGTERM  # Wind down collector safely before stopping
-        stop_grace_period: 30s # Wait for 30 seconds before forcefully stopping
+        stop_grace_period: 20s # Wait for 20 seconds before forcefully stopping
         mem_limit: 500m # Maximum memory limit
         mem_reservation: 200m # Reserve 200m of memory
         cpus: "0.25" # Reserve 0.25 CPU
