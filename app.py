@@ -74,6 +74,9 @@ def normal_section():
     yield
 
 class CircularBuffer:
+    """
+    A circular buffer that can be sorted and seeked.
+    """
     def __init__(self, size, padding):
         self.pointer = size - padding - 1
         self.padding = padding
@@ -83,6 +86,12 @@ class CircularBuffer:
         self.locked = False
 
     def append(self, item):
+        """
+        Append an item to the buffer.
+
+        Args:
+            item (dict): The item to append to the buffer.
+        """
         self.buffer.pop(0)
         self.buffer.append(item)
             
@@ -95,6 +104,9 @@ class CircularBuffer:
         self.sorted = False
 
     def sort(self):
+        """
+        Sort the buffer.
+        """
         if not self.sorted:
             # Count nones
             nones = 0
@@ -124,6 +136,14 @@ class CircularBuffer:
             self.sorted = True
             
     def seek(self, key, value, force=False):
+        """
+        Seek to the first item that matches the key and value.
+
+        Args:
+            key (str): The key to seek by.
+            value (str): The value to seek by.
+            force (bool): Whether to force the seek.
+        """
         if self.sorted or force:
             # Binary search implementation
             left = 0
@@ -162,49 +182,79 @@ class CircularBuffer:
             return None
 
     def next(self):
+        """
+        Get the next item in the buffer.
+        """
         if self.sorted and self.pointer + 1 < self.size - self.padding:
             self.pointer += 1
             return self.buffer[self.pointer]
         return None
 
     def __len__(self):
+        """
+        Get the length of the buffer.
+        """
         return self.size
 
-# Acquire Leader Task
-async def acquire_leader_task(redis_async_client, memory):
-    try:
-        while True:
-            await asyncio.sleep(2)
-            if not memory['is_leader']: 
-                memory['is_leader'] = False if await redis_async_client.set(
-                    f"{RIS_HOST}_leader",
+async def leader_task(redis_async_client, memory, interval=2, ttl=30):
+    """
+    A single task that continuously tries to acquire or renew leadership.
+    interval: how often (in seconds) to attempt acquiring or renewing.
+    ttl: the time-to-live in Redis for the leadership key (in seconds).
+
+    Args:
+        redis_async_client (redis.asyncio.Redis): The Redis client.
+        memory (dict): The memory dictionary.
+        interval (int): The interval in seconds to attempt acquiring or renewing leadership.
+        ttl (int): The time-to-live in Redis for the leadership key (in seconds).
+    """
+    leader_key = f"{RIS_HOST}_leader"
+
+    while True:
+        try:
+            # If not the leader, attempt to become the leader
+            if not memory['is_leader']:
+                # SET if not exists, with a TTL
+                result = await redis_async_client.set(
+                    leader_key,
                     memory['leader_id'],
                     nx=True,
-                    ex=10 # seconds
-                ) is None else True
-    except asyncio.CancelledError:
-        raise
-
-# Renew Leader Task
-async def renew_leader_task(redis_async_client, memory, logger):
-    try:
-        while True:
-            await asyncio.sleep(5)
-            if memory['is_leader']:
-                try:
-                    current_leader = await redis_async_client.get(f"{RIS_HOST}_leader")
-                    if current_leader == memory['leader_id']:
-                        await redis_async_client.expire(f"{RIS_HOST}_leader", 10)
-                    else:
-                        raise Exception("Lost leadership")
-                except Exception as e:
+                    ex=ttl
+                )
+                # If we succeeded in setting the key, we are the leader
+                if result is not None:
+                    memory['is_leader'] = True
+                    logger.info("Acquired leadership")
+            else:
+                # If already leader, confirm it's still us
+                current_leader = await redis_async_client.get(leader_key)
+                if current_leader == memory['leader_id']:
+                    # Refresh TTL
+                    await redis_async_client.expire(leader_key, ttl)
+                else:
+                    # We lost leadership
                     memory['is_leader'] = False
-                    raise e
-    except asyncio.CancelledError:
-        raise
-        
+                    raise Exception("Lost leadership")
+
+            await asyncio.sleep(interval)
+        except asyncio.CancelledError:
+            # Stop gracefully if the task is cancelled
+            raise
+        except Exception as e:
+            # Log the error, but do not kill the entire loop
+            memory['is_leader'] = False
+            # logger.exception(f"Leader election task exception: {e}")
+            await asyncio.sleep(interval)
+
 # Consumer Task
 async def consumer_task(buffer, memory):
+    """
+    A single task that continuously consumes messages from the websocket.
+
+    Args:
+        buffer (CircularBuffer): The circular buffer.
+        memory (dict): The memory dictionary.
+    """
     try:
         async with connect(f"{WEBSOCKET_URI}?client={WEBSOCKET_IDENTITY}") as ws:
             await ws.send(json.dumps({"type": "ris_subscribe", "data": {"host": RIS_HOST, "socketOptions": {"includeRaw": True}}}))
@@ -238,6 +288,16 @@ async def consumer_task(buffer, memory):
                 
 # Sender Task
 async def sender_task(producer, redis_async_client, redis_sync_client, buffer, memory):
+    """
+    A single task that continuously sends messages to Kafka.
+
+    Args:
+        producer (confluent_kafka.Producer): The Kafka producer.
+        redis_async_client (redis.asyncio.Redis): The Redis client.
+        redis_sync_client (redis.Redis): The Redis client.
+        buffer (CircularBuffer): The circular buffer.
+        memory (dict): The memory dictionary.
+    """
     try:
         initialized = False
         seeked = False
@@ -433,6 +493,12 @@ async def sender_task(producer, redis_async_client, redis_sync_client, buffer, m
 
 # Logging Task
 async def logging_task(memory):
+    """
+    A single task that continuously logs the current state of the system.
+
+    Args:
+        memory (dict): The memory dictionary.
+    """
     try:
         while True:
             timeout = 10 # seconds
@@ -458,7 +524,15 @@ async def logging_task(memory):
 
 # Signal handler
 def handle_shutdown(signum, frame, shutdown_event):
-    logger.info(f"Received signal {signum}. Triggering shutdown...")
+    """
+    Signal handler for shutdown.
+
+    Args:
+        signum (int): The signal number.
+        frame (frame): The frame.
+        shutdown_event (asyncio.Event): The shutdown event.
+    """
+    logger.info(f"Signal {signum}. Triggering shutdown...")
     shutdown_event.set()
 
 # Main Coroutine
@@ -510,7 +584,7 @@ async def main():
     tasks = []
 
     try:
-        logger.info("Starting ...")
+        logger.info("Starting up...")
 
         # Create an event to signal shutdown
         shutdown_event = asyncio.Event()
@@ -521,8 +595,7 @@ async def main():
         loop.add_signal_handler(signal.SIGINT, handle_shutdown, signal.SIGINT, None, shutdown_event)  # Handle Ctrl+C
 
         # Start the leader tasks
-        tasks.append(asyncio.create_task(acquire_leader_task(redis_async_client, memory)))
-        tasks.append(asyncio.create_task(renew_leader_task(redis_async_client, memory, logger)))
+        tasks.append(asyncio.create_task(leader_task(redis_async_client, memory)))
 
         # Start the consumer and sender tasks
         tasks.append(asyncio.create_task(consumer_task(buffer, memory)))
