@@ -6,7 +6,7 @@ services:
         # image: robinrpr/ris-kafka:latest
         restart: unless-stopped
         stop_signal: SIGTERM  # Wind down collector safely before stopping
-        stop_grace_period: 20s # Wait for 20 seconds before forcefully stopping
+        stop_grace_period: 30s # Wait for 30 seconds before forcefully stopping
         mem_limit: 500m # Maximum memory limit
         mem_reservation: 200m # Reserve 200m of memory
         cpus: "0.25" # Reserve 0.25 CPU
@@ -48,8 +48,7 @@ services:
             rrc00:
                 condition: service_started
         entrypoint: >
-            sleep 10
-            python app.py
+            sh -c 'sleep 10; python app.py'
 
     # Amsterdam, AMS-IX/NL-IX, regional
     rrc03:
@@ -62,8 +61,7 @@ services:
             rrc01:
                 condition: service_started
         entrypoint: >
-            sleep 20
-            python app.py
+            sh -c 'sleep 20; python app.py'
 
     # Geneva, CERN, regional
     rrc04:
@@ -76,8 +74,7 @@ services:
             rrc03:
                 condition: service_started
         entrypoint: >
-            sleep 30
-            python app.py
+            sh -c 'sleep 30; python app.py'
 
     # Vienna, VIX, regional
     rrc05:
@@ -90,8 +87,7 @@ services:
             rrc04:
                 condition: service_started
         entrypoint: >
-            sleep 40
-            python app.py
+            sh -c 'sleep 40; python app.py'
 
     # Otemachi, RIPE NCC, regional
     rrc06:
@@ -104,8 +100,7 @@ services:
             rrc05:
                 condition: service_started
         entrypoint: >
-            sleep 50
-            python app.py
+            sh -c 'sleep 50; python app.py'
 
     # Stockholm, Netnod, regional
     rrc07:
@@ -118,8 +113,7 @@ services:
             rrc06:
                 condition: service_started
         entrypoint: >
-            sleep 60
-            python app.py
+            sh -c 'sleep 60; python app.py'
 
     # Milan, MIX, regional
     rrc10:
@@ -132,8 +126,7 @@ services:
             rrc07:
                 condition: service_started
         entrypoint: >
-            sleep 70
-            python app.py
+            sh -c 'sleep 70; python app.py'
 
     # New York, Telehouse/GTT, regional
     rrc11:
@@ -146,8 +139,7 @@ services:
             rrc10:
                 condition: service_started
         entrypoint: >
-            sleep 80
-            python app.py
+            sh -c 'sleep 80; python app.py'
 
     # Frankfurt, DE-CIX, regional
     rrc12:
@@ -160,8 +152,7 @@ services:
             rrc11:
                 condition: service_started
         entrypoint: >
-            sleep 90
-            python app.py
+            sh -c 'sleep 90; python app.py'
 
     # Moscow, MSK-IX, regional
     rrc13:
@@ -174,8 +165,7 @@ services:
             rrc12:
                 condition: service_started
         entrypoint: >
-            sleep 100
-            python app.py
+            sh -c 'sleep 100; python app.py'
 
     # Palo Alto, Equinix, regional
     rrc14:
@@ -188,8 +178,7 @@ services:
             rrc13:
                 condition: service_started
         entrypoint: >
-            sleep 110
-            python app.py
+            sh -c 'sleep 110; python app.py'
 
     # Sao Paulo, IX.br, regional
     rrc15:
@@ -202,8 +191,7 @@ services:
             rrc14:
                 condition: service_started
         entrypoint: >
-            sleep 120
-            python app.py
+            sh -c 'sleep 120; python app.py'
 
     # Miami, RIPE NCC, regional
     rrc16:
@@ -216,8 +204,7 @@ services:
             rrc15:
                 condition: service_started
         entrypoint: >
-            sleep 130
-            python app.py
+            sh -c 'sleep 130; python app.py'
 
     # Barcelona, CATNIX, regional
     rrc18:
@@ -230,8 +217,7 @@ services:
             rrc16:
                 condition: service_started
         entrypoint: >
-            sleep 140
-            python app.py
+            sh -c 'sleep 140; python app.py'
 
     # Johannesburg, Network Platforms, regional
     rrc19:
@@ -244,8 +230,7 @@ services:
             rrc18:
                 condition: service_started
         entrypoint: >
-            sleep 150
-            python app.py
+            sh -c 'sleep 150; python app.py'
 
     # Zurich, SWISS-IX, regional
     rrc20:
@@ -258,8 +243,7 @@ services:
             rrc19:
                 condition: service_started
         entrypoint: >
-            sleep 160
-            python app.py
+            sh -c 'sleep 160; python app.py'
 
     # Paris, France-IX, regional
     rrc21:
@@ -272,8 +256,7 @@ services:
             rrc20:
                 condition: service_started
         entrypoint: >
-            sleep 170
-            python app.py
+            sh -c 'sleep 170; python app.py'
 
     # Bucharest, InterLAN, regional
     rrc22:
@@ -286,8 +269,7 @@ services:
             rrc21:
                 condition: service_started
         entrypoint: >
-            sleep 180
-            python app.py
+            sh -c 'sleep 180; python app.py'
 
     # Singapore, Equinix, regional
     rrc23:
@@ -300,8 +282,7 @@ services:
             rrc22:
                 condition: service_started
         entrypoint: >
-            sleep 190
-            python app.py
+            sh -c 'sleep 190; python app.py'
 
     # Montevideo, LACNIC, global
     rrc24:
@@ -314,8 +295,7 @@ services:
             rrc23:
                 condition: service_started
         entrypoint: >
-            sleep 200
-            python app.py
+            sh -c 'sleep 200; python app.py'
 
     # Amsterdam, RIPE NCC, global
     rrc25:
@@ -328,8 +308,7 @@ services:
             rrc24:
                 condition: service_started
         entrypoint: >
-            sleep 210
-            python app.py
+            sh -c 'sleep 210; python app.py'
 
     # Dubai, Datamena/UAE-IX, regional
     rrc26:
@@ -342,8 +321,7 @@ services:
             rrc25:
                 condition: service_started
         entrypoint: >
-            sleep 220
-            python app.py
+            sh -c 'sleep 220; python app.py'
 
     redis:
         image: redis:latest
