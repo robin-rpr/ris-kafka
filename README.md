@@ -53,7 +53,7 @@ The topic names are structured as lowercase `<collector_name>.<peer_asn>.bmp_raw
 Additionally you can consult the [RIS Route Collector Documentation](https://ris.ripe.net/docs/route-collectors/) for more information on the available collectors.
 
 **Metadata topic with RIS (internal) Peer up / down messages:**
-> Messages do not represent a BGP state but the RIS collectors internal connection status to its Peers.
+> Messages do not represent a BGP state but the RRC's <collector_name> internal connection status to any of its peers <peer_asn>.
 
 - `<collector_name>.meta.bmp_raw`
 - `rrc13.meta.bmp_raw`
