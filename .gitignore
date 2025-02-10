@@ -27,8 +27,8 @@ static/styles/*.css
 # Cache
 .cache/
 
-# Profiling
-profiles/
+# Databases
+rocksdb/
 
 # =========================
 # Operating System Files

@@ -12,23 +12,20 @@ services:
         cpus: "1" # Reserve 1 CPU
         environment:
             &base_app_environment
-            KAFKA_FQDN: kafka:29092
-            LOG_LEVEL: INFO
-            ENABLE_PROFILING: false # Enable profiling (outputs to a profiles/ directory)
-            BUFFER_SIZE: 100000 # Size of the buffer where messages are buffered before sending
-            BUFFER_PADDING: 5000 # Padding in the buffer to ensure safe eventual consistency in order
-            BATCH_CONSUME: 1000 # Number of messages to consume in one round from websocket
-            BATCH_SEND: 10000 # Number of messages to send in one round to kafka
-            REDIS_MAX_CONNECTIONS: 50 # Maximum number of connections to redis
-            RIS_HOST: rrc00
-            REDIS_HOST: redis
-            REDIS_PORT: 6379
-            REDIS_DB: 0
+            RRC_ZOOKEEPER_CONNECT: zookeeper:2181
+            RRC_KAFKA_CONNECT: kafka:29092
+            RRC_QUEUE_SIZE: 100000
+            RRC_BUFFER_SIZE: 10000
+            RRC_BATCH_SIZE: 10000
+            RRC_LOG_LEVEL: INFO
+            RRC_HOST: rrc00
         depends_on:
             &base_app_depends_on
             redis:
                 condition: service_healthy
             kafka:
+                condition: service_healthy
+            zookeeper:
                 condition: service_healthy
         working_dir: /app
         volumes:
@@ -41,9 +38,7 @@ services:
         <<: *base_app
         environment:
             <<: *base_app_environment
-            RIS_HOST: rrc01
-        depends_on:
-            <<: *base_app_depends_on
+            RRC_HOST: rrc01
         entrypoint: >
             sh -c 'sleep 10; python app.py'
 
@@ -52,9 +47,7 @@ services:
         <<: *base_app
         environment:
             <<: *base_app_environment
-            RIS_HOST: rrc03
-        depends_on:
-            <<: *base_app_depends_on
+            RRC_HOST: rrc03
         entrypoint: >
             sh -c 'sleep 20; python app.py'
 
@@ -63,9 +56,7 @@ services:
         <<: *base_app
         environment:
             <<: *base_app_environment
-            RIS_HOST: rrc04
-        depends_on:
-            <<: *base_app_depends_on
+            RRC_HOST: rrc04
         entrypoint: >
             sh -c 'sleep 30; python app.py'
 
@@ -74,9 +65,7 @@ services:
         <<: *base_app
         environment:
             <<: *base_app_environment
-            RIS_HOST: rrc05
-        depends_on:
-            <<: *base_app_depends_on
+            RRC_HOST: rrc05
         entrypoint: >
             sh -c 'sleep 40; python app.py'
 
@@ -85,9 +74,7 @@ services:
         <<: *base_app
         environment:
             <<: *base_app_environment
-            RIS_HOST: rrc06
-        depends_on:
-            <<: *base_app_depends_on
+            RRC_HOST: rrc06
         entrypoint: >
             sh -c 'sleep 50; python app.py'
 
@@ -96,9 +83,7 @@ services:
         <<: *base_app
         environment:
             <<: *base_app_environment
-            RIS_HOST: rrc07
-        depends_on:
-            <<: *base_app_depends_on
+            RRC_HOST: rrc07
         entrypoint: >
             sh -c 'sleep 60; python app.py'
 
@@ -107,9 +92,7 @@ services:
         <<: *base_app
         environment:
             <<: *base_app_environment
-            RIS_HOST: rrc10
-        depends_on:
-            <<: *base_app_depends_on
+            RRC_HOST: rrc10
         entrypoint: >
             sh -c 'sleep 70; python app.py'
 
@@ -118,9 +101,7 @@ services:
         <<: *base_app
         environment:
             <<: *base_app_environment
-            RIS_HOST: rrc11
-        depends_on:
-            <<: *base_app_depends_on
+            RRC_HOST: rrc11
         entrypoint: >
             sh -c 'sleep 80; python app.py'
 
@@ -129,9 +110,7 @@ services:
         <<: *base_app
         environment:
             <<: *base_app_environment
-            RIS_HOST: rrc12
-        depends_on:
-            <<: *base_app_depends_on
+            RRC_HOST: rrc12
         entrypoint: >
             sh -c 'sleep 90; python app.py'
 
@@ -140,9 +119,7 @@ services:
         <<: *base_app
         environment:
             <<: *base_app_environment
-            RIS_HOST: rrc13
-        depends_on:
-            <<: *base_app_depends_on
+            RRC_HOST: rrc13
         entrypoint: >
             sh -c 'sleep 100; python app.py'
 
@@ -151,9 +128,7 @@ services:
         <<: *base_app
         environment:
             <<: *base_app_environment
-            RIS_HOST: rrc14
-        depends_on:
-            <<: *base_app_depends_on
+            RRC_HOST: rrc14
         entrypoint: >
             sh -c 'sleep 110; python app.py'
 
@@ -162,9 +137,7 @@ services:
         <<: *base_app
         environment:
             <<: *base_app_environment
-            RIS_HOST: rrc15
-        depends_on:
-            <<: *base_app_depends_on
+            RRC_HOST: rrc15
         entrypoint: >
             sh -c 'sleep 120; python app.py'
 
@@ -173,9 +146,7 @@ services:
         <<: *base_app
         environment:
             <<: *base_app_environment
-            RIS_HOST: rrc16
-        depends_on:
-            <<: *base_app_depends_on
+            RRC_HOST: rrc16
         entrypoint: >
             sh -c 'sleep 130; python app.py'
 
@@ -184,9 +155,7 @@ services:
         <<: *base_app
         environment:
             <<: *base_app_environment
-            RIS_HOST: rrc18
-        depends_on:
-            <<: *base_app_depends_on
+            RRC_HOST: rrc18
         entrypoint: >
             sh -c 'sleep 140; python app.py'
 
@@ -195,9 +164,7 @@ services:
         <<: *base_app
         environment:
             <<: *base_app_environment
-            RIS_HOST: rrc19
-        depends_on:
-            <<: *base_app_depends_on
+            RRC_HOST: rrc19
         entrypoint: >
             sh -c 'sleep 150; python app.py'
 
@@ -206,9 +173,7 @@ services:
         <<: *base_app
         environment:
             <<: *base_app_environment
-            RIS_HOST: rrc20
-        depends_on:
-            <<: *base_app_depends_on
+            RRC_HOST: rrc20
         entrypoint: >
             sh -c 'sleep 160; python app.py'
 
@@ -217,9 +182,7 @@ services:
         <<: *base_app
         environment:
             <<: *base_app_environment
-            RIS_HOST: rrc21
-        depends_on:
-            <<: *base_app_depends_on
+            RRC_HOST: rrc21
         entrypoint: >
             sh -c 'sleep 170; python app.py'
 
@@ -228,9 +191,7 @@ services:
         <<: *base_app
         environment:
             <<: *base_app_environment
-            RIS_HOST: rrc22
-        depends_on:
-            <<: *base_app_depends_on
+            RRC_HOST: rrc22
         entrypoint: >
             sh -c 'sleep 180; python app.py'
 
@@ -239,9 +200,7 @@ services:
         <<: *base_app
         environment:
             <<: *base_app_environment
-            RIS_HOST: rrc23
-        depends_on:
-            <<: *base_app_depends_on
+            RRC_HOST: rrc23
         entrypoint: >
             sh -c 'sleep 190; python app.py'
 
@@ -250,9 +209,7 @@ services:
         <<: *base_app
         environment:
             <<: *base_app_environment
-            RIS_HOST: rrc24
-        depends_on:
-            <<: *base_app_depends_on
+            RRC_HOST: rrc24
         entrypoint: >
             sh -c 'sleep 200; python app.py'
 
@@ -261,9 +218,7 @@ services:
         <<: *base_app
         environment:
             <<: *base_app_environment
-            RIS_HOST: rrc25
-        depends_on:
-            <<: *base_app_depends_on
+            RRC_HOST: rrc25
         entrypoint: >
             sh -c 'sleep 210; python app.py'
 
@@ -272,9 +227,7 @@ services:
         <<: *base_app
         environment:
             <<: *base_app_environment
-            RIS_HOST: rrc26
-        depends_on:
-            <<: *base_app_depends_on
+            RRC_HOST: rrc26
         entrypoint: >
             sh -c 'sleep 220; python app.py'
 
@@ -296,6 +249,11 @@ services:
     zookeeper:
         image: confluentinc/cp-zookeeper:7.7.1
         restart: unless-stopped
+        healthcheck:
+            test: ["CMD-SHELL", "nc -z localhost 2181 || exit -1"]
+            interval: 10s
+            timeout: 5s
+            retries: 3
         volumes:
             - zookeeper_data:/var/lib/zookeeper
         environment:
