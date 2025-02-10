@@ -83,40 +83,9 @@ docker compose up -d
 
 ## High Availability Deployment
 
-For production environments, you can run multiple replicas to ensure high availability:
+For production environments, you can run multiple replicas of each collector to ensure high availability and fault tolerance. The system uses Zookeeper for leader election between the replicas and automatic failover coordination, which is already configured in the `docker-compose.yaml` file.
 
-```bash
-docker compose up -d \
-     --scale rrc00=3 \
-     --scale rrc01=3 \
-     --scale rrc03=3 \
-     --scale rrc04=3 \
-     --scale rrc05=3 \
-     --scale rrc06=3 \
-     --scale rrc07=3 \
-     --scale rrc10=3 \
-     --scale rrc11=3 \
-     --scale rrc12=3 \
-     --scale rrc13=3 \
-     --scale rrc14=3 \
-     --scale rrc15=3 \
-     --scale rrc16=3 \
-     --scale rrc18=3 \
-     --scale rrc19=3 \
-     --scale rrc20=3 \
-     --scale rrc21=3 \
-     --scale rrc22=3 \
-     --scale rrc23=3 \
-     --scale rrc24=3 \
-     --scale rrc25=3 \
-     --scale rrc26=3
-```
-
-This will start all collector instances with automatic leader election and failover capabilities:
-- Only one instance actively collects data at a time
-- Automatic failover if the leader becomes unavailable
-- No message loss during failover
-- Consistent message ordering maintained
+To enable proper leader election and failover between replicas, each RRC collector pair needs to share the same `/var/lib/rocksdb` folder to facilitate high-performance cross-replica communication, this can be done by mounting the same volume to each RRC pair replica instance.
 
 # WhatsApp Communication
 
