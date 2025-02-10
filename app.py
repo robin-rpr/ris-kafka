@@ -81,66 +81,59 @@ class CircularBuffer:
         padding (int): The padding of the buffer.
     """
     def __init__(self, size, padding):
-        self.pointer = size - padding - 1
+        self.pointer = size - 1
         self.padding = padding
         self.size = size
         self.buffer = [None] * size
         self.sorted = False
         self.locked = True
-    def append(self, item):
-        """
-        Append an item to the buffer.
 
-        Args:
-            item (dict): The item to append to the buffer.
+    def extend(self, items):
         """
-        self.buffer.pop(0)
-        self.buffer.append(item)
-            
-        if not self.locked:
-            # Move pointer to the left
-            self.pointer -= 1
-            if self.pointer < 0:
-                # Pointer out of bounds
-                self.pointer = 0
-                raise Exception("Exceeded buffer size")
-
+        Extend the buffer with items.
+        """
         self.sorted = False
+        # Count nones
+        nones = 0
+        for i in range(self.size - self.padding, self.size):
+            if self.buffer[i] is not None:
+                break
+            nones += 1
+        
+        # Sort items that are not None
+        sorted_slice = sorted(self.buffer[self.size - self.padding + nones:] + items, key=lambda item: (
+            int(ipaddress.ip_address(item["peer"])), # Group by peer (same peer together)
+            item["timestamp"], # Within each peer, sort by timestamp (earliest first)
+            int(item["id"].split('-')[-1], 16)  # If multiple messages have the same timestamp, order by sequence_id
+        ))
+        
+        # Holds the part of the buffer that isn’t affected.
+        default = self.buffer[:self.size - self.padding + nones]
+        # Gets the first part of the sorted items to complete the region.
+        padding = sorted_slice[:self.padding - nones]
+        # Contains any extra items that must be shifted in.
+        new = sorted_slice[self.padding - nones:]
 
-    def sort(self):
-        """
-        Sort the buffer.
-        """
-        if not self.sorted:
-            # Count nones
-            nones = 0
-            for item in self.buffer:
-                if item is not None:
-                    break
-                nones += 1
+        # Reconstruct buffer
+        self.buffer = default + padding
 
-            # Retrieve current pointed item
-            pointed = self.buffer[self.pointer] if self.pointer >= nones else None
-            
-            # Sort items that are not None
-            sorted_slice = sorted(self.buffer[nones:], key=lambda item: (
-                int(ipaddress.ip_address(item["peer"])), # Group by peer (same peer together)
-                item["timestamp"], # Within each peer, sort by timestamp (earliest first)
-                int(item["id"].split('-')[-1], 16)  # If multiple messages have the same timestamp, order by sequence_id
-            ))
-            
-            # Reconstruct buffer with None padding at start
-            self.buffer = [None] * nones + sorted_slice
-
-            # Reset pointer
+        # Shift in new items
+        for item in new:
+            self.buffer.pop(0)
+            self.buffer.append(item)
+                
             if not self.locked:
-                if pointed is not None:
-                    self.seek('id', pointed['id'], force=True)
+                # Move pointer to the left
+                self.pointer -= 1
+                if self.pointer < 0:
+                    # Pointer out of bounds
+                    self.pointer = 0
+                    raise Exception("Unable to keep up with the incoming data")
 
-            # Release lock
-            self.sorted = True
+        # Release lock
+        self.sorted = True
             
-    def seek(self, key, value, force=False):
+    def seek(self, key, value):
         """
         Seek to the first item that matches the key and value.
 
@@ -150,7 +143,7 @@ class CircularBuffer:
             force (bool): Whether to force the seek.
         """
         self.locked = False
-        if self.sorted or force:
+        if self.sorted:
             # Binary search implementation
             left = 0
             right = self.size - self.padding - 1
@@ -248,10 +241,7 @@ async def leader_task(redis_async_client, memory, interval=2, ttl=30):
             # Stop gracefully if the task is cancelled
             raise
         except Exception as e:
-            # Log the error, but do not kill the entire loop
-            memory['is_leader'] = False
-            # logger.exception(f"Leader election task exception: {e}")
-            await asyncio.sleep(interval)
+            raise e
 
 # Consumer Task
 async def consumer_task(buffer, memory):
@@ -286,10 +276,9 @@ async def consumer_task(buffer, memory):
                 # Sort and reset batch
                 if len(batch) == BATCH_CONSUME:
                     with profile_section("Buffer_extend") if ENABLE_PROFILING else normal_section():
-                        for item in batch:
-                            buffer.append(item)
-                        buffer.sort()
-                    batch = []
+                        buffer.extend(batch)
+                        batch = []
+                
     except asyncio.CancelledError:
         raise
                 
@@ -327,27 +316,23 @@ async def sender_task(producer, redis_async_client, redis_sync_client, buffer, m
             # Get details about the last batch
             batch_id = await redis_async_client.get(f"{RIS_HOST}_batch_id")
 
-            if not memory['is_leader']:
-                # Deinitialize
-                initialized = False
-                seeked = False
-                # Wait for 1 second
-                await asyncio.sleep(1)
-                continue
-            else:
+            if memory['is_leader']:
                 # If we lost messages since the last execution
                 if not initialized:
                     initialized = True
-                    if await redis_async_client.get(f"{RIS_HOST}_batch_reported") == "False" or \
-                        await redis_async_client.get(f"{RIS_HOST}_batch_transacting") == "True":
-                        # Last time we seem to have been not able to send all messages.
-                        # We have no safe way of recovering from this without data loss.
-                        # A softlock state is the only option to prevent data corruption.
-                        raise Exception("Softlocked")
+                    if await redis_async_client.get(f"{RIS_HOST}_batch_reported") == "False":
+                        if await redis_async_client.get(f"{RIS_HOST}_batch_transacting") == "True":
+                            # Awaiting in-flight transaction (Softlock)
+                            raise Exception("Awaiting in-flight transaction")
+                        else:
+                            # Process deadlocked
+                            raise Exception("Lost continuity")
 
                 # If we need to seek
                 if batch_id is not None and not seeked:
-                    buffer.seek('id', batch_id)
+                    result = buffer.seek('id', batch_id)
+                    if result is None:
+                        raise Exception("Unable to locate next message in sequence")
                     seeked = True
 
                 # If not all messages have been reported
@@ -368,6 +353,9 @@ async def sender_task(producer, redis_async_client, redis_sync_client, buffer, m
                 # Retrieve next item in the buffer
                 with profile_section("Buffer_next", profile_every=1000) if ENABLE_PROFILING else normal_section():
                     item = buffer.next()
+
+                # Update pointer
+                #memory['pointer'] = buffer.pointer
 
                 if item is not None:
                     # Whether message is metadata
@@ -515,7 +503,7 @@ async def logging_task(memory):
             m, s = divmod(remainder, 60)
 
             # Log out
-            logger.info(f"host={RIS_HOST} is_leader={memory['is_leader']} receive={received_kbps:.2f} kbps send={sent_kbps:.2f} kbps lag={int(h)}h {int(m)}m {int(s)}s")
+            logger.info(f"host={RIS_HOST} is_leader={memory['is_leader']} receive={received_kbps:.2f} kbps send={sent_kbps:.2f} kbps lag={int(h)}h {int(m)}m {int(s)}s pointer={memory['pointer']}")
 
             # Reset counters
             memory['receive_counter'][0] = 0 
@@ -567,7 +555,9 @@ async def main():
         'enable.idempotence': True,
         'acks': 'all',
         'retries': 10,
-        'compression.type': 'lz4'
+        'compression.type': 'lz4',
+        'batch.num.messages': 1000, # Higher batch size for efficiency
+        'linger.ms': 100 # Delay messages slightly to form batches
     })
 
     # Memory
@@ -578,6 +568,7 @@ async def main():
         'is_leader': False, # Leader Lock (Leader Election)
         'leader_id': str(uuid.uuid4()),  # Random UUID as leader ID
         'time_lag': timedelta(0), # Time lag in seconds
+        'pointer': 0, # Pointer position
     }
 
     # Buffer
