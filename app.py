@@ -132,11 +132,12 @@ async def consumer_task(queue, backup):
                     if is_leader:
                         # If we have a backup, use it
                         if backup.qsize() > 0:
-                            logger.info("Loading backup")
                             is_failover = True
+                            logger.info("Initiating failover recovery")
                             while not backup.empty():
                                 item = await backup.get()
                                 await queue.put(item)
+                            logger.info("Failover recovery completed")
                             is_failover = False
                             is_waiting = False
                         else:
