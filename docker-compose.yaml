@@ -14,15 +14,15 @@ services:
             &base_app_environment
             RRC_ZOOKEEPER_CONNECT: zookeeper:2181
             RRC_KAFKA_CONNECT: kafka:29092
+            RRC_BACKUP_SIZE: 1000000
             RRC_QUEUE_SIZE: 100000
-            RRC_BUFFER_SIZE: 10000
             RRC_BATCH_SIZE: 10000
             RRC_LOG_LEVEL: INFO
             RRC_HOST: rrc00
         depends_on:
             &base_app_depends_on
-            redis:
-                condition: service_healthy
+            kafbat:
+                condition: service_started
             kafka:
                 condition: service_healthy
             zookeeper:
@@ -30,6 +30,7 @@ services:
         working_dir: /app
         volumes:
             - .:/app
+            - rrc00_data:/var/lib/rocksdb
         entrypoint: >
             python app.py
     
@@ -39,6 +40,9 @@ services:
         environment:
             <<: *base_app_environment
             RRC_HOST: rrc01
+        volumes:
+            - .:/app
+            - rrc01_data:/var/lib/rocksdb
         entrypoint: >
             sh -c 'sleep 10; python app.py'
 
@@ -48,6 +52,9 @@ services:
         environment:
             <<: *base_app_environment
             RRC_HOST: rrc03
+        volumes:
+            - .:/app
+            - rrc03_data:/var/lib/rocksdb
         entrypoint: >
             sh -c 'sleep 20; python app.py'
 
@@ -57,6 +64,9 @@ services:
         environment:
             <<: *base_app_environment
             RRC_HOST: rrc04
+        volumes:
+            - .:/app
+            - rrc04_data:/var/lib/rocksdb
         entrypoint: >
             sh -c 'sleep 30; python app.py'
 
@@ -66,6 +76,9 @@ services:
         environment:
             <<: *base_app_environment
             RRC_HOST: rrc05
+        volumes:
+            - .:/app
+            - rrc05_data:/var/lib/rocksdb
         entrypoint: >
             sh -c 'sleep 40; python app.py'
 
@@ -75,6 +88,9 @@ services:
         environment:
             <<: *base_app_environment
             RRC_HOST: rrc06
+        volumes:
+            - .:/app
+            - rrc06_data:/var/lib/rocksdb
         entrypoint: >
             sh -c 'sleep 50; python app.py'
 
@@ -84,6 +100,9 @@ services:
         environment:
             <<: *base_app_environment
             RRC_HOST: rrc07
+        volumes:
+            - .:/app
+            - rrc07_data:/var/lib/rocksdb
         entrypoint: >
             sh -c 'sleep 60; python app.py'
 
@@ -93,6 +112,9 @@ services:
         environment:
             <<: *base_app_environment
             RRC_HOST: rrc10
+        volumes:
+            - .:/app
+            - rrc10_data:/var/lib/rocksdb
         entrypoint: >
             sh -c 'sleep 70; python app.py'
 
@@ -102,6 +124,9 @@ services:
         environment:
             <<: *base_app_environment
             RRC_HOST: rrc11
+        volumes:
+            - .:/app
+            - rrc11_data:/var/lib/rocksdb
         entrypoint: >
             sh -c 'sleep 80; python app.py'
 
@@ -111,6 +136,9 @@ services:
         environment:
             <<: *base_app_environment
             RRC_HOST: rrc12
+        volumes:
+            - .:/app
+            - rrc12_data:/var/lib/rocksdb
         entrypoint: >
             sh -c 'sleep 90; python app.py'
 
@@ -120,6 +148,9 @@ services:
         environment:
             <<: *base_app_environment
             RRC_HOST: rrc13
+        volumes:
+            - .:/app
+            - rrc13_data:/var/lib/rocksdb
         entrypoint: >
             sh -c 'sleep 100; python app.py'
 
@@ -129,6 +160,9 @@ services:
         environment:
             <<: *base_app_environment
             RRC_HOST: rrc14
+        volumes:
+            - .:/app
+            - rrc14_data:/var/lib/rocksdb
         entrypoint: >
             sh -c 'sleep 110; python app.py'
 
@@ -138,6 +172,9 @@ services:
         environment:
             <<: *base_app_environment
             RRC_HOST: rrc15
+        volumes:
+            - .:/app
+            - rrc15_data:/var/lib/rocksdb
         entrypoint: >
             sh -c 'sleep 120; python app.py'
 
@@ -147,6 +184,9 @@ services:
         environment:
             <<: *base_app_environment
             RRC_HOST: rrc16
+        volumes:
+            - .:/app
+            - rrc16_data:/var/lib/rocksdb
         entrypoint: >
             sh -c 'sleep 130; python app.py'
 
@@ -156,6 +196,9 @@ services:
         environment:
             <<: *base_app_environment
             RRC_HOST: rrc18
+        volumes:
+            - .:/app
+            - rrc18_data:/var/lib/rocksdb
         entrypoint: >
             sh -c 'sleep 140; python app.py'
 
@@ -165,6 +208,9 @@ services:
         environment:
             <<: *base_app_environment
             RRC_HOST: rrc19
+        volumes:
+            - .:/app
+            - rrc19_data:/var/lib/rocksdb
         entrypoint: >
             sh -c 'sleep 150; python app.py'
 
@@ -174,6 +220,9 @@ services:
         environment:
             <<: *base_app_environment
             RRC_HOST: rrc20
+        volumes:
+            - .:/app
+            - rrc20_data:/var/lib/rocksdb
         entrypoint: >
             sh -c 'sleep 160; python app.py'
 
@@ -183,6 +232,9 @@ services:
         environment:
             <<: *base_app_environment
             RRC_HOST: rrc21
+        volumes:
+            - .:/app
+            - rrc21_data:/var/lib/rocksdb
         entrypoint: >
             sh -c 'sleep 170; python app.py'
 
@@ -192,6 +244,9 @@ services:
         environment:
             <<: *base_app_environment
             RRC_HOST: rrc22
+        volumes:
+            - .:/app
+            - rrc22_data:/var/lib/rocksdb
         entrypoint: >
             sh -c 'sleep 180; python app.py'
 
@@ -201,6 +256,9 @@ services:
         environment:
             <<: *base_app_environment
             RRC_HOST: rrc23
+        volumes:
+            - .:/app
+            - rrc23_data:/var/lib/rocksdb
         entrypoint: >
             sh -c 'sleep 190; python app.py'
 
@@ -210,6 +268,9 @@ services:
         environment:
             <<: *base_app_environment
             RRC_HOST: rrc24
+        volumes:
+            - .:/app
+            - rrc24_data:/var/lib/rocksdb
         entrypoint: >
             sh -c 'sleep 200; python app.py'
 
@@ -219,6 +280,9 @@ services:
         environment:
             <<: *base_app_environment
             RRC_HOST: rrc25
+        volumes:
+            - .:/app
+            - rrc25_data:/var/lib/rocksdb
         entrypoint: >
             sh -c 'sleep 210; python app.py'
 
@@ -228,23 +292,11 @@ services:
         environment:
             <<: *base_app_environment
             RRC_HOST: rrc26
+        volumes:
+            - .:/app
+            - rrc26_data:/var/lib/rocksdb
         entrypoint: >
             sh -c 'sleep 220; python app.py'
-
-    redis:
-        image: redis:latest
-        restart: unless-stopped
-        healthcheck:
-            test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
-            interval: 30s
-            timeout: 60s
-            retries: 10
-        volumes:
-            - redis_data:/data
-        ports:
-            - "6379:6379"
-        environment:
-            - ALLOW_EMPTY_PASSWORD=yes
 
     zookeeper:
         image: confluentinc/cp-zookeeper:7.7.1
@@ -270,7 +322,7 @@ services:
             retries: 10
         depends_on:
             zookeeper:
-                condition: service_started
+                condition: service_healthy
         volumes:
             - kafka_data:/var/lib/kafka/data
         ports:
@@ -311,4 +363,26 @@ services:
 volumes:
     zookeeper_data:
     kafka_data:
-    redis_data:
+    rrc00_data:
+    rrc01_data:
+    rrc03_data:
+    rrc04_data:
+    rrc05_data:
+    rrc06_data:
+    rrc07_data:
+    rrc10_data:
+    rrc11_data:
+    rrc12_data:
+    rrc13_data:
+    rrc14_data:
+    rrc15_data:
+    rrc16_data:
+    rrc18_data:
+    rrc19_data:
+    rrc20_data:
+    rrc21_data:
+    rrc22_data:
+    rrc23_data:
+    rrc24_data:
+    rrc25_data:
+    rrc26_data:
