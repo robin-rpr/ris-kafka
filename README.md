@@ -113,7 +113,7 @@ docker compose up -d \
 ```
 
 This will start all collector instances with automatic leader election and failover capabilities:
-- Only one instance actively collects data at a time
+- Only one instance actively sends data at a time
 - Automatic failover if the leader becomes unavailable
 - No message loss during failover
 - Consistent message ordering maintained
