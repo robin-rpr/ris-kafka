@@ -37,7 +37,8 @@ receive_counter = 0  # To store received data size in bytes
 send_counter = 0  # To store sent data size in bytes
 batch_counter = 0 # To store batch counter
 is_leader = False # Leader Lock (Leader Election)
-is_failover = False # Failover Lock (Performing Failover)
+is_failover = False # Failover Lock (Failover Mode)
+is_waiting = True # Waiting Lock (Waiting for data)
 time_lag = timedelta(0) # Time lag in seconds
 
 # Leader Task
@@ -95,6 +96,8 @@ async def consumer_task(queue, backup):
         backup (asyncio.Queue): The backup queue.
     """
     global receive_counter
+    global is_failover
+    global is_waiting
     global is_leader
     try:
         async with connect(f"{WEBSOCKET_URI}?client={WEBSOCKET_IDENTITY}") as ws:
@@ -130,9 +133,15 @@ async def consumer_task(queue, backup):
                         # If we have a backup, use it
                         if backup.qsize() > 0:
                             logger.info("Loading backup")
+                            is_failover = True
                             while not backup.empty():
                                 item = await backup.get()
                                 await queue.put(item)
+                            is_failover = False
+                            is_waiting = False
+                        else:
+                            is_failover = False
+                            is_waiting = False
 
                         for item in ordered:
                             if queue.full():
@@ -153,6 +162,7 @@ async def consumer_task(queue, backup):
 # Sender Task
 async def sender_task(producer, queue):
     global send_counter
+    global is_failover
     global is_leader
     global time_lag
     """
@@ -188,8 +198,8 @@ async def sender_task(producer, queue):
                     try:
                         db = rocksdbpy.open_default("/var/lib/rocksdb")
                     except Exception as e:
-                        logger.warning(f"Failed to open RocksDB. Delaying by 1000ms")
-                        await asyncio.sleep(1)
+                        logger.warning(f"Failed to open RocksDB. Delaying by 2000ms")
+                        await asyncio.sleep(2)
                         db = None # Reset
                         continue
 
@@ -216,7 +226,16 @@ async def sender_task(producer, queue):
                                 seeked = True
                                 break
                     except asyncio.QueueEmpty:
-                        raise Exception(f"Unable to locate last message in sequence")
+                        if is_failover:
+                            logger.warning("Backup message processing is falling behind. Delaying by 200ms")
+                            await asyncio.sleep(0.20)
+                            continue
+                        elif is_waiting:
+                            # If we are waiting for data, delay by 1000ms
+                            await asyncio.sleep(1)
+                            continue
+                        else:
+                            raise Exception(f"Unable to locate last message in sequence")
                     except Exception as e:
                         raise e
                 else:
