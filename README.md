@@ -43,7 +43,7 @@ consumer = Consumer({
 - Docker containerized deployment
 - High Availability with automatic failover
   - Collector instances can run with unlimited replicas
-  - Automatic leader election using Redis
+  - Automatic leader election using Zookeeper
   - Seamless failover with no message loss
   - Consistent message ordering maintained during failover
 
