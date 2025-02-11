@@ -236,7 +236,11 @@ async def sender_task(producer, queue):
                             await asyncio.sleep(1)
                             continue
                         else:
-                            raise Exception(f"Unable to locate last message in sequence")
+                            # Resume failed due to lost continuity
+                            # NOTE: If you encounter this, it means that the stream was interrupted and messages were irreversibly lost.
+                            #       You may need to increase your replica count for a more resilient failover or increase system resources.
+                            #       The only way to restart again is to delete all data (including your Kafka topics) and restart the service.
+                            raise Exception(f"Suspended due to failed stream recovery")
                     except Exception as e:
                         raise e
                 else:
