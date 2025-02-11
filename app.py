@@ -236,7 +236,7 @@ async def sender_task(producer, queue):
                             await asyncio.sleep(1)
                             continue
                         else:
-                            # Resume failed due to lost continuity
+                            # Resume failed due to lost continuity (Hardlock)
                             # NOTE: If you encounter this, it means that the stream was interrupted and messages were irreversibly lost.
                             #       You may need to increase your replica count for a more resilient failover or increase system resources.
                             #       The only way to restart again is to delete all data (including your Kafka topics) and restart the service.
