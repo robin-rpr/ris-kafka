@@ -118,9 +118,7 @@ This will start all collector instances with automatic leader election and failo
 - No message loss during failover
 - Consistent message ordering maintained
 
-# WhatsApp Communication
+## License
 
-Join our WhatsApp group to discuss the service and get help.
-
-<img title="WhatsApp" src="images/whatsapp.svg" height="165" align="left" />
+See [LICENSE](LICENSE)
 
