@@ -26,6 +26,13 @@ app:
     # - name: rrc26 # Dubai, Datamena/UAE-IX, regional
 
 kafka:
+  fullnameOverride: "riskafka-kafka"
+  rbac:
+    create: true
+  controller:
+    automountServiceAccountToken: true
+  broker:
+    automountServiceAccountToken: true
   auth:
     enabled: false
   externalAccess:
@@ -33,7 +40,7 @@ kafka:
     service:
       type: LoadBalancer
     autoDiscovery:
-      enabled: false
+      enabled: true
     listeners: PLAINTEXT
     advertisedListeners: PLAINTEXT://stream.ris-kafka.com:9092
   configurationOverrides:
@@ -55,11 +62,13 @@ kafka:
     size: 1Gi
 
 zookeeper:
+  fullnameOverride: "riskafka-zookeeper"
   replicaCount: 3
   persistence:
     size: 10Gi
 
 kafka-ui:
+  fullnameOverride: "riskafka-kafbat"
   envs:
     config:
       KAFKA_CLUSTERS_0_NAME: "ris-kafka"
