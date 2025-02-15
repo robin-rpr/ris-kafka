@@ -1,47 +1,48 @@
 {{- $root := . }}
+{{- range $host := .Values.app.hosts }}
+---
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: {{ template "riskafka.fullname" . }}-app
+  name: {{ template "riskafka.fullname" $root }}-app-{{ $host }}
+  labels:
+    app: {{ template "riskafka.fullname" $root }}-app-{{ $host }}
 spec:
-  serviceName: "{{ template "riskafka.fullname" . }}-app"
-  replicas: {{ .Values.app.replicas }}
+  serviceName: "{{ template "riskafka.fullname" $root }}-app-{{ $host }}"
+  replicas: 3
   selector:
     matchLabels:
-      app: {{ template "riskafka.fullname" . }}-app
+      app: {{ template "riskafka.fullname" $root }}-app-{{ $host }}
   template:
     metadata:
       labels:
-        app: {{ template "riskafka.fullname" . }}-app
+        app: {{ template "riskafka.fullname" $root }}-app-{{ $host }}
     spec:
       containers:
-        {{- range $host := .Values.app.hosts }}
-        - name: {{ template "riskafka.fullname" $root }}-app-{{ $host }}
-          image: robinrpr/ris-kafka:{{ $.Chart.AppVersion }}
-          command: ["python"]
-          args: ["app.py"]
-          env:
-            - name: RRC_ZOOKEEPER_CONNECT
-              value: "{{ template "riskafka.fullname" $root }}-zookeeper:2181"
-            - name: RRC_KAFKA_CONNECT
-              value: "{{ template "riskafka.fullname" $root }}-kafka:29092"
-            - name: RRC_BACKUP_SIZE
-              value: "1000000"
-            - name: RRC_QUEUE_SIZE
-              value: "100000"
-            - name: RRC_BATCH_SIZE
-              value: "10000"
-            - name: RRC_LOG_LEVEL
-              value: "INFO"
-            - name: RRC_HOST
-              value: "{{ $host }}"
-          volumeMounts:
-            - name: rocksdb-{{ $host }}
-              mountPath: /var/lib/rocksdb
-        {{- end }}
+      - name: {{ template "riskafka.fullname" $root }}-app
+        image: robinrpr/ris-kafka:{{ $.Chart.AppVersion }}
+        command: ["python"]
+        args: ["app.py"]
+        env:
+          - name: RRC_ZOOKEEPER_CONNECT
+            value: "{{ template "riskafka.fullname" $root }}-zookeeper:2181"
+          - name: RRC_KAFKA_CONNECT
+            value: "{{ template "riskafka.fullname" $root }}-kafka:29092"
+          - name: RRC_BACKUP_SIZE
+            value: "1000000"
+          - name: RRC_QUEUE_SIZE
+            value: "100000"
+          - name: RRC_BATCH_SIZE
+            value: "10000"
+          - name: RRC_LOG_LEVEL
+            value: "INFO"
+          - name: RRC_HOST
+            value: "{{ $host }}"
+        volumeMounts:
+          - name: shared-rocksdb
+            mountPath: /var/lib/rocksdb
       volumes:
-        {{- range $host := .Values.app.hosts }}
-        - name: rocksdb-{{ $host }}
+        - name: shared-rocksdb
           persistentVolumeClaim:
             claimName: {{ template "riskafka.fullname" $root }}-rocksdb-{{ $host }}
-        {{- end }}
+{{- end }}
