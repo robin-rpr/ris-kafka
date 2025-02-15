@@ -83,18 +83,12 @@ kafka-ui:
       cert-manager.io/cluster-issuer: letsencrypt-prod
       traefik.ingress.kubernetes.io/router.entrypoints: web, websecure
       traefik.ingress.kubernetes.io/router.tls: "true"
-    hosts:
-      - host: ris-kafka.com
-        paths:
-          - path: /
-            pathType: Prefix
+    path: "/"
+    pathType: "Prefix"
+    host: ris-kafka.com
     tls:
       enabled: true
-      certificates:
-        - hosts:
-            - ris-kafka.com
-          secretName: ris-kafka-tls
-        
+      secretName: ris-kafka-tls
   resources:
     requests:
       cpu: "1"
