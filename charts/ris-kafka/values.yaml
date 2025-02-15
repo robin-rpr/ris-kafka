@@ -35,7 +35,7 @@ kafka:
     service:
       type: LoadBalancer
     autoDiscovery:
-      enabled: false
+      enabled: true
     listeners: PLAINTEXT
     advertisedListeners: PLAINTEXT://stream.ris-kafka.com:9092
   configurationOverrides:
