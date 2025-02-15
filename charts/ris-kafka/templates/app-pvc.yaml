@@ -1,0 +1,15 @@
+{{- range $host := .Values.app.hosts }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ template "riskafka.fullname" $ }}-rocksdb-{{ $host }}
+  labels:
+    app: {{ template "riskafka.fullname" $ }}-app
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 500Mi
+---
+{{- end }}

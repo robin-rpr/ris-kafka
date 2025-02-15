@@ -11,13 +11,10 @@ keywords:
 # Dependencies
 dependencies:
   - name: kafka
-    version: 24.0.2
-    repository: https://charts.bitnami.com/bitnami
-  - name: redis
-    version: 17.12.2
+    version: 31.3.1
     repository: https://charts.bitnami.com/bitnami
   - name: zookeeper
-    version: 12.0.6
+    version: 13.7.3
     repository: https://charts.bitnami.com/bitnami
   - name: kafka-ui
     version: 1.4.11
@@ -36,10 +33,10 @@ maintainers:
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 1.0.1
+version: 1.0.2
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
 # It is recommended to use it with quotes.
-appVersion: "1.0.1"
+appVersion: "1.0.2"
 

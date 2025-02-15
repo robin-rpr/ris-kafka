@@ -1,13 +1,6 @@
 
 app:
   replicas: 3
-  resources:
-    requests:
-      cpu: "500m"
-      memory: "1Gi"
-    limits:
-      cpu: "2"
-      memory: "2Gi"
   hosts:
     - name: rrc00 # Amsterdam, RIPE NCC, global
     - name: rrc01 # London, LINX/LONAP, regional
@@ -60,43 +53,14 @@ kafka:
     sasl:
       mechanism: PLAIN
       interBrokerMechanism: PLAIN
-  resources:
-    requests:
-      cpu: "1"
-      memory: "4Gi"
-    limits:
-      cpu: "2"
-      memory: "8Gi"
   persistence:
     size: 500Gi
 
 zookeeper:
   fullnameOverride: "riskafka-zookeeper"
   replicaCount: 3
-  resources:
-    requests:
-      cpu: "500m"
-      memory: "1Gi"
-    limits:
-      cpu: "1"
-      memory: "2Gi"
   persistence:
     size: 10Gi
-
-redis:
-  fullnameOverride: "riskafka-redis"
-  architecture: standalone
-  auth:
-    enabled: false
-  resources:
-    requests:
-      cpu: "500m"
-      memory: "2Gi"
-    limits:
-      cpu: "1"
-      memory: "4Gi"
-  persistence:
-    size: 1Gi
 
 kafka-ui:
   fullnameOverride: "riskafka-kafbat"
