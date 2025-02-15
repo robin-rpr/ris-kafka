@@ -1,29 +1,29 @@
 app:
   replicas: 3
   hosts:
-    - name: rrc00 # Amsterdam, RIPE NCC, global
-    - name: rrc01 # London, LINX/LONAP, regional
-    - name: rrc03 # Amsterdam, AMS-IX/NL-IX, regional
-    - name: rrc04 # Geneva, CERN, regional
-    - name: rrc05 # Vienna, VIX, regional
-    - name: rrc06 # Otemachi, RIPE NCC, regional
-    - name: rrc07 # Stockholm, Netnod, regional
-    - name: rrc10 # Milan, MIX, regional
-    - name: rrc11 # New York, Telehouse/GTT, regional
-    - name: rrc12 # Frankfurt, DE-CIX, regional
-    - name: rrc13 # Moscow, MSK-IX, regional
-    - name: rrc14 # Palo Alto, Equinix, regional
-    - name: rrc15 # Sao Paulo, IX.br, regional
-    - name: rrc16 # Miami, RIPE NCC, regional
-    - name: rrc18 # Barcelona, CATNIX, regional
-    - name: rrc19 # Johannesburg, Network Platforms, regional
-    - name: rrc20 # Zurich, SWISS-IX, regional
-    - name: rrc21 # Paris, France-IX, regional
-    - name: rrc22 # Bucharest, InterLAN, regional
-    - name: rrc23 # Singapore, Equinix, regional
-    - name: rrc24 # Montevideo, LACNIC, global
-    - name: rrc25 # Amsterdam, RIPE NCC, global
-    - name: rrc26 # Dubai, Datamena/UAE-IX, regional
+    - rrc00 # Amsterdam, RIPE NCC, global
+    - rrc01 # London, LINX/LONAP, regional
+    - rrc03 # Amsterdam, AMS-IX/NL-IX, regional
+    - rrc04 # Geneva, CERN, regional
+    - rrc05 # Vienna, VIX, regional
+    - rrc06 # Otemachi, RIPE NCC, regional
+    - rrc07 # Stockholm, Netnod, regional
+    - rrc10 # Milan, MIX, regional
+    - rrc11 # New York, Telehouse/GTT, regional
+    - rrc12 # Frankfurt, DE-CIX, regional
+    - rrc13 # Moscow, MSK-IX, regional
+    - rrc14 # Palo Alto, Equinix, regional
+    - rrc15 # Sao Paulo, IX.br, regional
+    - rrc16 # Miami, RIPE NCC, regional
+    - rrc18 # Barcelona, CATNIX, regional
+    - rrc19 # Johannesburg, Network Platforms, regional
+    - rrc20 # Zurich, SWISS-IX, regional
+    - rrc21 # Paris, France-IX, regional
+    - rrc22 # Bucharest, InterLAN, regional
+    - rrc23 # Singapore, Equinix, regional
+    - rrc24 # Montevideo, LACNIC, global
+    - rrc25 # Amsterdam, RIPE NCC, global
+    - rrc26 # Dubai, Datamena/UAE-IX, regional
 
 kafka:
   fullnameOverride: "riskafka-kafka"
