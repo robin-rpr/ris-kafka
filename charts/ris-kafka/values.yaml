@@ -89,9 +89,11 @@ kafka-ui:
           - path: /
             pathType: Prefix
     tls:
-      - hosts:
+      enabled: true
+      secretName: ris-kafka-tls
+      hosts:
           - ris-kafka.com
-        secretName: ris-kafka-tls
+        
   resources:
     requests:
       cpu: "1"
