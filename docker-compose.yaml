@@ -7,8 +7,6 @@ services:
         restart: unless-stopped
         stop_signal: SIGTERM  # Wind down collector safely before stopping
         stop_grace_period: 20s # Wait for 20 seconds before forcefully stopping
-        mem_reservation: 200m # Reserve at least 200m of memory
-        cpus: "1" # Reserve 1 CPU
         environment:
             &base_app_environment
             RRC_ZOOKEEPER_CONNECT: zookeeper:2181

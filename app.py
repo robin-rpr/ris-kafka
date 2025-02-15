@@ -290,6 +290,7 @@ async def sender_task(producer, queue):
                             peer_ip=item['peer'],
                             peer_asn=int(item['peer_asn']),
                             timestamp=item['timestamp'],
+                            reason_code=3, # Remote system closed
                             bgp_notification=bytes.fromhex(item['raw']),
                             collector=RIS_HOST
                         )
@@ -318,6 +319,7 @@ async def sender_task(producer, queue):
                                 peer_ip=item['peer'],
                                 peer_asn=int(item['peer_asn']),
                                 timestamp=item['timestamp'],
+                                reason_code=5, # Peer monitoring stopped
                                 bgp_notification=bytes.fromhex(item['raw']),
                                 collector=RIS_HOST
                             )
