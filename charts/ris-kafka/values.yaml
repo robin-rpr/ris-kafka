@@ -75,8 +75,9 @@ kafka-ui:
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: "riskafka-kafka:29092"
       KAFKA_CLUSTERS_0_READONLY: "true"
   service:
-    type: ClusterIP
-    port: 8080
+    type: LoadBalancer
+    port: 80
+    targetPort: 8080
   ingress:
     enabled: true
     annotations:
@@ -89,7 +90,6 @@ kafka-ui:
     tls:
       enabled: true
       secretName: ris-kafka-tls
-      
   resources:
     requests:
       cpu: "1"

@@ -14,7 +14,7 @@ spec:
             - -c
             - |
               # Allow ANONYMOUS users to read from all topics
-              kafka-acls --bootstrap-server stream.ris-kafka.com:9092 \
+              kafka-acls --bootstrap-server {{ template "riskafka.fullname" . }}-kafka:29092 \
                          --add --allow-principal User:ANONYMOUS \
                          --operation Read \
                          --topic '*' \
