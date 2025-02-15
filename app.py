@@ -3,7 +3,7 @@ from websockets.asyncio.client import connect
 from datetime import datetime, timedelta
 from confluent_kafka import Producer
 from kazoo.recipe.lock import Lock
-from protocols.bmp import BMPv3
+from libs.bmp import BMPv3
 import rocksdbpy
 import ipaddress
 import logging
