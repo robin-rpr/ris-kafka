@@ -21,40 +21,19 @@ spec:
           image: robinrpr/ris-kafka:{{ $.Chart.AppVersion }}
           command: ["python"]
           args: ["app.py"]
-          resources:
-            requests:
-              cpu: {{ $.Values.app.resources.requests.cpu | quote }}
-              memory: {{ $.Values.app.resources.requests.memory | quote }}
-            limits:
-              cpu: {{ $.Values.app.resources.limits.cpu | quote }}
-              memory: {{ $.Values.app.resources.limits.memory | quote }}
           env:
-          - name: KAFKA_FQDN
+          - name: RRC_ZOOKEEPER_CONNECT
+            value: "{{ template "riskafka.fullname" $root }}-zookeeper:2181"
+          - name: RRC_KAFKA_CONNECT
             value: "{{ template "riskafka.fullname" $root }}-kafka:29092"
-          - name: LOG_LEVEL
+          - name: RRC_BACKUP_SIZE
+            value: "1000000"
+          - name: RRC_QUEUE_SIZE
+            value: "100000"
+          - name: RRC_BATCH_SIZE
+            value: "10000"
+          - name: RRC_LOG_LEVEL
             value: "INFO"
-          - name: ENSURE_CONTINUITY
-            value: "true"
-          - name: ENABLE_PROFILING
-            value: "false"
-          - name: BUFFER_SIZE
-            value: "10000"
-          - name: BUFFER_PADDING
-            value: "100"
-          - name: TIME_LAG_LIMIT
-            value: "10"
-          - name: BATCH_CONSUME
-            value: "1000"
-          - name: BATCH_SEND
-            value: "10000"
-          - name: REDIS_MAX_CONNECTIONS
-            value: "50"
-          - name: REDIS_HOST
-            value: "{{ template "riskafka.fullname" $root }}-redis"
-          - name: REDIS_PORT
-            value: "6379"
-          - name: REDIS_DB
-            value: "0"
-          - name: RIS_HOST
+          - name: RRC_HOST
             value: "{{ $host }}"
         {{- end }}
