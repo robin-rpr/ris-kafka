@@ -42,7 +42,7 @@ spec:
           - name: RRC_KAFKA_CONNECT
             value: "{{ template "riskafka.fullname" $root }}-kafka:29092"
           - name: RRC_BACKUP_SIZE
-            value: "1000000"
+            value: "350000"
           - name: RRC_QUEUE_SIZE
             value: "100000"
           - name: RRC_BATCH_SIZE
