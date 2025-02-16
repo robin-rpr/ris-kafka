@@ -26,7 +26,7 @@ app:
     - rrc26 # Dubai, Datamena/UAE-IX, regional
 
 kafka:
-  fullnameOverride: "riskafka-kafka"
+  fullnameOverride: "ris-kafka-kafka"
   rbac:
     create: true
   controller:
@@ -42,7 +42,7 @@ kafka:
     autoDiscovery:
       enabled: true
     listeners: PLAINTEXT://0.0.0.0:9092,INTERNAL://0.0.0.0:29092
-    advertisedListeners: PLAINTEXT://stream.ris-kafka.com:9092,INTERNAL://riskafka-kafka:29092
+    advertisedListeners: PLAINTEXT://stream.ris-kafka.com:9092,INTERNAL://ris-kafka-kafka:29092
   configurationOverrides:
     "listener.security.protocol.map": "PLAINTEXT:PLAINTEXT,INTERNAL:PLAINTEXT"
     "inter.broker.listener.name": PLAINTEXT
@@ -62,17 +62,17 @@ kafka:
     size: 500Gi
 
 zookeeper:
-  fullnameOverride: "riskafka-zookeeper"
+  fullnameOverride: "ris-kafka-zookeeper"
   replicaCount: 3
   persistence:
     size: 10Gi
 
 kafka-ui:
-  fullnameOverride: "riskafka-kafbat"
+  fullnameOverride: "ris-kafka-kafbat"
   envs:
     config:
       KAFKA_CLUSTERS_0_NAME: "ris-kafka"
-      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: "riskafka-kafka:29092"
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: "ris-kafka-kafka:29092"
       KAFKA_CLUSTERS_0_READONLY: "true"
   service:
     type: LoadBalancer

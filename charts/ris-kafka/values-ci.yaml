@@ -26,7 +26,7 @@ app:
     # - rrc26 # Dubai, Datamena/UAE-IX, regional
 
 kafka:
-  fullnameOverride: "riskafka-kafka"
+  fullnameOverride: "ris-kafka-kafka"
   rbac:
     create: true
   controller:
@@ -62,17 +62,17 @@ kafka:
     size: 1Gi
 
 zookeeper:
-  fullnameOverride: "riskafka-zookeeper"
+  fullnameOverride: "ris-kafka-zookeeper"
   replicaCount: 3
   persistence:
     size: 10Gi
 
 kafka-ui:
-  fullnameOverride: "riskafka-kafbat"
+  fullnameOverride: "ris-kafka-kafbat"
   envs:
     config:
       KAFKA_CLUSTERS_0_NAME: "ris-kafka"
-      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: "riskafka-kafka:29092"
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: "ris-kafka-kafka:29092"
       KAFKA_CLUSTERS_0_READONLY: "true"
   service:
     type: ClusterIP
