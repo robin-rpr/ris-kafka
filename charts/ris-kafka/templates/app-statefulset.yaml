@@ -10,6 +10,7 @@ metadata:
 spec:
   serviceName: "{{ template "riskafka.fullname" $root }}-app-{{ $host }}"
   replicas: 3
+  podManagementPolicy: OrderedReady
   selector:
     matchLabels:
       app: {{ template "riskafka.fullname" $root }}-app-{{ $host }}
@@ -18,6 +19,18 @@ spec:
       labels:
         app: {{ template "riskafka.fullname" $root }}-app-{{ $host }}
     spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - {{ template "riskafka.fullname" $root }}-app-{{ $host }}
+              topologyKey: kubernetes.io/hostname
       containers:
       - name: {{ template "riskafka.fullname" $root }}-app
         image: robinrpr/ris-kafka:{{ $.Chart.AppVersion }}
