@@ -41,10 +41,10 @@ kafka:
       type: LoadBalancer
     autoDiscovery:
       enabled: true
-    listeners: PLAINTEXT
-    advertisedListeners: PLAINTEXT://stream.ris-kafka.com:9092
+    listeners: PLAINTEXT://0.0.0.0:9092,INTERNAL://0.0.0.0:29092
+    advertisedListeners: PLAINTEXT://stream.ris-kafka.com:9092,INTERNAL://riskafka-kafka:29092
   configurationOverrides:
-    "listener.security.protocol.map": PLAINTEXT:PLAINTEXT
+    "listener.security.protocol.map": "PLAINTEXT:PLAINTEXT,INTERNAL:PLAINTEXT"
     "inter.broker.listener.name": PLAINTEXT
     "authorizer.class.name": "kafka.security.authorizer.AclAuthorizer"
     "allow.everyone.if.no.acl.found": "false"

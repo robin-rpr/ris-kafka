@@ -13,6 +13,11 @@ spec:
       ports:
         - protocol: TCP
           port: 9092
+    - from:
+        - podSelector: {}  # Only within namespace
+      ports:
+        - protocol: TCP
+          port: 29092
       policyTypes:
         - Ingress
       rules:
