@@ -76,7 +76,7 @@ kafka-ui:
       KAFKA_CLUSTERS_0_READONLY: "true"
   service:
     type: ClusterIP
-    port: 8080
+    port: 80
   resources:
     requests:
       cpu: "1"
