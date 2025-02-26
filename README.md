@@ -81,35 +81,12 @@ docker compose up -d
 
 3. Open http://localhost:8080 (Kafbat Dashboard)
 
-## High Availability Deployment
+## Production Deployment
 
-For production environments, you can run multiple replicas to ensure high availability:
+For production deployment, we recommend using Docker Swarm.
 
-```bash
-docker compose up -d \
-     --scale rrc00=3 \
-     --scale rrc01=3 \
-     --scale rrc03=3 \
-     --scale rrc04=3 \
-     --scale rrc05=3 \
-     --scale rrc06=3 \
-     --scale rrc07=3 \
-     --scale rrc10=3 \
-     --scale rrc11=3 \
-     --scale rrc12=3 \
-     --scale rrc13=3 \
-     --scale rrc14=3 \
-     --scale rrc15=3 \
-     --scale rrc16=3 \
-     --scale rrc18=3 \
-     --scale rrc19=3 \
-     --scale rrc20=3 \
-     --scale rrc21=3 \
-     --scale rrc22=3 \
-     --scale rrc23=3 \
-     --scale rrc24=3 \
-     --scale rrc25=3 \
-     --scale rrc26=3
+```sh
+docker stack deploy -c docker-compose.yaml ris-kafka
 ```
 
 This will start all collector instances with automatic leader election and failover capabilities:

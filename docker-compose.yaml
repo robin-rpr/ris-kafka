@@ -1,9 +1,11 @@
+version: '3.8'
 services:
     # Amsterdam, RIPE NCC, global
     rrc00:
         &base_app
         build: .
-        # image: robinrpr/ris-kafka:latest
+        deploy:
+          replicas: 3
         restart: unless-stopped
         stop_signal: SIGTERM  # Wind down collector safely before stopping
         stop_grace_period: 20s # Wait for 20 seconds before forcefully stopping
@@ -342,6 +344,29 @@ services:
             KAFKA_COMPRESSION_TYPE: lz4
             KAFKA_NUM_NETWORK_THREADS: 8
             KAFKA_NUM_IO_THREADS: 8
+
+    acl:
+        image: confluentinc/cp-kafka:latest
+        depends_on:
+            kafka:
+                condition: service_healthy
+        restart: unless-stopped
+        command:
+            - /bin/sh
+            - -c
+            - |
+                sleep 120 &&
+                kafka-acls --bootstrap-server kafka:29092 \
+                            --add --allow-principal User:ANONYMOUS \
+                            --operation Read \
+                            --topic '*' \
+                            --group '*' \
+                            --allow-host '*' &&
+                kafka-acls --bootstrap-server kafka:29092 \
+                            --add --allow-principal User:ANONYMOUS \
+                            --operation Write \
+                            --topic '*' \
+                            --allow-host '*'
 
     kafbat:
         image: ghcr.io/kafbat/kafka-ui:latest
