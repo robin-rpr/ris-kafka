@@ -69,7 +69,7 @@ services:
             restart_policy:
                 condition: any
         healthcheck:
-            test: ["CMD", "kafka-broker-api-versions", "--bootstrap-server", "kafka:29092"]
+            test: ["CMD", "kafka-broker-api-versions", "--bootstrap-server", "localhost:29092"]
             interval: 30s
             timeout: 60s
             retries: 10
