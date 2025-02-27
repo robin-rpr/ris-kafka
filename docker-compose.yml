@@ -1,7 +1,7 @@
 version: '3'
 services:
     rrc00:
-        image: robin-rpr/ris-kafka:1.0.6
+        image: robin-rpr/ris-kafka:1.0.7
         deploy:
           replicas: 3
         restart: unless-stopped
@@ -16,12 +16,9 @@ services:
             RRC_LOG_LEVEL: INFO
             RRC_HOST: rrc00
         depends_on:
-            kafbat:
-                condition: service_started
-            kafka:
-                condition: service_healthy
-            zookeeper:
-                condition: service_healthy
+            - kafbat
+            - kafka
+            - zookeeper
         working_dir: /app
         volumes:
             - .:/app
@@ -30,7 +27,7 @@ services:
             python app.py
     
     rrc01:
-        image: robin-rpr/ris-kafka:1.0.6
+        image: robin-rpr/ris-kafka:1.0.7
         deploy:
           replicas: 3
         restart: unless-stopped
@@ -45,12 +42,9 @@ services:
             RRC_LOG_LEVEL: INFO
             RRC_HOST: rrc01
         depends_on:
-            kafbat:
-                condition: service_started
-            kafka:
-                condition: service_healthy
-            zookeeper:
-                condition: service_healthy
+            - kafbat
+            - kafka
+            - zookeeper
         working_dir: /app
         volumes:
             - .:/app
@@ -59,7 +53,7 @@ services:
             python app.py
     
     rrc03:
-        image: robin-rpr/ris-kafka:1.0.6
+        image: robin-rpr/ris-kafka:1.0.7
         deploy:
           replicas: 3
         restart: unless-stopped
@@ -74,12 +68,9 @@ services:
             RRC_LOG_LEVEL: INFO
             RRC_HOST: rrc03
         depends_on:
-            kafbat:
-                condition: service_started
-            kafka:
-                condition: service_healthy
-            zookeeper:
-                condition: service_healthy
+            - kafbat
+            - kafka
+            - zookeeper
         working_dir: /app
         volumes:
             - .:/app
@@ -88,7 +79,7 @@ services:
             python app.py
     
     rrc04:
-        image: robin-rpr/ris-kafka:1.0.6
+        image: robin-rpr/ris-kafka:1.0.7
         deploy:
           replicas: 3
         restart: unless-stopped
@@ -103,12 +94,9 @@ services:
             RRC_LOG_LEVEL: INFO
             RRC_HOST: rrc04
         depends_on:
-            kafbat:
-                condition: service_started
-            kafka:
-                condition: service_healthy
-            zookeeper:
-                condition: service_healthy
+            - kafbat
+            - kafka
+            - zookeeper
         working_dir: /app
         volumes:
             - .:/app
@@ -117,7 +105,7 @@ services:
             python app.py
     
     rrc05:
-        image: robin-rpr/ris-kafka:1.0.6
+        image: robin-rpr/ris-kafka:1.0.7
         deploy:
           replicas: 3
         restart: unless-stopped
@@ -132,12 +120,9 @@ services:
             RRC_LOG_LEVEL: INFO
             RRC_HOST: rrc05
         depends_on:
-            kafbat:
-                condition: service_started
-            kafka:
-                condition: service_healthy
-            zookeeper:
-                condition: service_healthy
+            - kafbat
+            - kafka
+            - zookeeper
         working_dir: /app
         volumes:
             - .:/app
@@ -146,7 +131,7 @@ services:
             python app.py
     
     rrc06:
-        image: robin-rpr/ris-kafka:1.0.6
+        image: robin-rpr/ris-kafka:1.0.7
         deploy:
           replicas: 3
         restart: unless-stopped
@@ -161,12 +146,9 @@ services:
             RRC_LOG_LEVEL: INFO
             RRC_HOST: rrc06
         depends_on:
-            kafbat:
-                condition: service_started
-            kafka:
-                condition: service_healthy
-            zookeeper:
-                condition: service_healthy
+            - kafbat
+            - kafka
+            - zookeeper
         working_dir: /app
         volumes:
             - .:/app
@@ -175,7 +157,7 @@ services:
             python app.py
     
     rrc07:
-        image: robin-rpr/ris-kafka:1.0.6
+        image: robin-rpr/ris-kafka:1.0.7
         deploy:
           replicas: 3
         restart: unless-stopped
@@ -190,12 +172,9 @@ services:
             RRC_LOG_LEVEL: INFO
             RRC_HOST: rrc07
         depends_on:
-            kafbat:
-                condition: service_started
-            kafka:
-                condition: service_healthy
-            zookeeper:
-                condition: service_healthy
+            - kafbat
+            - kafka
+            - zookeeper
         working_dir: /app
         volumes:
             - .:/app
@@ -204,7 +183,7 @@ services:
             python app.py
     
     rrc10:
-        image: robin-rpr/ris-kafka:1.0.6
+        image: robin-rpr/ris-kafka:1.0.7
         deploy:
           replicas: 3
         restart: unless-stopped
@@ -219,12 +198,9 @@ services:
             RRC_LOG_LEVEL: INFO
             RRC_HOST: rrc10
         depends_on:
-            kafbat:
-                condition: service_started
-            kafka:
-                condition: service_healthy
-            zookeeper:
-                condition: service_healthy
+            - kafbat
+            - kafka
+            - zookeeper
         working_dir: /app
         volumes:
             - .:/app
@@ -233,7 +209,7 @@ services:
             python app.py
     
     rrc11:
-        image: robin-rpr/ris-kafka:1.0.6
+        image: robin-rpr/ris-kafka:1.0.7
         deploy:
           replicas: 3
         restart: unless-stopped
@@ -248,12 +224,9 @@ services:
             RRC_LOG_LEVEL: INFO
             RRC_HOST: rrc11
         depends_on:
-            kafbat:
-                condition: service_started
-            kafka:
-                condition: service_healthy
-            zookeeper:
-                condition: service_healthy
+            - kafbat
+            - kafka
+            - zookeeper
         working_dir: /app
         volumes:
             - .:/app
@@ -262,7 +235,7 @@ services:
             python app.py
     
     rrc12:
-        image: robin-rpr/ris-kafka:1.0.6
+        image: robin-rpr/ris-kafka:1.0.7
         deploy:
           replicas: 3
         restart: unless-stopped
@@ -277,12 +250,9 @@ services:
             RRC_LOG_LEVEL: INFO
             RRC_HOST: rrc12
         depends_on:
-            kafbat:
-                condition: service_started
-            kafka:
-                condition: service_healthy
-            zookeeper:
-                condition: service_healthy
+            - kafbat
+            - kafka
+            - zookeeper
         working_dir: /app
         volumes:
             - .:/app
@@ -291,7 +261,7 @@ services:
             python app.py
     
     rrc13:
-        image: robin-rpr/ris-kafka:1.0.6
+        image: robin-rpr/ris-kafka:1.0.7
         deploy:
           replicas: 3
         restart: unless-stopped
@@ -306,12 +276,9 @@ services:
             RRC_LOG_LEVEL: INFO
             RRC_HOST: rrc13
         depends_on:
-            kafbat:
-                condition: service_started
-            kafka:
-                condition: service_healthy
-            zookeeper:
-                condition: service_healthy
+            - kafbat
+            - kafka
+            - zookeeper
         working_dir: /app
         volumes:
             - .:/app
@@ -320,7 +287,7 @@ services:
             python app.py
     
     rrc14:
-        image: robin-rpr/ris-kafka:1.0.6
+        image: robin-rpr/ris-kafka:1.0.7
         deploy:
           replicas: 3
         restart: unless-stopped
@@ -335,12 +302,9 @@ services:
             RRC_LOG_LEVEL: INFO
             RRC_HOST: rrc14
         depends_on:
-            kafbat:
-                condition: service_started
-            kafka:
-                condition: service_healthy
-            zookeeper:
-                condition: service_healthy
+            - kafbat
+            - kafka
+            - zookeeper
         working_dir: /app
         volumes:
             - .:/app
@@ -349,7 +313,7 @@ services:
             python app.py
     
     rrc15:
-        image: robin-rpr/ris-kafka:1.0.6
+        image: robin-rpr/ris-kafka:1.0.7
         deploy:
           replicas: 3
         restart: unless-stopped
@@ -364,12 +328,9 @@ services:
             RRC_LOG_LEVEL: INFO
             RRC_HOST: rrc15
         depends_on:
-            kafbat:
-                condition: service_started
-            kafka:
-                condition: service_healthy
-            zookeeper:
-                condition: service_healthy
+            - kafbat
+            - kafka
+            - zookeeper
         working_dir: /app
         volumes:
             - .:/app
@@ -378,7 +339,7 @@ services:
             python app.py
     
     rrc16:
-        image: robin-rpr/ris-kafka:1.0.6
+        image: robin-rpr/ris-kafka:1.0.7
         deploy:
           replicas: 3
         restart: unless-stopped
@@ -393,12 +354,9 @@ services:
             RRC_LOG_LEVEL: INFO
             RRC_HOST: rrc16
         depends_on:
-            kafbat:
-                condition: service_started
-            kafka:
-                condition: service_healthy
-            zookeeper:
-                condition: service_healthy
+            - kafbat
+            - kafka
+            - zookeeper
         working_dir: /app
         volumes:
             - .:/app
@@ -407,7 +365,7 @@ services:
             python app.py
     
     rrc18:
-        image: robin-rpr/ris-kafka:1.0.6
+        image: robin-rpr/ris-kafka:1.0.7
         deploy:
           replicas: 3
         restart: unless-stopped
@@ -422,12 +380,9 @@ services:
             RRC_LOG_LEVEL: INFO
             RRC_HOST: rrc18
         depends_on:
-            kafbat:
-                condition: service_started
-            kafka:
-                condition: service_healthy
-            zookeeper:
-                condition: service_healthy
+            - kafbat
+            - kafka
+            - zookeeper
         working_dir: /app
         volumes:
             - .:/app
@@ -436,7 +391,7 @@ services:
             python app.py
     
     rrc19:
-        image: robin-rpr/ris-kafka:1.0.6
+        image: robin-rpr/ris-kafka:1.0.7
         deploy:
           replicas: 3
         restart: unless-stopped
@@ -451,12 +406,9 @@ services:
             RRC_LOG_LEVEL: INFO
             RRC_HOST: rrc19
         depends_on:
-            kafbat:
-                condition: service_started
-            kafka:
-                condition: service_healthy
-            zookeeper:
-                condition: service_healthy
+            - kafbat
+            - kafka
+            - zookeeper
         working_dir: /app
         volumes:
             - .:/app
@@ -465,7 +417,7 @@ services:
             python app.py
     
     rrc20:
-        image: robin-rpr/ris-kafka:1.0.6
+        image: robin-rpr/ris-kafka:1.0.7
         deploy:
           replicas: 3
         restart: unless-stopped
@@ -480,12 +432,9 @@ services:
             RRC_LOG_LEVEL: INFO
             RRC_HOST: rrc20
         depends_on:
-            kafbat:
-                condition: service_started
-            kafka:
-                condition: service_healthy
-            zookeeper:
-                condition: service_healthy
+            - kafbat
+            - kafka
+            - zookeeper
         working_dir: /app
         volumes:
             - .:/app
@@ -494,7 +443,7 @@ services:
             python app.py
     
     rrc21:
-        image: robin-rpr/ris-kafka:1.0.6
+        image: robin-rpr/ris-kafka:1.0.7
         deploy:
           replicas: 3
         restart: unless-stopped
@@ -509,12 +458,9 @@ services:
             RRC_LOG_LEVEL: INFO
             RRC_HOST: rrc21
         depends_on:
-            kafbat:
-                condition: service_started
-            kafka:
-                condition: service_healthy
-            zookeeper:
-                condition: service_healthy
+            - kafbat
+            - kafka
+            - zookeeper
         working_dir: /app
         volumes:
             - .:/app
@@ -523,7 +469,7 @@ services:
             python app.py
     
     rrc22:
-        image: robin-rpr/ris-kafka:1.0.6
+        image: robin-rpr/ris-kafka:1.0.7
         deploy:
           replicas: 3
         restart: unless-stopped
@@ -538,12 +484,9 @@ services:
             RRC_LOG_LEVEL: INFO
             RRC_HOST: rrc22
         depends_on:
-            kafbat:
-                condition: service_started
-            kafka:
-                condition: service_healthy
-            zookeeper:
-                condition: service_healthy
+            - kafbat
+            - kafka
+            - zookeeper
         working_dir: /app
         volumes:
             - .:/app
@@ -552,7 +495,7 @@ services:
             python app.py
     
     rrc23:
-        image: robin-rpr/ris-kafka:1.0.6
+        image: robin-rpr/ris-kafka:1.0.7
         deploy:
           replicas: 3
         restart: unless-stopped
@@ -567,12 +510,9 @@ services:
             RRC_LOG_LEVEL: INFO
             RRC_HOST: rrc23
         depends_on:
-            kafbat:
-                condition: service_started
-            kafka:
-                condition: service_healthy
-            zookeeper:
-                condition: service_healthy
+            - kafbat
+            - kafka
+            - zookeeper
         working_dir: /app
         volumes:
             - .:/app
@@ -581,7 +521,7 @@ services:
             python app.py
     
     rrc24:
-        image: robin-rpr/ris-kafka:1.0.6
+        image: robin-rpr/ris-kafka:1.0.7
         deploy:
           replicas: 3
         restart: unless-stopped
@@ -596,12 +536,9 @@ services:
             RRC_LOG_LEVEL: INFO
             RRC_HOST: rrc24
         depends_on:
-            kafbat:
-                condition: service_started
-            kafka:
-                condition: service_healthy
-            zookeeper:
-                condition: service_healthy
+            - kafbat
+            - kafka
+            - zookeeper
         working_dir: /app
         volumes:
             - .:/app
@@ -610,7 +547,7 @@ services:
             python app.py
     
     rrc25:
-        image: robin-rpr/ris-kafka:1.0.6
+        image: robin-rpr/ris-kafka:1.0.7
         deploy:
           replicas: 3
         restart: unless-stopped
@@ -625,12 +562,9 @@ services:
             RRC_LOG_LEVEL: INFO
             RRC_HOST: rrc25
         depends_on:
-            kafbat:
-                condition: service_started
-            kafka:
-                condition: service_healthy
-            zookeeper:
-                condition: service_healthy
+            - kafbat
+            - kafka
+            - zookeeper
         working_dir: /app
         volumes:
             - .:/app
@@ -639,7 +573,7 @@ services:
             python app.py
     
     rrc26:
-        image: robin-rpr/ris-kafka:1.0.6
+        image: robin-rpr/ris-kafka:1.0.7
         deploy:
           replicas: 3
         restart: unless-stopped
@@ -654,12 +588,9 @@ services:
             RRC_LOG_LEVEL: INFO
             RRC_HOST: rrc26
         depends_on:
-            kafbat:
-                condition: service_started
-            kafka:
-                condition: service_healthy
-            zookeeper:
-                condition: service_healthy
+            - kafbat
+            - kafka
+            - zookeeper
         working_dir: /app
         volumes:
             - .:/app
@@ -691,8 +622,7 @@ services:
             timeout: 60s
             retries: 10
         depends_on:
-            zookeeper:
-                condition: service_healthy
+            - zookeeper
         volumes:
             - kafka_data:/var/lib/kafka/data
         ports:
@@ -719,14 +649,12 @@ services:
     acl:
         image: confluentinc/cp-kafka:latest
         depends_on:
-            kafka:
-                condition: service_healthy
+            - kafka
         restart: unless-stopped
         command:
             - /bin/sh
             - -c
             - |
-                sleep 120 &&
                 kafka-acls --bootstrap-server kafka:29092 \
                             --add --allow-principal User:ANONYMOUS \
                             --operation Read \
@@ -737,7 +665,8 @@ services:
                             --add --allow-principal User:ANONYMOUS \
                             --operation Write \
                             --topic '*' \
-                            --allow-host '*'
+                            --allow-host '*' && \
+                sleep 300
 
     kafbat:
         image: ghcr.io/kafbat/kafka-ui:latest
@@ -750,8 +679,7 @@ services:
                 - "traefik.http.routers.riskafka.tls.certresolver=riskafka"
                 - "traefik.http.services.riskafka.loadbalancer.server.port=8080"
         depends_on:
-            kafka:
-                condition: service_healthy
+            - kafka
         environment:
             KAFKA_CLUSTERS_0_NAME: "ris-kafka"
             KAFKA_CLUSTERS_0_BOOTSTRAP_SERVERS: "kafka:29092"
