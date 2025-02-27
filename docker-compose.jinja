@@ -29,7 +29,9 @@ services:
             - zookeeper
         working_dir: /app
         volumes:
+            {%- if not production %}
             - .:/app
+            {%- endif %}
             - {{ host }}_data:/var/lib/rocksdb
         entrypoint: >
             python app.py
