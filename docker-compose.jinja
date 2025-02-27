@@ -13,7 +13,7 @@ services:
                 condition: any
             placement:
                 constraints:
-                    - node.labels.ris-kafka == {{ host }}
+                    - node.labels.ris-kafka_{{ host }} == 1
         restart: unless-stopped
         stop_signal: SIGTERM  # Wind down collector safely before stopping
         stop_grace_period: 20s # Wait for 20 seconds before forcefully stopping
@@ -47,7 +47,7 @@ services:
                 condition: any
             placement:
                 constraints:
-                    - node.labels.ris-kafka == zookeeper
+                    - node.labels.ris-kafka_zookeeper == 1
         healthcheck:
             test: ["CMD-SHELL", "nc -z localhost 2181 || exit -1"]
             interval: 30s
@@ -66,7 +66,7 @@ services:
             replicas: 3
             placement:
                 constraints:
-                    - node.labels.ris-kafka == kafka
+                    - node.labels.ris-kafka_kafka == 1
             restart_policy:
                 condition: any
         healthcheck:

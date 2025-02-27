@@ -96,30 +96,31 @@ For production deployment, we recommend using Docker Swarm.
 
 1. Specify the constraints:
 ```sh
-docker node update --label-add ris-kafka=kafka <NODE_NAME>
-docker node update --label-add ris-kafka=rrc00 <NODE_NAME>
-docker node update --label-add ris-kafka=rrc01 <NODE_NAME>
-docker node update --label-add ris-kafka=rrc03 <NODE_NAME>
-docker node update --label-add ris-kafka=rrc04 <NODE_NAME>
-docker node update --label-add ris-kafka=rrc05 <NODE_NAME>
-docker node update --label-add ris-kafka=rrc06 <NODE_NAME>
-docker node update --label-add ris-kafka=rrc07 <NODE_NAME>
-docker node update --label-add ris-kafka=rrc10 <NODE_NAME>
-docker node update --label-add ris-kafka=rrc11 <NODE_NAME>
-docker node update --label-add ris-kafka=rrc12 <NODE_NAME>
-docker node update --label-add ris-kafka=rrc13 <NODE_NAME>
-docker node update --label-add ris-kafka=rrc14 <NODE_NAME>
-docker node update --label-add ris-kafka=rrc15 <NODE_NAME>
-docker node update --label-add ris-kafka=rrc16 <NODE_NAME>
-docker node update --label-add ris-kafka=rrc18 <NODE_NAME>
-docker node update --label-add ris-kafka=rrc19 <NODE_NAME>
-docker node update --label-add ris-kafka=rrc20 <NODE_NAME>
-docker node update --label-add ris-kafka=rrc21 <NODE_NAME>
-docker node update --label-add ris-kafka=rrc22 <NODE_NAME>
-docker node update --label-add ris-kafka=rrc23 <NODE_NAME>
-docker node update --label-add ris-kafka=rrc24 <NODE_NAME>
-docker node update --label-add ris-kafka=rrc25 <NODE_NAME>
-docker node update --label-add ris-kafka=rrc26 <NODE_NAME>
+docker node update --label-add ris-kafka_zookeeper=1 <NODE_NAME>
+docker node update --label-add ris-kafka_kafka=1 <NODE_NAME>
+docker node update --label-add ris-kafka_rrc00=1 <NODE_NAME>
+docker node update --label-add ris-kafka_rrc01=1 <NODE_NAME>
+docker node update --label-add ris-kafka_rrc03=1 <NODE_NAME>
+docker node update --label-add ris-kafka_rrc04=1 <NODE_NAME>
+docker node update --label-add ris-kafka_rrc05=1 <NODE_NAME>
+docker node update --label-add ris-kafka_rrc06=1 <NODE_NAME>
+docker node update --label-add ris-kafka_rrc07=1 <NODE_NAME>
+docker node update --label-add ris-kafka_rrc10=1 <NODE_NAME>
+docker node update --label-add ris-kafka_rrc11=1 <NODE_NAME>
+docker node update --label-add ris-kafka_rrc12=1 <NODE_NAME>
+docker node update --label-add ris-kafka_rrc13=1 <NODE_NAME>
+docker node update --label-add ris-kafka_rrc14=1 <NODE_NAME>
+docker node update --label-add ris-kafka_rrc15=1 <NODE_NAME>
+docker node update --label-add ris-kafka_rrc16=1 <NODE_NAME>
+docker node update --label-add ris-kafka_rrc18=1 <NODE_NAME>
+docker node update --label-add ris-kafka_rrc19=1 <NODE_NAME>
+docker node update --label-add ris-kafka_rrc20=1 <NODE_NAME>
+docker node update --label-add ris-kafka_rrc21=1 <NODE_NAME>
+docker node update --label-add ris-kafka_rrc22=1 <NODE_NAME>
+docker node update --label-add ris-kafka_rrc23=1 <NODE_NAME>
+docker node update --label-add ris-kafka_rrc24=1 <NODE_NAME>
+docker node update --label-add ris-kafka_rrc25=1 <NODE_NAME>
+docker node update --label-add ris-kafka_rrc26=1 <NODE_NAME>
 ```
 
 2. Deploy the service:
