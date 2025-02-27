@@ -8,11 +8,10 @@ services:
         build: .
         {%- endif %}
         deploy:
-          replicas: 3
-        restart: unless-stopped
-        deploy:
+            replicas: 3
             restart_policy:
                 condition: any
+        restart: unless-stopped
         stop_signal: SIGTERM  # Wind down collector safely before stopping
         stop_grace_period: 20s # Wait for 20 seconds before forcefully stopping
         environment:
@@ -121,7 +120,6 @@ services:
         deploy:
             restart_policy:
                 condition: any
-        deploy:
             labels:
                 - "traefik.enable=true"
                 - "traefik.http.routers.riskafka.rule=Host(`ris-kafka.com`)"
@@ -142,10 +140,10 @@ services:
             - "443:443"
         deploy:
             restart_policy:
-                    condition: any
+                condition: any
             placement:
                 constraints:
-                - node.role == manager
+                    - node.role == manager
         command:
             - "--entrypoints.web.address=:80"
             - "--entrypoints.websecure.address=:443"
