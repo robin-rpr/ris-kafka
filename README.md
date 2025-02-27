@@ -12,9 +12,6 @@
 
 A high-performance message broker that streams BGP updates from RIPE NCC's Routing Information Service (RIS) Live websocket feed to Apache Kafka, with real-time JSON to BMPv3 protocol conversion.
 
-> [!NOTE]
-> This is an independent experimental service and not operated by or affiliated with the RIPE NCC. This service is relying on the RIPE NCC's Routing Information Service (RIS) websocket feed and is therefore subject to the same usage policies as the RIS itself. We want to acknowledge the RIPE NCC and RIPE Community for providing this invaluable service and for making it available to the public.
-
 ## Overview
 
 This service connects to the [RIS Live](https://ris-live.ripe.net/) websocket endpoint to receive real-time BGP routing updates from RIPE NCC's global network of Route Collectors. It processes these messages by:
