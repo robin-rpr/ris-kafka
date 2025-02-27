@@ -50,11 +50,11 @@ jobs:
             ${{ secrets.DOCKERHUB_USERNAME }}/ris-kafka:${{ env.VERSION }}
           platforms: linux/amd64
 
-    - name: Upload Artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: docker-compose.yml
-        path: docker-compose.yml
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-compose.yml
+          path: docker-compose.yml
 
   deploy:
     name: Deploy to GitHub Pages
@@ -79,7 +79,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: docker-compose.yml
-          path: docker-compose.yml
+          path: .
 
       - name: Commit and Push Changes
         run: |
