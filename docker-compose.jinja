@@ -47,7 +47,7 @@ services:
                 condition: any
             placement:
                 constraints:
-                    - node.labels.ris-kafka_zookeeper == 1
+                    - node.role == manager
         healthcheck:
             test: ["CMD-SHELL", "nc -z localhost 2181 || exit -1"]
             interval: 30s

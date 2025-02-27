@@ -94,9 +94,8 @@ jinja2 docker-compose.jinja values.yaml | docker compose -f - up
 
 For production deployment, we recommend using Docker Swarm.
 
-1. Specify the constraints:
+1. Specify the affinity labels:
 ```sh
-docker node update --label-add ris-kafka_zookeeper=1 <NODE_NAME>
 docker node update --label-add ris-kafka_kafka=1 <NODE_NAME>
 docker node update --label-add ris-kafka_rrc00=1 <NODE_NAME>
 docker node update --label-add ris-kafka_rrc01=1 <NODE_NAME>
