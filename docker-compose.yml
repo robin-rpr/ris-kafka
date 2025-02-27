@@ -1,7 +1,7 @@
-version: '3.8'
+version: '3.9'
 services:
     rrc00:
-        image: robin-rpr/ris-kafka:1.0.4
+        image: robin-rpr/ris-kafka:1.0.5
         deploy:
           replicas: 3
         restart: unless-stopped
@@ -30,7 +30,7 @@ services:
             python app.py
     
     rrc01:
-        image: robin-rpr/ris-kafka:1.0.4
+        image: robin-rpr/ris-kafka:1.0.5
         deploy:
           replicas: 3
         restart: unless-stopped
@@ -59,7 +59,7 @@ services:
             python app.py
     
     rrc03:
-        image: robin-rpr/ris-kafka:1.0.4
+        image: robin-rpr/ris-kafka:1.0.5
         deploy:
           replicas: 3
         restart: unless-stopped
@@ -88,7 +88,7 @@ services:
             python app.py
     
     rrc04:
-        image: robin-rpr/ris-kafka:1.0.4
+        image: robin-rpr/ris-kafka:1.0.5
         deploy:
           replicas: 3
         restart: unless-stopped
@@ -117,7 +117,7 @@ services:
             python app.py
     
     rrc05:
-        image: robin-rpr/ris-kafka:1.0.4
+        image: robin-rpr/ris-kafka:1.0.5
         deploy:
           replicas: 3
         restart: unless-stopped
@@ -146,7 +146,7 @@ services:
             python app.py
     
     rrc06:
-        image: robin-rpr/ris-kafka:1.0.4
+        image: robin-rpr/ris-kafka:1.0.5
         deploy:
           replicas: 3
         restart: unless-stopped
@@ -175,7 +175,7 @@ services:
             python app.py
     
     rrc07:
-        image: robin-rpr/ris-kafka:1.0.4
+        image: robin-rpr/ris-kafka:1.0.5
         deploy:
           replicas: 3
         restart: unless-stopped
@@ -204,7 +204,7 @@ services:
             python app.py
     
     rrc10:
-        image: robin-rpr/ris-kafka:1.0.4
+        image: robin-rpr/ris-kafka:1.0.5
         deploy:
           replicas: 3
         restart: unless-stopped
@@ -233,7 +233,7 @@ services:
             python app.py
     
     rrc11:
-        image: robin-rpr/ris-kafka:1.0.4
+        image: robin-rpr/ris-kafka:1.0.5
         deploy:
           replicas: 3
         restart: unless-stopped
@@ -262,7 +262,7 @@ services:
             python app.py
     
     rrc12:
-        image: robin-rpr/ris-kafka:1.0.4
+        image: robin-rpr/ris-kafka:1.0.5
         deploy:
           replicas: 3
         restart: unless-stopped
@@ -291,7 +291,7 @@ services:
             python app.py
     
     rrc13:
-        image: robin-rpr/ris-kafka:1.0.4
+        image: robin-rpr/ris-kafka:1.0.5
         deploy:
           replicas: 3
         restart: unless-stopped
@@ -320,7 +320,7 @@ services:
             python app.py
     
     rrc14:
-        image: robin-rpr/ris-kafka:1.0.4
+        image: robin-rpr/ris-kafka:1.0.5
         deploy:
           replicas: 3
         restart: unless-stopped
@@ -349,7 +349,7 @@ services:
             python app.py
     
     rrc15:
-        image: robin-rpr/ris-kafka:1.0.4
+        image: robin-rpr/ris-kafka:1.0.5
         deploy:
           replicas: 3
         restart: unless-stopped
@@ -378,7 +378,7 @@ services:
             python app.py
     
     rrc16:
-        image: robin-rpr/ris-kafka:1.0.4
+        image: robin-rpr/ris-kafka:1.0.5
         deploy:
           replicas: 3
         restart: unless-stopped
@@ -407,7 +407,7 @@ services:
             python app.py
     
     rrc18:
-        image: robin-rpr/ris-kafka:1.0.4
+        image: robin-rpr/ris-kafka:1.0.5
         deploy:
           replicas: 3
         restart: unless-stopped
@@ -436,7 +436,7 @@ services:
             python app.py
     
     rrc19:
-        image: robin-rpr/ris-kafka:1.0.4
+        image: robin-rpr/ris-kafka:1.0.5
         deploy:
           replicas: 3
         restart: unless-stopped
@@ -465,7 +465,7 @@ services:
             python app.py
     
     rrc20:
-        image: robin-rpr/ris-kafka:1.0.4
+        image: robin-rpr/ris-kafka:1.0.5
         deploy:
           replicas: 3
         restart: unless-stopped
@@ -494,7 +494,7 @@ services:
             python app.py
     
     rrc21:
-        image: robin-rpr/ris-kafka:1.0.4
+        image: robin-rpr/ris-kafka:1.0.5
         deploy:
           replicas: 3
         restart: unless-stopped
@@ -523,7 +523,7 @@ services:
             python app.py
     
     rrc22:
-        image: robin-rpr/ris-kafka:1.0.4
+        image: robin-rpr/ris-kafka:1.0.5
         deploy:
           replicas: 3
         restart: unless-stopped
@@ -552,7 +552,7 @@ services:
             python app.py
     
     rrc23:
-        image: robin-rpr/ris-kafka:1.0.4
+        image: robin-rpr/ris-kafka:1.0.5
         deploy:
           replicas: 3
         restart: unless-stopped
@@ -581,7 +581,7 @@ services:
             python app.py
     
     rrc24:
-        image: robin-rpr/ris-kafka:1.0.4
+        image: robin-rpr/ris-kafka:1.0.5
         deploy:
           replicas: 3
         restart: unless-stopped
@@ -610,7 +610,7 @@ services:
             python app.py
     
     rrc25:
-        image: robin-rpr/ris-kafka:1.0.4
+        image: robin-rpr/ris-kafka:1.0.5
         deploy:
           replicas: 3
         restart: unless-stopped
@@ -639,7 +639,7 @@ services:
             python app.py
     
     rrc26:
-        image: robin-rpr/ris-kafka:1.0.4
+        image: robin-rpr/ris-kafka:1.0.5
         deploy:
           replicas: 3
         restart: unless-stopped
