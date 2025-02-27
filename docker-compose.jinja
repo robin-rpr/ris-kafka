@@ -11,6 +11,9 @@ services:
             replicas: 3
             restart_policy:
                 condition: any
+            placement:
+                constraints:
+                    - node.labels.ris-kafka == {{ host }}
         restart: unless-stopped
         stop_signal: SIGTERM  # Wind down collector safely before stopping
         stop_grace_period: 20s # Wait for 20 seconds before forcefully stopping
@@ -42,6 +45,9 @@ services:
         deploy:
             restart_policy:
                 condition: any
+            placement:
+                constraints:
+                    - node.labels.ris-kafka == zookeeper
         healthcheck:
             test: ["CMD-SHELL", "nc -z localhost 2181 || exit -1"]
             interval: 30s
@@ -57,6 +63,10 @@ services:
         image: confluentinc/cp-kafka:7.7.1
         restart: unless-stopped
         deploy:
+            replicas: 3
+            placement:
+                constraints:
+                    - node.labels.ris-kafka == kafka
             restart_policy:
                 condition: any
         healthcheck:
