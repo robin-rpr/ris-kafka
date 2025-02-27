@@ -1,14 +1,14 @@
 version: '3'
 services:
     rrc00:
-        image: robinrpr/ris-kafka:1.0.11
+        image: robinrpr/ris-kafka:1.0.12
         deploy:
             replicas: 3
             restart_policy:
                 condition: any
             placement:
                 constraints:
-                    - node.labels.ris-kafka == rrc00
+                    - node.labels.ris-kafka_rrc00 == 1
         restart: unless-stopped
         stop_signal: SIGTERM  # Wind down collector safely before stopping
         stop_grace_period: 20s # Wait for 20 seconds before forcefully stopping
@@ -31,14 +31,14 @@ services:
             python app.py
     
     rrc01:
-        image: robinrpr/ris-kafka:1.0.11
+        image: robinrpr/ris-kafka:1.0.12
         deploy:
             replicas: 3
             restart_policy:
                 condition: any
             placement:
                 constraints:
-                    - node.labels.ris-kafka == rrc01
+                    - node.labels.ris-kafka_rrc01 == 1
         restart: unless-stopped
         stop_signal: SIGTERM  # Wind down collector safely before stopping
         stop_grace_period: 20s # Wait for 20 seconds before forcefully stopping
@@ -61,14 +61,14 @@ services:
             python app.py
     
     rrc03:
-        image: robinrpr/ris-kafka:1.0.11
+        image: robinrpr/ris-kafka:1.0.12
         deploy:
             replicas: 3
             restart_policy:
                 condition: any
             placement:
                 constraints:
-                    - node.labels.ris-kafka == rrc03
+                    - node.labels.ris-kafka_rrc03 == 1
         restart: unless-stopped
         stop_signal: SIGTERM  # Wind down collector safely before stopping
         stop_grace_period: 20s # Wait for 20 seconds before forcefully stopping
@@ -91,14 +91,14 @@ services:
             python app.py
     
     rrc04:
-        image: robinrpr/ris-kafka:1.0.11
+        image: robinrpr/ris-kafka:1.0.12
         deploy:
             replicas: 3
             restart_policy:
                 condition: any
             placement:
                 constraints:
-                    - node.labels.ris-kafka == rrc04
+                    - node.labels.ris-kafka_rrc04 == 1
         restart: unless-stopped
         stop_signal: SIGTERM  # Wind down collector safely before stopping
         stop_grace_period: 20s # Wait for 20 seconds before forcefully stopping
@@ -121,14 +121,14 @@ services:
             python app.py
     
     rrc05:
-        image: robinrpr/ris-kafka:1.0.11
+        image: robinrpr/ris-kafka:1.0.12
         deploy:
             replicas: 3
             restart_policy:
                 condition: any
             placement:
                 constraints:
-                    - node.labels.ris-kafka == rrc05
+                    - node.labels.ris-kafka_rrc05 == 1
         restart: unless-stopped
         stop_signal: SIGTERM  # Wind down collector safely before stopping
         stop_grace_period: 20s # Wait for 20 seconds before forcefully stopping
@@ -151,14 +151,14 @@ services:
             python app.py
     
     rrc06:
-        image: robinrpr/ris-kafka:1.0.11
+        image: robinrpr/ris-kafka:1.0.12
         deploy:
             replicas: 3
             restart_policy:
                 condition: any
             placement:
                 constraints:
-                    - node.labels.ris-kafka == rrc06
+                    - node.labels.ris-kafka_rrc06 == 1
         restart: unless-stopped
         stop_signal: SIGTERM  # Wind down collector safely before stopping
         stop_grace_period: 20s # Wait for 20 seconds before forcefully stopping
@@ -181,14 +181,14 @@ services:
             python app.py
     
     rrc07:
-        image: robinrpr/ris-kafka:1.0.11
+        image: robinrpr/ris-kafka:1.0.12
         deploy:
             replicas: 3
             restart_policy:
                 condition: any
             placement:
                 constraints:
-                    - node.labels.ris-kafka == rrc07
+                    - node.labels.ris-kafka_rrc07 == 1
         restart: unless-stopped
         stop_signal: SIGTERM  # Wind down collector safely before stopping
         stop_grace_period: 20s # Wait for 20 seconds before forcefully stopping
@@ -211,14 +211,14 @@ services:
             python app.py
     
     rrc10:
-        image: robinrpr/ris-kafka:1.0.11
+        image: robinrpr/ris-kafka:1.0.12
         deploy:
             replicas: 3
             restart_policy:
                 condition: any
             placement:
                 constraints:
-                    - node.labels.ris-kafka == rrc10
+                    - node.labels.ris-kafka_rrc10 == 1
         restart: unless-stopped
         stop_signal: SIGTERM  # Wind down collector safely before stopping
         stop_grace_period: 20s # Wait for 20 seconds before forcefully stopping
@@ -241,14 +241,14 @@ services:
             python app.py
     
     rrc11:
-        image: robinrpr/ris-kafka:1.0.11
+        image: robinrpr/ris-kafka:1.0.12
         deploy:
             replicas: 3
             restart_policy:
                 condition: any
             placement:
                 constraints:
-                    - node.labels.ris-kafka == rrc11
+                    - node.labels.ris-kafka_rrc11 == 1
         restart: unless-stopped
         stop_signal: SIGTERM  # Wind down collector safely before stopping
         stop_grace_period: 20s # Wait for 20 seconds before forcefully stopping
@@ -271,14 +271,14 @@ services:
             python app.py
     
     rrc12:
-        image: robinrpr/ris-kafka:1.0.11
+        image: robinrpr/ris-kafka:1.0.12
         deploy:
             replicas: 3
             restart_policy:
                 condition: any
             placement:
                 constraints:
-                    - node.labels.ris-kafka == rrc12
+                    - node.labels.ris-kafka_rrc12 == 1
         restart: unless-stopped
         stop_signal: SIGTERM  # Wind down collector safely before stopping
         stop_grace_period: 20s # Wait for 20 seconds before forcefully stopping
@@ -301,14 +301,14 @@ services:
             python app.py
     
     rrc13:
-        image: robinrpr/ris-kafka:1.0.11
+        image: robinrpr/ris-kafka:1.0.12
         deploy:
             replicas: 3
             restart_policy:
                 condition: any
             placement:
                 constraints:
-                    - node.labels.ris-kafka == rrc13
+                    - node.labels.ris-kafka_rrc13 == 1
         restart: unless-stopped
         stop_signal: SIGTERM  # Wind down collector safely before stopping
         stop_grace_period: 20s # Wait for 20 seconds before forcefully stopping
@@ -331,14 +331,14 @@ services:
             python app.py
     
     rrc14:
-        image: robinrpr/ris-kafka:1.0.11
+        image: robinrpr/ris-kafka:1.0.12
         deploy:
             replicas: 3
             restart_policy:
                 condition: any
             placement:
                 constraints:
-                    - node.labels.ris-kafka == rrc14
+                    - node.labels.ris-kafka_rrc14 == 1
         restart: unless-stopped
         stop_signal: SIGTERM  # Wind down collector safely before stopping
         stop_grace_period: 20s # Wait for 20 seconds before forcefully stopping
@@ -361,14 +361,14 @@ services:
             python app.py
     
     rrc15:
-        image: robinrpr/ris-kafka:1.0.11
+        image: robinrpr/ris-kafka:1.0.12
         deploy:
             replicas: 3
             restart_policy:
                 condition: any
             placement:
                 constraints:
-                    - node.labels.ris-kafka == rrc15
+                    - node.labels.ris-kafka_rrc15 == 1
         restart: unless-stopped
         stop_signal: SIGTERM  # Wind down collector safely before stopping
         stop_grace_period: 20s # Wait for 20 seconds before forcefully stopping
@@ -391,14 +391,14 @@ services:
             python app.py
     
     rrc16:
-        image: robinrpr/ris-kafka:1.0.11
+        image: robinrpr/ris-kafka:1.0.12
         deploy:
             replicas: 3
             restart_policy:
                 condition: any
             placement:
                 constraints:
-                    - node.labels.ris-kafka == rrc16
+                    - node.labels.ris-kafka_rrc16 == 1
         restart: unless-stopped
         stop_signal: SIGTERM  # Wind down collector safely before stopping
         stop_grace_period: 20s # Wait for 20 seconds before forcefully stopping
@@ -421,14 +421,14 @@ services:
             python app.py
     
     rrc18:
-        image: robinrpr/ris-kafka:1.0.11
+        image: robinrpr/ris-kafka:1.0.12
         deploy:
             replicas: 3
             restart_policy:
                 condition: any
             placement:
                 constraints:
-                    - node.labels.ris-kafka == rrc18
+                    - node.labels.ris-kafka_rrc18 == 1
         restart: unless-stopped
         stop_signal: SIGTERM  # Wind down collector safely before stopping
         stop_grace_period: 20s # Wait for 20 seconds before forcefully stopping
@@ -451,14 +451,14 @@ services:
             python app.py
     
     rrc19:
-        image: robinrpr/ris-kafka:1.0.11
+        image: robinrpr/ris-kafka:1.0.12
         deploy:
             replicas: 3
             restart_policy:
                 condition: any
             placement:
                 constraints:
-                    - node.labels.ris-kafka == rrc19
+                    - node.labels.ris-kafka_rrc19 == 1
         restart: unless-stopped
         stop_signal: SIGTERM  # Wind down collector safely before stopping
         stop_grace_period: 20s # Wait for 20 seconds before forcefully stopping
@@ -481,14 +481,14 @@ services:
             python app.py
     
     rrc20:
-        image: robinrpr/ris-kafka:1.0.11
+        image: robinrpr/ris-kafka:1.0.12
         deploy:
             replicas: 3
             restart_policy:
                 condition: any
             placement:
                 constraints:
-                    - node.labels.ris-kafka == rrc20
+                    - node.labels.ris-kafka_rrc20 == 1
         restart: unless-stopped
         stop_signal: SIGTERM  # Wind down collector safely before stopping
         stop_grace_period: 20s # Wait for 20 seconds before forcefully stopping
@@ -511,14 +511,14 @@ services:
             python app.py
     
     rrc21:
-        image: robinrpr/ris-kafka:1.0.11
+        image: robinrpr/ris-kafka:1.0.12
         deploy:
             replicas: 3
             restart_policy:
                 condition: any
             placement:
                 constraints:
-                    - node.labels.ris-kafka == rrc21
+                    - node.labels.ris-kafka_rrc21 == 1
         restart: unless-stopped
         stop_signal: SIGTERM  # Wind down collector safely before stopping
         stop_grace_period: 20s # Wait for 20 seconds before forcefully stopping
@@ -541,14 +541,14 @@ services:
             python app.py
     
     rrc22:
-        image: robinrpr/ris-kafka:1.0.11
+        image: robinrpr/ris-kafka:1.0.12
         deploy:
             replicas: 3
             restart_policy:
                 condition: any
             placement:
                 constraints:
-                    - node.labels.ris-kafka == rrc22
+                    - node.labels.ris-kafka_rrc22 == 1
         restart: unless-stopped
         stop_signal: SIGTERM  # Wind down collector safely before stopping
         stop_grace_period: 20s # Wait for 20 seconds before forcefully stopping
@@ -571,14 +571,14 @@ services:
             python app.py
     
     rrc23:
-        image: robinrpr/ris-kafka:1.0.11
+        image: robinrpr/ris-kafka:1.0.12
         deploy:
             replicas: 3
             restart_policy:
                 condition: any
             placement:
                 constraints:
-                    - node.labels.ris-kafka == rrc23
+                    - node.labels.ris-kafka_rrc23 == 1
         restart: unless-stopped
         stop_signal: SIGTERM  # Wind down collector safely before stopping
         stop_grace_period: 20s # Wait for 20 seconds before forcefully stopping
@@ -601,14 +601,14 @@ services:
             python app.py
     
     rrc24:
-        image: robinrpr/ris-kafka:1.0.11
+        image: robinrpr/ris-kafka:1.0.12
         deploy:
             replicas: 3
             restart_policy:
                 condition: any
             placement:
                 constraints:
-                    - node.labels.ris-kafka == rrc24
+                    - node.labels.ris-kafka_rrc24 == 1
         restart: unless-stopped
         stop_signal: SIGTERM  # Wind down collector safely before stopping
         stop_grace_period: 20s # Wait for 20 seconds before forcefully stopping
@@ -631,14 +631,14 @@ services:
             python app.py
     
     rrc25:
-        image: robinrpr/ris-kafka:1.0.11
+        image: robinrpr/ris-kafka:1.0.12
         deploy:
             replicas: 3
             restart_policy:
                 condition: any
             placement:
                 constraints:
-                    - node.labels.ris-kafka == rrc25
+                    - node.labels.ris-kafka_rrc25 == 1
         restart: unless-stopped
         stop_signal: SIGTERM  # Wind down collector safely before stopping
         stop_grace_period: 20s # Wait for 20 seconds before forcefully stopping
@@ -661,14 +661,14 @@ services:
             python app.py
     
     rrc26:
-        image: robinrpr/ris-kafka:1.0.11
+        image: robinrpr/ris-kafka:1.0.12
         deploy:
             replicas: 3
             restart_policy:
                 condition: any
             placement:
                 constraints:
-                    - node.labels.ris-kafka == rrc26
+                    - node.labels.ris-kafka_rrc26 == 1
         restart: unless-stopped
         stop_signal: SIGTERM  # Wind down collector safely before stopping
         stop_grace_period: 20s # Wait for 20 seconds before forcefully stopping
@@ -699,7 +699,7 @@ services:
                 condition: any
             placement:
                 constraints:
-                    - node.labels.ris-kafka == zookeeper
+                    - node.labels.ris-kafka_zookeeper == 1
         healthcheck:
             test: ["CMD-SHELL", "nc -z localhost 2181 || exit -1"]
             interval: 30s
@@ -718,7 +718,7 @@ services:
             replicas: 3
             placement:
                 constraints:
-                    - node.labels.ris-kafka == kafka
+                    - node.labels.ris-kafka_kafka == 1
             restart_policy:
                 condition: any
         healthcheck:
