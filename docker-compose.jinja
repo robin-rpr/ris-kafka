@@ -3,7 +3,7 @@ services:
     {%- for host in ris %}
     {{ host }}:
         {%- if production %}
-        image: robin-rpr/ris-kafka:{{ version | default('latest') }}
+        image: robinrpr/ris-kafka:{{ version | default('latest') }}
         {%- else %}
         build: .
         {%- endif %}
