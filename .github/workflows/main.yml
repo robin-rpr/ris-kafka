@@ -80,7 +80,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: docker-compose.yml
-          path: .
+          path: docker-compose.yml
 
       - name: Commit and Push Changes
         run: |
