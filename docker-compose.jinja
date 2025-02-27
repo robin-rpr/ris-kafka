@@ -21,12 +21,9 @@ services:
             RRC_LOG_LEVEL: INFO
             RRC_HOST: {{ host }}
         depends_on:
-            kafbat:
-                condition: service_started
-            kafka:
-                condition: service_healthy
-            zookeeper:
-                condition: service_healthy
+            - kafbat
+            - kafka
+            - zookeeper
         working_dir: /app
         volumes:
             - .:/app
@@ -58,8 +55,7 @@ services:
             timeout: 60s
             retries: 10
         depends_on:
-            zookeeper:
-                condition: service_healthy
+            - zookeeper
         volumes:
             - kafka_data:/var/lib/kafka/data
         ports:
@@ -86,14 +82,12 @@ services:
     acl:
         image: confluentinc/cp-kafka:latest
         depends_on:
-            kafka:
-                condition: service_healthy
+            - kafka
         restart: unless-stopped
         command:
             - /bin/sh
             - -c
             - |
-                sleep 120 &&
                 kafka-acls --bootstrap-server kafka:29092 \
                             --add --allow-principal User:ANONYMOUS \
                             --operation Read \
@@ -104,7 +98,8 @@ services:
                             --add --allow-principal User:ANONYMOUS \
                             --operation Write \
                             --topic '*' \
-                            --allow-host '*'
+                            --allow-host '*' && \
+                sleep 300
 
     kafbat:
         image: ghcr.io/kafbat/kafka-ui:latest
@@ -117,8 +112,7 @@ services:
                 - "traefik.http.routers.riskafka.tls.certresolver=riskafka"
                 - "traefik.http.services.riskafka.loadbalancer.server.port=8080"
         depends_on:
-            kafka:
-                condition: service_healthy
+            - kafka
         environment:
             KAFKA_CLUSTERS_0_NAME: "ris-kafka"
             KAFKA_CLUSTERS_0_BOOTSTRAP_SERVERS: "kafka:29092"
