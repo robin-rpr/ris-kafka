@@ -3,7 +3,7 @@ services:
     {%- for host in ris %}
     {{ host }}:
         {%- if production %}
-        image: robin-rpr/ris-kafka:latest
+        image: robin-rpr/ris-kafka:{{ version | default('latest') }}
         {%- else %}
         build: .
         {%- endif %}
@@ -120,9 +120,9 @@ services:
             kafka:
                 condition: service_healthy
         environment:
-            KAFKA_CLUSTERS_0_NAME: ris-kafka
-            KAFKA_CLUSTERS_0_BOOTSTRAP_SERVERS: kafka:29092
-            KAFKA_CLUSTERS_0_READONLY: true
+            KAFKA_CLUSTERS_0_NAME: "ris-kafka"
+            KAFKA_CLUSTERS_0_BOOTSTRAP_SERVERS: "kafka:29092"
+            KAFKA_CLUSTERS_0_READONLY: "true"
 
     traefik:
         image: traefik:v2.4
