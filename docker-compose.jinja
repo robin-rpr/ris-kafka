@@ -159,8 +159,12 @@ services:
 # Define volumes
 volumes:
     zookeeper_data:
+        driver: local
     traefik_data:
+        driver: local
     kafka_data:
+        driver: local
     {%- for host in ris %}
     {{ host }}_data:
+        driver: local
     {%- endfor %}
