@@ -95,7 +95,7 @@ jinja2 docker-compose.jinja values.yaml | docker compose -f - up
 For production deployment, we recommend using Docker Swarm.
 
 ```sh
-curl -L https://downloads.ris-kafka.com/docker-compose.yaml | docker stack deploy -c - ris-kafka
+curl -L https://downloads.ris-kafka.com/docker-compose.yml | docker stack deploy -c - ris-kafka
 ```
 
 This will start all collector instances with automatic leader election and failover capabilities:
