@@ -64,7 +64,16 @@ Additionally you can consult the [RIS Route Collector Documentation](https://ris
 - `rrc04.15547.bmp_raw`
 - ...
 
-## Quick Start
+## Prerequisites
+
+Before you begin, ensure you have the following installed on your system:
+
+-   [Docker](https://docs.docker.com/get-docker/)
+-   [Docker Compose](https://docs.docker.com/compose/install/)
+-   [Git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
+-   [Jinja2 CLI](https://github.com/mattrobenolt/jinja2-cli)
+
+## Getting Started
 
 1. Clone the repository:
 ```bash
@@ -73,8 +82,8 @@ cd ris-kafka
 ```
 
 2. Start the service:
-```bash
-docker compose up -d
+```sh
+jinja2 docker-compose.jinja values.yaml | docker compose -f - up
 ```
 
 > **Note:** This will start collecting from all RIS Collectors. You can further specify to collect from a specific host by using e.g. `docker compose up rrc01`. Please mind that the `docker-compose.yaml` file is configured to start all collectors in a staggered manner to avoid overwhelming the services and RIS Live itself.
@@ -86,7 +95,7 @@ docker compose up -d
 For production deployment, we recommend using Docker Swarm.
 
 ```sh
-docker stack deploy -c docker-compose.yaml ris-kafka
+curl -L https://downloads.ris-kafka.com/docker-compose.yaml | docker stack deploy -c - ris-kafka
 ```
 
 This will start all collector instances with automatic leader election and failover capabilities:
