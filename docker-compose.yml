@@ -1,7 +1,7 @@
 version: '3'
 services:
     rrc00:
-        image: robinrpr/ris-kafka:1.0.20
+        image: robinrpr/ris-kafka:1.0.21
         deploy:
             replicas: 2
             restart_policy:
@@ -31,7 +31,7 @@ services:
             python app.py
     
     rrc01:
-        image: robinrpr/ris-kafka:1.0.20
+        image: robinrpr/ris-kafka:1.0.21
         deploy:
             replicas: 2
             restart_policy:
@@ -61,7 +61,7 @@ services:
             python app.py
     
     rrc03:
-        image: robinrpr/ris-kafka:1.0.20
+        image: robinrpr/ris-kafka:1.0.21
         deploy:
             replicas: 2
             restart_policy:
@@ -91,7 +91,7 @@ services:
             python app.py
     
     rrc04:
-        image: robinrpr/ris-kafka:1.0.20
+        image: robinrpr/ris-kafka:1.0.21
         deploy:
             replicas: 2
             restart_policy:
@@ -121,7 +121,7 @@ services:
             python app.py
     
     rrc05:
-        image: robinrpr/ris-kafka:1.0.20
+        image: robinrpr/ris-kafka:1.0.21
         deploy:
             replicas: 2
             restart_policy:
@@ -151,7 +151,7 @@ services:
             python app.py
     
     rrc06:
-        image: robinrpr/ris-kafka:1.0.20
+        image: robinrpr/ris-kafka:1.0.21
         deploy:
             replicas: 2
             restart_policy:
@@ -181,7 +181,7 @@ services:
             python app.py
     
     rrc07:
-        image: robinrpr/ris-kafka:1.0.20
+        image: robinrpr/ris-kafka:1.0.21
         deploy:
             replicas: 2
             restart_policy:
@@ -211,7 +211,7 @@ services:
             python app.py
     
     rrc10:
-        image: robinrpr/ris-kafka:1.0.20
+        image: robinrpr/ris-kafka:1.0.21
         deploy:
             replicas: 2
             restart_policy:
@@ -241,7 +241,7 @@ services:
             python app.py
     
     rrc11:
-        image: robinrpr/ris-kafka:1.0.20
+        image: robinrpr/ris-kafka:1.0.21
         deploy:
             replicas: 2
             restart_policy:
@@ -271,7 +271,7 @@ services:
             python app.py
     
     rrc12:
-        image: robinrpr/ris-kafka:1.0.20
+        image: robinrpr/ris-kafka:1.0.21
         deploy:
             replicas: 2
             restart_policy:
@@ -301,7 +301,7 @@ services:
             python app.py
     
     rrc13:
-        image: robinrpr/ris-kafka:1.0.20
+        image: robinrpr/ris-kafka:1.0.21
         deploy:
             replicas: 2
             restart_policy:
@@ -331,7 +331,7 @@ services:
             python app.py
     
     rrc14:
-        image: robinrpr/ris-kafka:1.0.20
+        image: robinrpr/ris-kafka:1.0.21
         deploy:
             replicas: 2
             restart_policy:
@@ -361,7 +361,7 @@ services:
             python app.py
     
     rrc15:
-        image: robinrpr/ris-kafka:1.0.20
+        image: robinrpr/ris-kafka:1.0.21
         deploy:
             replicas: 2
             restart_policy:
@@ -391,7 +391,7 @@ services:
             python app.py
     
     rrc16:
-        image: robinrpr/ris-kafka:1.0.20
+        image: robinrpr/ris-kafka:1.0.21
         deploy:
             replicas: 2
             restart_policy:
@@ -421,7 +421,7 @@ services:
             python app.py
     
     rrc18:
-        image: robinrpr/ris-kafka:1.0.20
+        image: robinrpr/ris-kafka:1.0.21
         deploy:
             replicas: 2
             restart_policy:
@@ -451,7 +451,7 @@ services:
             python app.py
     
     rrc19:
-        image: robinrpr/ris-kafka:1.0.20
+        image: robinrpr/ris-kafka:1.0.21
         deploy:
             replicas: 2
             restart_policy:
@@ -481,7 +481,7 @@ services:
             python app.py
     
     rrc20:
-        image: robinrpr/ris-kafka:1.0.20
+        image: robinrpr/ris-kafka:1.0.21
         deploy:
             replicas: 2
             restart_policy:
@@ -511,7 +511,7 @@ services:
             python app.py
     
     rrc21:
-        image: robinrpr/ris-kafka:1.0.20
+        image: robinrpr/ris-kafka:1.0.21
         deploy:
             replicas: 2
             restart_policy:
@@ -541,7 +541,7 @@ services:
             python app.py
     
     rrc22:
-        image: robinrpr/ris-kafka:1.0.20
+        image: robinrpr/ris-kafka:1.0.21
         deploy:
             replicas: 2
             restart_policy:
@@ -571,7 +571,7 @@ services:
             python app.py
     
     rrc23:
-        image: robinrpr/ris-kafka:1.0.20
+        image: robinrpr/ris-kafka:1.0.21
         deploy:
             replicas: 2
             restart_policy:
@@ -601,7 +601,7 @@ services:
             python app.py
     
     rrc24:
-        image: robinrpr/ris-kafka:1.0.20
+        image: robinrpr/ris-kafka:1.0.21
         deploy:
             replicas: 2
             restart_policy:
@@ -631,7 +631,7 @@ services:
             python app.py
     
     rrc25:
-        image: robinrpr/ris-kafka:1.0.20
+        image: robinrpr/ris-kafka:1.0.21
         deploy:
             replicas: 2
             restart_policy:
@@ -661,7 +661,7 @@ services:
             python app.py
     
     rrc26:
-        image: robinrpr/ris-kafka:1.0.20
+        image: robinrpr/ris-kafka:1.0.21
         deploy:
             replicas: 2
             restart_policy:
@@ -730,7 +730,7 @@ services:
             KAFKA_BROKER_ID: 1
             KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
             KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:29092,PLAINTEXT_HOST://0.0.0.0:9092
-            KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://example.com:9092
+            KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://stream.ris-kafka.com:9092
             KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
             KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
             KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
@@ -806,6 +806,9 @@ services:
         command: >
             "touch /data/acme.json && chmod 600 /data/acme.json && traefik \
             --entrypoints.web.address=:80 \
+            --entrypoints.web.http.redirections.entryPoint.to=websecure \
+            --entrypoints.web.http.redirections.entryPoint.scheme=https \
+            --entrypoints.web.http.redirections.entryPoint.permanent=true \
             --entrypoints.websecure.address=:443 \
             --providers.docker.swarmMode=true \
             --providers.docker.exposedbydefault=false \
