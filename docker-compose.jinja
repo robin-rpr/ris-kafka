@@ -100,7 +100,7 @@ services:
         restart: unless-stopped
         deploy:
             restart_policy:
-                condition: any
+                condition: on-failure
         command:
             - /bin/sh
             - -c
@@ -116,8 +116,7 @@ services:
                             --add --allow-principal User:ANONYMOUS \
                             --operation Write \
                             --topic '*' \
-                            --allow-host '*' && \
-                sleep 300
+                            --allow-host '*'
 
     kafbat:
         image: ghcr.io/kafbat/kafka-ui:latest

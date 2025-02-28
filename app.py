@@ -57,7 +57,7 @@ async def leader_task():
             raise Exception("Zookeeper session lost. Leadership revoked.")
         elif state == KazooState.SUSPENDED:
             is_leader = False
-            raise Exception("Zookeeper connection suspended.")
+            logger.warning("Zookeeper connection suspended.")
         elif state == KazooState.CONNECTED:
             logger.info("Zookeeper connected.")
     
