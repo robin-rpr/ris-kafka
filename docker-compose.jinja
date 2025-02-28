@@ -154,6 +154,9 @@ services:
         command: >
             "touch /data/acme.json && chmod 600 /data/acme.json && traefik \
             --entrypoints.web.address=:80 \
+            --entrypoints.web.http.redirections.entryPoint.to=websecure \
+            --entrypoints.web.http.redirections.entryPoint.scheme=https \
+            --entrypoints.web.http.redirections.entryPoint.permanent=true \
             --entrypoints.websecure.address=:443 \
             --providers.docker.swarmMode=true \
             --providers.docker.exposedbydefault=false \
