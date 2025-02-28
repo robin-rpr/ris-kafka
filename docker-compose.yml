@@ -1,7 +1,7 @@
 version: '3'
 services:
     rrc00:
-        image: robinrpr/ris-kafka:1.0.19
+        image: robinrpr/ris-kafka:1.0.20
         deploy:
             replicas: 2
             restart_policy:
@@ -31,7 +31,7 @@ services:
             python app.py
     
     rrc01:
-        image: robinrpr/ris-kafka:1.0.19
+        image: robinrpr/ris-kafka:1.0.20
         deploy:
             replicas: 2
             restart_policy:
@@ -61,7 +61,7 @@ services:
             python app.py
     
     rrc03:
-        image: robinrpr/ris-kafka:1.0.19
+        image: robinrpr/ris-kafka:1.0.20
         deploy:
             replicas: 2
             restart_policy:
@@ -91,7 +91,7 @@ services:
             python app.py
     
     rrc04:
-        image: robinrpr/ris-kafka:1.0.19
+        image: robinrpr/ris-kafka:1.0.20
         deploy:
             replicas: 2
             restart_policy:
@@ -121,7 +121,7 @@ services:
             python app.py
     
     rrc05:
-        image: robinrpr/ris-kafka:1.0.19
+        image: robinrpr/ris-kafka:1.0.20
         deploy:
             replicas: 2
             restart_policy:
@@ -151,7 +151,7 @@ services:
             python app.py
     
     rrc06:
-        image: robinrpr/ris-kafka:1.0.19
+        image: robinrpr/ris-kafka:1.0.20
         deploy:
             replicas: 2
             restart_policy:
@@ -181,7 +181,7 @@ services:
             python app.py
     
     rrc07:
-        image: robinrpr/ris-kafka:1.0.19
+        image: robinrpr/ris-kafka:1.0.20
         deploy:
             replicas: 2
             restart_policy:
@@ -211,7 +211,7 @@ services:
             python app.py
     
     rrc10:
-        image: robinrpr/ris-kafka:1.0.19
+        image: robinrpr/ris-kafka:1.0.20
         deploy:
             replicas: 2
             restart_policy:
@@ -241,7 +241,7 @@ services:
             python app.py
     
     rrc11:
-        image: robinrpr/ris-kafka:1.0.19
+        image: robinrpr/ris-kafka:1.0.20
         deploy:
             replicas: 2
             restart_policy:
@@ -271,7 +271,7 @@ services:
             python app.py
     
     rrc12:
-        image: robinrpr/ris-kafka:1.0.19
+        image: robinrpr/ris-kafka:1.0.20
         deploy:
             replicas: 2
             restart_policy:
@@ -301,7 +301,7 @@ services:
             python app.py
     
     rrc13:
-        image: robinrpr/ris-kafka:1.0.19
+        image: robinrpr/ris-kafka:1.0.20
         deploy:
             replicas: 2
             restart_policy:
@@ -331,7 +331,7 @@ services:
             python app.py
     
     rrc14:
-        image: robinrpr/ris-kafka:1.0.19
+        image: robinrpr/ris-kafka:1.0.20
         deploy:
             replicas: 2
             restart_policy:
@@ -361,7 +361,7 @@ services:
             python app.py
     
     rrc15:
-        image: robinrpr/ris-kafka:1.0.19
+        image: robinrpr/ris-kafka:1.0.20
         deploy:
             replicas: 2
             restart_policy:
@@ -391,7 +391,7 @@ services:
             python app.py
     
     rrc16:
-        image: robinrpr/ris-kafka:1.0.19
+        image: robinrpr/ris-kafka:1.0.20
         deploy:
             replicas: 2
             restart_policy:
@@ -421,7 +421,7 @@ services:
             python app.py
     
     rrc18:
-        image: robinrpr/ris-kafka:1.0.19
+        image: robinrpr/ris-kafka:1.0.20
         deploy:
             replicas: 2
             restart_policy:
@@ -451,7 +451,7 @@ services:
             python app.py
     
     rrc19:
-        image: robinrpr/ris-kafka:1.0.19
+        image: robinrpr/ris-kafka:1.0.20
         deploy:
             replicas: 2
             restart_policy:
@@ -481,7 +481,7 @@ services:
             python app.py
     
     rrc20:
-        image: robinrpr/ris-kafka:1.0.19
+        image: robinrpr/ris-kafka:1.0.20
         deploy:
             replicas: 2
             restart_policy:
@@ -511,7 +511,7 @@ services:
             python app.py
     
     rrc21:
-        image: robinrpr/ris-kafka:1.0.19
+        image: robinrpr/ris-kafka:1.0.20
         deploy:
             replicas: 2
             restart_policy:
@@ -541,7 +541,7 @@ services:
             python app.py
     
     rrc22:
-        image: robinrpr/ris-kafka:1.0.19
+        image: robinrpr/ris-kafka:1.0.20
         deploy:
             replicas: 2
             restart_policy:
@@ -571,7 +571,7 @@ services:
             python app.py
     
     rrc23:
-        image: robinrpr/ris-kafka:1.0.19
+        image: robinrpr/ris-kafka:1.0.20
         deploy:
             replicas: 2
             restart_policy:
@@ -601,7 +601,7 @@ services:
             python app.py
     
     rrc24:
-        image: robinrpr/ris-kafka:1.0.19
+        image: robinrpr/ris-kafka:1.0.20
         deploy:
             replicas: 2
             restart_policy:
@@ -631,7 +631,7 @@ services:
             python app.py
     
     rrc25:
-        image: robinrpr/ris-kafka:1.0.19
+        image: robinrpr/ris-kafka:1.0.20
         deploy:
             replicas: 2
             restart_policy:
@@ -661,7 +661,7 @@ services:
             python app.py
     
     rrc26:
-        image: robinrpr/ris-kafka:1.0.19
+        image: robinrpr/ris-kafka:1.0.20
         deploy:
             replicas: 2
             restart_policy:
@@ -800,19 +800,21 @@ services:
             placement:
                 constraints:
                     - node.role == manager
+        entrypoint:
+            - sh
+            - -c
         command: >
-            sh -c "chmod 600 /acme.json && \
-            traefik \
+            "touch /data/acme.json && chmod 600 /data/acme.json && traefik \
             --entrypoints.web.address=:80 \
             --entrypoints.websecure.address=:443 \
             --providers.docker.swarmMode=true \
             --providers.docker.exposedbydefault=false \
             --certificatesresolvers.riskafka.acme.httpchallenge.entrypoint=web \
             --certificatesresolvers.riskafka.acme.email=hostmaster@ris-kafka.com \
-            --certificatesresolvers.riskafka.acme.storage=/acme.json"
+            --certificatesresolvers.riskafka.acme.storage=/data/acme.json"
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock:ro
-            - traefik_data:/acme.json
+            - traefik_data:/data
 
 # Define volumes
 volumes:
