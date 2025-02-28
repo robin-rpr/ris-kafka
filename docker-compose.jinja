@@ -105,6 +105,7 @@ services:
             - /bin/sh
             - -c
             - |
+                sleep 300 && \
                 kafka-acls --bootstrap-server kafka:29092 \
                             --add --allow-principal User:ANONYMOUS \
                             --operation Read \
