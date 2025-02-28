@@ -94,35 +94,14 @@ jinja2 docker-compose.jinja values.yaml | docker compose -f - up
 
 For production deployment, we recommend using Docker Swarm.
 
-1. Specify the affinity labels:
+1. **Specify the node affinity:**
 ```sh
-docker node update --label-add ris-kafka_kafka=1 <NODE_NAME>
-docker node update --label-add ris-kafka_rrc00=1 <NODE_NAME>
-docker node update --label-add ris-kafka_rrc01=1 <NODE_NAME>
-docker node update --label-add ris-kafka_rrc03=1 <NODE_NAME>
-docker node update --label-add ris-kafka_rrc04=1 <NODE_NAME>
-docker node update --label-add ris-kafka_rrc05=1 <NODE_NAME>
-docker node update --label-add ris-kafka_rrc06=1 <NODE_NAME>
-docker node update --label-add ris-kafka_rrc07=1 <NODE_NAME>
-docker node update --label-add ris-kafka_rrc10=1 <NODE_NAME>
-docker node update --label-add ris-kafka_rrc11=1 <NODE_NAME>
-docker node update --label-add ris-kafka_rrc12=1 <NODE_NAME>
-docker node update --label-add ris-kafka_rrc13=1 <NODE_NAME>
-docker node update --label-add ris-kafka_rrc14=1 <NODE_NAME>
-docker node update --label-add ris-kafka_rrc15=1 <NODE_NAME>
-docker node update --label-add ris-kafka_rrc16=1 <NODE_NAME>
-docker node update --label-add ris-kafka_rrc18=1 <NODE_NAME>
-docker node update --label-add ris-kafka_rrc19=1 <NODE_NAME>
-docker node update --label-add ris-kafka_rrc20=1 <NODE_NAME>
-docker node update --label-add ris-kafka_rrc21=1 <NODE_NAME>
-docker node update --label-add ris-kafka_rrc22=1 <NODE_NAME>
-docker node update --label-add ris-kafka_rrc23=1 <NODE_NAME>
-docker node update --label-add ris-kafka_rrc24=1 <NODE_NAME>
-docker node update --label-add ris-kafka_rrc25=1 <NODE_NAME>
-docker node update --label-add ris-kafka_rrc26=1 <NODE_NAME>
+docker node update --label-add ris-kafka-zookeeper=1 <node-name>
+docker node update --label-add ris-kafka-kafka=1 <node-name>
+docker node update --label-add ris-kafka-rrc=1 <node-name>
 ```
 
-2. Deploy the service:
+2. **Deploy the service:**
 ```sh
 curl -fsSL https://downloads.ris-kafka.com/docker-compose.yml | docker stack deploy -c - ris-kafka
 ```

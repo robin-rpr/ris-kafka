@@ -8,12 +8,12 @@ services:
         build: .
         {%- endif %}
         deploy:
-            replicas: 3
+            replicas: 2
             restart_policy:
                 condition: any
             placement:
                 constraints:
-                    - node.labels.ris-kafka_{{ host }} == 1
+                    - node.labels.ris-kafka-rrc == 1
         restart: unless-stopped
         stop_signal: SIGTERM  # Wind down collector safely before stopping
         stop_grace_period: 20s # Wait for 20 seconds before forcefully stopping
@@ -47,7 +47,7 @@ services:
                 condition: any
             placement:
                 constraints:
-                    - node.role == manager
+                    - node.labels.ris-kafka-zookeeper == 1
         healthcheck:
             test: ["CMD-SHELL", "nc -z localhost 2181 || exit -1"]
             interval: 30s
@@ -65,7 +65,7 @@ services:
         deploy:
             placement:
                 constraints:
-                    - node.labels.ris-kafka_kafka == 1
+                    - node.labels.ris-kafka-kafka == 1
             restart_policy:
                 condition: any
         depends_on:
@@ -133,8 +133,8 @@ services:
         depends_on:
             - kafka
         environment:
-            KAFKA_CLUSTERS_0_NAME: "ris-kafka"
-            KAFKA_CLUSTERS_0_BOOTSTRAP_SERVERS: "kafka:29092"
+            KAFKA_CLUSTERS_0_NAME: ris-kafka
+            KAFKA_CLUSTERS_0_BOOTSTRAP_SERVERS: kafka:29092
             KAFKA_CLUSTERS_0_READONLY: "true"
 
     traefik:
@@ -163,12 +163,8 @@ services:
 # Define volumes
 volumes:
     zookeeper_data:
-        driver: local
     traefik_data:
-        driver: local
     kafka_data:
-        driver: local
     {%- for host in ris %}
     {{ host }}_data:
-        driver: local
     {%- endfor %}
