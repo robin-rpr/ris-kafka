@@ -148,19 +148,21 @@ services:
             placement:
                 constraints:
                     - node.role == manager
+        entrypoint:
+            - sh
+            - -c
         command: >
-            sh -c "chmod 600 /acme.json && \
-            traefik \
+            "touch /data/acme.json && chmod 600 /data/acme.json && traefik \
             --entrypoints.web.address=:80 \
             --entrypoints.websecure.address=:443 \
             --providers.docker.swarmMode=true \
             --providers.docker.exposedbydefault=false \
             --certificatesresolvers.riskafka.acme.httpchallenge.entrypoint=web \
             --certificatesresolvers.riskafka.acme.email=hostmaster@ris-kafka.com \
-            --certificatesresolvers.riskafka.acme.storage=/acme.json"
+            --certificatesresolvers.riskafka.acme.storage=/data/acme.json"
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock:ro
-            - traefik_data:/acme.json
+            - traefik_data:/data
 
 # Define volumes
 volumes:
