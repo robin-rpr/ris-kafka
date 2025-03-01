@@ -142,6 +142,7 @@ services:
             KAFKA_CLUSTERS_0_BOOTSTRAP_SERVERS: kafka:29092
             KAFKA_CLUSTERS_0_READONLY: "true"
 
+    {%- if production %}
     traefik:
         image: traefik:v2.4
         ports:
@@ -171,11 +172,14 @@ services:
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock:ro
             - traefik_data:/data
+    {%- endif %}
 
 # Define volumes
 volumes:
     zookeeper_data:
+    {%- if production %}
     traefik_data:
+    {%- endif %}
     kafka_data:
     {%- for host in ris %}
     {{ host }}_data:
