@@ -30,7 +30,7 @@ consumer = Consumer({
     'enable.auto.commit': False,
     'security.protocol': 'PLAINTEXT',
     'fetch.max.bytes': 50 * 1024 * 1024, # 50 MB
-    'session.timeout.ms': 30000,  # For stable group membership
+    'session.timeout.ms': 30000, # For stable group membership
 })
 ```
 
