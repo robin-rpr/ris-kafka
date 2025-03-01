@@ -90,6 +90,8 @@ services:
             KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
             KAFKA_AUTHORIZER_CLASS_NAME: org.apache.kafka.metadata.authorizer.StandardAuthorizer
             KAFKA_ALLOW_EVERYONE_IF_NO_ACL_FOUND: "false"
+            KAFKA_CONTROLLER_QUORUM_VOTERS: "1@kafka:29092"
+            KAFKA_PROCESS_ROLES: broker
             KAFKA_SUPER_USERS: "User:admin"
             KAFKA_NUM_PARTITIONS: 1
             KAFKA_LOG_RETENTION_HOURS: 48
