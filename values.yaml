@@ -1,5 +1,5 @@
 production: false
-# RIS Route Collectors
+# RIS Remote Route Collectors
 # https://ris.ripe.net/docs/route-collectors/
 ris:
   - rrc00 # Amsterdam, RIPE NCC, global
