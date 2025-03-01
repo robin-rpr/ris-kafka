@@ -85,9 +85,9 @@ services:
             CLUSTER_ID: "QTnB2tAgTWa1ec5wYon2jg"
             KAFKA_PROCESS_ROLES: "broker,controller"
             KAFKA_CONTROLLER_QUORUM_VOTERS: "1@kafka:9093"
-            KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "CONTROLLER:PLAINTEXT,AUTH:SASL_PLAINTEXT,INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT"
-            KAFKA_LISTENERS: "AUTH://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093,INTERNAL://0.0.0.0:29092,EXTERNAL://0.0.0.0:9094"
-            KAFKA_ADVERTISED_LISTENERS: "AUTH://kafka:9092,INTERNAL://kafka:29092,EXTERNAL://stream.ris-kafka.com:9094"
+            KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "CONTROLLER:PLAINTEXT,INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT"
+            KAFKA_LISTENERS: "CONTROLLER://0.0.0.0:9093,INTERNAL://0.0.0.0:29092,EXTERNAL://0.0.0.0:9092"
+            KAFKA_ADVERTISED_LISTENERS: "INTERNAL://kafka:29092,EXTERNAL://stream.ris-kafka.com:9092"
             KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
             KAFKA_INTER_BROKER_LISTENER_NAME: "INTERNAL"
             KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
@@ -117,7 +117,7 @@ services:
             - /bin/sh
             - -c
             - |
-                sleep 300 && \
+                sleep 10 && \
                 kafka-acls --bootstrap-server kafka:29092 \
                             --add --allow-principal User:ANONYMOUS \
                             --operation Read \
