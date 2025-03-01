@@ -61,6 +61,7 @@ services:
         volumes:
             - zookeeper_data:/var/lib/zookeeper
         environment:
+            ZOOKEEPER_MAX_CLIENT_CNXNS: 200
             ZOOKEEPER_CLIENT_PORT: 2181
             ZOOKEEPER_TICK_TIME: 2000
 
