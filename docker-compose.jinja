@@ -231,3 +231,8 @@ volumes:
     {%- for host in ris %}
     {{ host }}_data:
     {%- endfor %}
+
+# Define secrets
+secrets:
+  ris_kafka_broker_password:
+    external: true
