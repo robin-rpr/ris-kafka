@@ -1,7 +1,7 @@
 version: '3'
 services:
     rrc00:
-        image: robinrpr/ris-kafka:1.2.6
+        image: robinrpr/ris-kafka:1.2.7
         deploy:
             replicas: 2
             restart_policy:
@@ -36,7 +36,7 @@ services:
             python app.py
     
     rrc01:
-        image: robinrpr/ris-kafka:1.2.6
+        image: robinrpr/ris-kafka:1.2.7
         deploy:
             replicas: 2
             restart_policy:
@@ -71,7 +71,7 @@ services:
             python app.py
     
     rrc03:
-        image: robinrpr/ris-kafka:1.2.6
+        image: robinrpr/ris-kafka:1.2.7
         deploy:
             replicas: 2
             restart_policy:
@@ -106,7 +106,7 @@ services:
             python app.py
     
     rrc04:
-        image: robinrpr/ris-kafka:1.2.6
+        image: robinrpr/ris-kafka:1.2.7
         deploy:
             replicas: 2
             restart_policy:
@@ -141,7 +141,7 @@ services:
             python app.py
     
     rrc05:
-        image: robinrpr/ris-kafka:1.2.6
+        image: robinrpr/ris-kafka:1.2.7
         deploy:
             replicas: 2
             restart_policy:
@@ -176,7 +176,7 @@ services:
             python app.py
     
     rrc06:
-        image: robinrpr/ris-kafka:1.2.6
+        image: robinrpr/ris-kafka:1.2.7
         deploy:
             replicas: 2
             restart_policy:
@@ -211,7 +211,7 @@ services:
             python app.py
     
     rrc07:
-        image: robinrpr/ris-kafka:1.2.6
+        image: robinrpr/ris-kafka:1.2.7
         deploy:
             replicas: 2
             restart_policy:
@@ -246,7 +246,7 @@ services:
             python app.py
     
     rrc10:
-        image: robinrpr/ris-kafka:1.2.6
+        image: robinrpr/ris-kafka:1.2.7
         deploy:
             replicas: 2
             restart_policy:
@@ -281,7 +281,7 @@ services:
             python app.py
     
     rrc11:
-        image: robinrpr/ris-kafka:1.2.6
+        image: robinrpr/ris-kafka:1.2.7
         deploy:
             replicas: 2
             restart_policy:
@@ -316,7 +316,7 @@ services:
             python app.py
     
     rrc12:
-        image: robinrpr/ris-kafka:1.2.6
+        image: robinrpr/ris-kafka:1.2.7
         deploy:
             replicas: 2
             restart_policy:
@@ -351,7 +351,7 @@ services:
             python app.py
     
     rrc13:
-        image: robinrpr/ris-kafka:1.2.6
+        image: robinrpr/ris-kafka:1.2.7
         deploy:
             replicas: 2
             restart_policy:
@@ -386,7 +386,7 @@ services:
             python app.py
     
     rrc14:
-        image: robinrpr/ris-kafka:1.2.6
+        image: robinrpr/ris-kafka:1.2.7
         deploy:
             replicas: 2
             restart_policy:
@@ -421,7 +421,7 @@ services:
             python app.py
     
     rrc15:
-        image: robinrpr/ris-kafka:1.2.6
+        image: robinrpr/ris-kafka:1.2.7
         deploy:
             replicas: 2
             restart_policy:
@@ -456,7 +456,7 @@ services:
             python app.py
     
     rrc16:
-        image: robinrpr/ris-kafka:1.2.6
+        image: robinrpr/ris-kafka:1.2.7
         deploy:
             replicas: 2
             restart_policy:
@@ -491,7 +491,7 @@ services:
             python app.py
     
     rrc18:
-        image: robinrpr/ris-kafka:1.2.6
+        image: robinrpr/ris-kafka:1.2.7
         deploy:
             replicas: 2
             restart_policy:
@@ -526,7 +526,7 @@ services:
             python app.py
     
     rrc19:
-        image: robinrpr/ris-kafka:1.2.6
+        image: robinrpr/ris-kafka:1.2.7
         deploy:
             replicas: 2
             restart_policy:
@@ -561,7 +561,7 @@ services:
             python app.py
     
     rrc20:
-        image: robinrpr/ris-kafka:1.2.6
+        image: robinrpr/ris-kafka:1.2.7
         deploy:
             replicas: 2
             restart_policy:
@@ -596,7 +596,7 @@ services:
             python app.py
     
     rrc21:
-        image: robinrpr/ris-kafka:1.2.6
+        image: robinrpr/ris-kafka:1.2.7
         deploy:
             replicas: 2
             restart_policy:
@@ -631,7 +631,7 @@ services:
             python app.py
     
     rrc22:
-        image: robinrpr/ris-kafka:1.2.6
+        image: robinrpr/ris-kafka:1.2.7
         deploy:
             replicas: 2
             restart_policy:
@@ -666,7 +666,7 @@ services:
             python app.py
     
     rrc23:
-        image: robinrpr/ris-kafka:1.2.6
+        image: robinrpr/ris-kafka:1.2.7
         deploy:
             replicas: 2
             restart_policy:
@@ -701,7 +701,7 @@ services:
             python app.py
     
     rrc24:
-        image: robinrpr/ris-kafka:1.2.6
+        image: robinrpr/ris-kafka:1.2.7
         deploy:
             replicas: 2
             restart_policy:
@@ -736,7 +736,7 @@ services:
             python app.py
     
     rrc25:
-        image: robinrpr/ris-kafka:1.2.6
+        image: robinrpr/ris-kafka:1.2.7
         deploy:
             replicas: 2
             restart_policy:
@@ -771,7 +771,7 @@ services:
             python app.py
     
     rrc26:
-        image: robinrpr/ris-kafka:1.2.6
+        image: robinrpr/ris-kafka:1.2.7
         deploy:
             replicas: 2
             restart_policy:
@@ -852,6 +852,8 @@ services:
             KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
             KAFKA_AUTHORIZER_CLASS_NAME: org.apache.kafka.metadata.authorizer.StandardAuthorizer
             KAFKA_ALLOW_EVERYONE_IF_NO_ACL_FOUND: "false"
+            KAFKA_CONTROLLER_QUORUM_VOTERS: "1@kafka:29092"
+            KAFKA_PROCESS_ROLES: broker
             KAFKA_SUPER_USERS: "User:admin"
             KAFKA_NUM_PARTITIONS: 1
             KAFKA_LOG_RETENTION_HOURS: 48
