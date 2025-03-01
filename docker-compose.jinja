@@ -119,6 +119,11 @@ services:
                 username="broker-admin"
                 password="'$$PASSPHRASE'";
                 };
+                KafkaController {
+                org.apache.kafka.common.security.plain.PlainLoginModule required
+                username="broker-admin"
+                password="'$$PASSPHRASE'";
+                };
                 Client {
                 org.apache.kafka.common.security.plain.PlainLoginModule required
                 username="broker-admin"
