@@ -15,7 +15,7 @@ services:
                 constraints:
                     - node.labels.ris-kafka-rrc == 1
         healthcheck:
-            test: ["CMD-SHELL", "ldb --db=/var/lib/rocksdb get is_healthy | grep -q '^is_healthy => \\x00$$' || exit 1"]
+            test: ["CMD-SHELL", "ldb --db=/var/lib/rocksdb get hardlock --value_hex | grep -q '^0x01$$' && exit 1 || exit 0"]
             interval: 30s
             timeout: 10s
             retries: 5

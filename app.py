@@ -198,8 +198,6 @@ async def sender_task(producer, queue):
                 if db is None:
                     try:
                         db = rocksdbpy.open_default("/var/lib/rocksdb")
-                        if db.get(b'is_healthy') is None:
-                            db.set(b'is_healthy', b'\x01') # Set to healthy
                     except Exception as e:
                         logger.warning(f"Failed to open RocksDB. Delaying by 2000ms")
                         await asyncio.sleep(2)
@@ -218,7 +216,7 @@ async def sender_task(producer, queue):
                             raise Exception("Awaiting in-flight transaction")
                         else:
                             # Process deadlocked
-                            db.set(b'is_healthy', b'\x00')
+                            db.set(b'hardlock', b'\x01')
                             raise Exception("Lost continuity")
 
                 # If we need to seek
@@ -243,6 +241,7 @@ async def sender_task(producer, queue):
                             # NOTE: If you encounter this, it means that the stream was interrupted and messages were irreversibly lost.
                             #       You may need to increase your replica count for a more resilient failover or increase system resources.
                             #       The only way to restart again is to delete all data (including your Kafka topics) and restart the service.
+                            db.set(b'hardlock', b'\x01')
                             raise Exception(f"Suspended due to failed stream recovery")
                     except Exception as e:
                         raise e
