@@ -112,15 +112,17 @@ services:
             - /bin/sh
             - -c
             - |
+                PASSPHRASE=$(openssl rand -base64 32) && \
                 echo 'KafkaServer {
-                  org.apache.kafka.common.security.plain.PlainLoginModule required
-                  username="broker-admin"
-                  password="'$$(cat /run/secrets/ris_kafka_broker_password)'";
+                org.apache.kafka.common.security.plain.PlainLoginModule required
+                serviceName="kafka"
+                username="broker-admin"
+                password="'$PASSPHRASE'";
                 };
                 Client {
-                  org.apache.kafka.common.security.plain.PlainLoginModule required
-                  username="broker-admin"
-                  password="'$$(cat /run/secrets/ris_kafka_broker_password)'";
+                org.apache.kafka.common.security.plain.PlainLoginModule required
+                username="broker-admin"
+                password="'$PASSPHRASE'";
                 };' > /tmp/kafka_jaas.conf && \
                 export KAFKA_OPTS="-Djava.security.auth.login.config=/tmp/kafka_jaas.conf" && \
                 /etc/confluent/docker/run
