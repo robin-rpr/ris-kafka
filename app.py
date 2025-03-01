@@ -198,6 +198,8 @@ async def sender_task(producer, queue):
                 if db is None:
                     try:
                         db = rocksdbpy.open_default("/var/lib/rocksdb")
+                        if db.get(b'is_healthy') is None:
+                            db.set(b'is_healthy', b'\x01') # Set to healthy
                     except Exception as e:
                         logger.warning(f"Failed to open RocksDB. Delaying by 2000ms")
                         await asyncio.sleep(2)
@@ -216,6 +218,7 @@ async def sender_task(producer, queue):
                             raise Exception("Awaiting in-flight transaction")
                         else:
                             # Process deadlocked
+                            db.set(b'is_healthy', b'\x00')
                             raise Exception("Lost continuity")
 
                 # If we need to seek

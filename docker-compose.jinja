@@ -8,12 +8,17 @@ services:
         build: .
         {%- endif %}
         deploy:
-            replicas: 2
+            replicas: 3
             restart_policy:
                 condition: any
             placement:
                 constraints:
                     - node.labels.ris-kafka-rrc == 1
+        healthcheck:
+            test: ["CMD-SHELL", "ldb --db=/var/lib/rocksdb get is_healthy | grep -q '^is_healthy => \\x00$' || exit 1"]
+            interval: 30s
+            timeout: 10s
+            retries: 5
         restart: unless-stopped
         stop_signal: SIGTERM  # Wind down collector safely before stopping
         stop_grace_period: 20s # Wait for 20 seconds before forcefully stopping
@@ -49,7 +54,7 @@ services:
                 constraints:
                     - node.labels.ris-kafka-zookeeper == 1
         healthcheck:
-            test: ["CMD-SHELL", "nc -z localhost 2181 || exit -1"]
+            test: ["CMD-SHELL", "nc -z localhost 2181 || exit 1"]
             interval: 30s
             timeout: 10s
             retries: 5
