@@ -13,7 +13,7 @@ A high-performance message broker that streams BGP updates from RIPE NCC's [Rout
 
 ## Overview
 
-This service connects to the [RIS Live](https://ris-live.ripe.net/) websocket endpoint to receive real-time BGP routing updates from RIPE NCC's global network of Route Collectors. It processes these messages by:
+This service connects to the [RIS Live](https://ris-live.ripe.net/) websocket endpoint to receive real-time BGP routing updates from RIPE NCC's global network of Remote Route Collectors (RRCs). It processes these messages by:
 
 1. Converting the JSON-encoded BGP messages to BMPv3 wire format
 2. Publishing to Kafka topics organized by collector and peer ASN
