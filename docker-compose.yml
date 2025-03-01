@@ -1,9 +1,9 @@
 version: '3'
 services:
     rrc00:
-        image: robinrpr/ris-kafka:1.2.5
+        image: robinrpr/ris-kafka:1.2.6
         deploy:
-            replicas: 3
+            replicas: 2
             restart_policy:
                 condition: any
             placement:
@@ -36,9 +36,9 @@ services:
             python app.py
     
     rrc01:
-        image: robinrpr/ris-kafka:1.2.5
+        image: robinrpr/ris-kafka:1.2.6
         deploy:
-            replicas: 3
+            replicas: 2
             restart_policy:
                 condition: any
             placement:
@@ -71,9 +71,9 @@ services:
             python app.py
     
     rrc03:
-        image: robinrpr/ris-kafka:1.2.5
+        image: robinrpr/ris-kafka:1.2.6
         deploy:
-            replicas: 3
+            replicas: 2
             restart_policy:
                 condition: any
             placement:
@@ -106,9 +106,9 @@ services:
             python app.py
     
     rrc04:
-        image: robinrpr/ris-kafka:1.2.5
+        image: robinrpr/ris-kafka:1.2.6
         deploy:
-            replicas: 3
+            replicas: 2
             restart_policy:
                 condition: any
             placement:
@@ -141,9 +141,9 @@ services:
             python app.py
     
     rrc05:
-        image: robinrpr/ris-kafka:1.2.5
+        image: robinrpr/ris-kafka:1.2.6
         deploy:
-            replicas: 3
+            replicas: 2
             restart_policy:
                 condition: any
             placement:
@@ -176,9 +176,9 @@ services:
             python app.py
     
     rrc06:
-        image: robinrpr/ris-kafka:1.2.5
+        image: robinrpr/ris-kafka:1.2.6
         deploy:
-            replicas: 3
+            replicas: 2
             restart_policy:
                 condition: any
             placement:
@@ -211,9 +211,9 @@ services:
             python app.py
     
     rrc07:
-        image: robinrpr/ris-kafka:1.2.5
+        image: robinrpr/ris-kafka:1.2.6
         deploy:
-            replicas: 3
+            replicas: 2
             restart_policy:
                 condition: any
             placement:
@@ -246,9 +246,9 @@ services:
             python app.py
     
     rrc10:
-        image: robinrpr/ris-kafka:1.2.5
+        image: robinrpr/ris-kafka:1.2.6
         deploy:
-            replicas: 3
+            replicas: 2
             restart_policy:
                 condition: any
             placement:
@@ -281,9 +281,9 @@ services:
             python app.py
     
     rrc11:
-        image: robinrpr/ris-kafka:1.2.5
+        image: robinrpr/ris-kafka:1.2.6
         deploy:
-            replicas: 3
+            replicas: 2
             restart_policy:
                 condition: any
             placement:
@@ -316,9 +316,9 @@ services:
             python app.py
     
     rrc12:
-        image: robinrpr/ris-kafka:1.2.5
+        image: robinrpr/ris-kafka:1.2.6
         deploy:
-            replicas: 3
+            replicas: 2
             restart_policy:
                 condition: any
             placement:
@@ -351,9 +351,9 @@ services:
             python app.py
     
     rrc13:
-        image: robinrpr/ris-kafka:1.2.5
+        image: robinrpr/ris-kafka:1.2.6
         deploy:
-            replicas: 3
+            replicas: 2
             restart_policy:
                 condition: any
             placement:
@@ -386,9 +386,9 @@ services:
             python app.py
     
     rrc14:
-        image: robinrpr/ris-kafka:1.2.5
+        image: robinrpr/ris-kafka:1.2.6
         deploy:
-            replicas: 3
+            replicas: 2
             restart_policy:
                 condition: any
             placement:
@@ -421,9 +421,9 @@ services:
             python app.py
     
     rrc15:
-        image: robinrpr/ris-kafka:1.2.5
+        image: robinrpr/ris-kafka:1.2.6
         deploy:
-            replicas: 3
+            replicas: 2
             restart_policy:
                 condition: any
             placement:
@@ -456,9 +456,9 @@ services:
             python app.py
     
     rrc16:
-        image: robinrpr/ris-kafka:1.2.5
+        image: robinrpr/ris-kafka:1.2.6
         deploy:
-            replicas: 3
+            replicas: 2
             restart_policy:
                 condition: any
             placement:
@@ -491,9 +491,9 @@ services:
             python app.py
     
     rrc18:
-        image: robinrpr/ris-kafka:1.2.5
+        image: robinrpr/ris-kafka:1.2.6
         deploy:
-            replicas: 3
+            replicas: 2
             restart_policy:
                 condition: any
             placement:
@@ -526,9 +526,9 @@ services:
             python app.py
     
     rrc19:
-        image: robinrpr/ris-kafka:1.2.5
+        image: robinrpr/ris-kafka:1.2.6
         deploy:
-            replicas: 3
+            replicas: 2
             restart_policy:
                 condition: any
             placement:
@@ -561,9 +561,9 @@ services:
             python app.py
     
     rrc20:
-        image: robinrpr/ris-kafka:1.2.5
+        image: robinrpr/ris-kafka:1.2.6
         deploy:
-            replicas: 3
+            replicas: 2
             restart_policy:
                 condition: any
             placement:
@@ -596,9 +596,9 @@ services:
             python app.py
     
     rrc21:
-        image: robinrpr/ris-kafka:1.2.5
+        image: robinrpr/ris-kafka:1.2.6
         deploy:
-            replicas: 3
+            replicas: 2
             restart_policy:
                 condition: any
             placement:
@@ -631,9 +631,9 @@ services:
             python app.py
     
     rrc22:
-        image: robinrpr/ris-kafka:1.2.5
+        image: robinrpr/ris-kafka:1.2.6
         deploy:
-            replicas: 3
+            replicas: 2
             restart_policy:
                 condition: any
             placement:
@@ -666,9 +666,9 @@ services:
             python app.py
     
     rrc23:
-        image: robinrpr/ris-kafka:1.2.5
+        image: robinrpr/ris-kafka:1.2.6
         deploy:
-            replicas: 3
+            replicas: 2
             restart_policy:
                 condition: any
             placement:
@@ -701,9 +701,9 @@ services:
             python app.py
     
     rrc24:
-        image: robinrpr/ris-kafka:1.2.5
+        image: robinrpr/ris-kafka:1.2.6
         deploy:
-            replicas: 3
+            replicas: 2
             restart_policy:
                 condition: any
             placement:
@@ -736,9 +736,9 @@ services:
             python app.py
     
     rrc25:
-        image: robinrpr/ris-kafka:1.2.5
+        image: robinrpr/ris-kafka:1.2.6
         deploy:
-            replicas: 3
+            replicas: 2
             restart_policy:
                 condition: any
             placement:
@@ -771,9 +771,9 @@ services:
             python app.py
     
     rrc26:
-        image: robinrpr/ris-kafka:1.2.5
+        image: robinrpr/ris-kafka:1.2.6
         deploy:
-            replicas: 3
+            replicas: 2
             restart_policy:
                 condition: any
             placement:
