@@ -4,7 +4,6 @@
 <br />
 <br />
 <br />
-<br />
 
 ---
 
@@ -34,6 +33,8 @@ consumer = Consumer({
     'session.timeout.ms': 30000,  # For stable group membership
 })
 ```
+
+You can check the current status of this public service at [status.superclustr.net](https://status.superclustr.net).
 
 ## Features
 
