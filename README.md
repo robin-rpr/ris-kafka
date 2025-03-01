@@ -102,7 +102,12 @@ docker node update --label-add ris-kafka-kafka=1 <node-name>
 docker node update --label-add ris-kafka-rrc=1 <node-name>
 ```
 
-2. **Deploy the service:**
+2. **Generate a secure broker password:**
+```sh
+openssl rand -base64 32 | docker secret create ris_kafka_broker_password -
+```
+
+3. **Finally, deploy the service:**
 ```sh
 curl -fsSL https://downloads.ris-kafka.com/docker-compose.yml | docker stack deploy -c - ris-kafka
 ```
