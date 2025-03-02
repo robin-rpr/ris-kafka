@@ -95,7 +95,7 @@ jinja2 docker-compose.jinja values.yaml | docker compose -f - up
 
 For production deployment, we use Docker Swarm, but any other orchestration tool may be used.
 The recommended system requirements are a minimum of 30GB of RAM and 6 vCPU cores.
-By default Kafka is _allowed_ to scale up to 24 Network and I/O threads.
+By default Kafka is as per configuration _allowed_ to scale up to 24 Network and I/O threads.
 
 1. **Specify the node affinity:**
 ```sh
