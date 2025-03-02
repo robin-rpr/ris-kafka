@@ -95,7 +95,7 @@ jinja2 docker-compose.jinja values.yaml | docker compose -f - up
 
 For production deployment, we use Docker Swarm, but any other orchestration tool may be used.
 The recommended system requirements are a minimum of 30GB of RAM and 6 vCPU cores.
-By default Kafka is _allowed_ to scale up to each 24 Network and I/O threads.
+Additionally, by default Kafka is _allowed_ to scale up to each 24 Network and I/O threads.
 
 1. **Specify the node affinity:**
 ```sh
@@ -109,7 +109,7 @@ docker node update --label-add ris-kafka-rrc=1 <node-name>
 curl -fsSL https://downloads.ris-kafka.com/docker-compose.yml | docker stack deploy -c - ris-kafka
 ```
 
-> **Note:** The default RRC replica count is two. You can provide a custom value by setting the `REPLICA_COUNT` environment variable, this will make use of [Docker's Environment Variable Interpolation](https://docs.docker.com/compose/how-tos/environment-variables/variable-interpolation). Please make sure to have enough resources for the number of replicas you specify. An additional average of 30GB of RAM is required for each additional replica.
+> **Note:** For more fine grained control, you can override the default of your deployment values by using [Docker's Environment Variable Interpolation](https://docs.docker.com/compose/how-tos/environment-variables/variable-interpolation). Please refer to the [docker-compose.yml](docker-compose.yml) file for more information. You can export or prepend these environment variables before running the `docker stack deploy` command above.
 
 This will start all collector instances with automatic leader election and failover capabilities:
 - Only one instance actively sends data at a time
