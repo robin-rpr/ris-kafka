@@ -8,7 +8,7 @@ services:
         build: .
         {%- endif %}
         deploy:
-            replicas: ${REPLICA_COUNT:-2}
+            replicas: {% raw %}${REPLICA_COUNT:-2}{% endraw %}
             restart_policy:
                 condition: any
             placement:
