@@ -109,7 +109,7 @@ docker node update --label-add ris-kafka-rrc=1 <node-name>
 curl -fsSL https://downloads.ris-kafka.com/docker-compose.yml | docker stack deploy -c - ris-kafka
 ```
 
-> **Note:** For more fine grained control, you can override the default of your deployment values by using [Docker's Environment Variable Interpolation](https://docs.docker.com/compose/how-tos/environment-variables/variable-interpolation). Please refer to the [docker-compose.yml](docker-compose.yml) file for more information. You can export or prepend these environment variables before running the `docker stack deploy` command above.
+> **Note:** For more fine grained control, you can override the default of your deployment values by using [Docker's Environment Variable Interpolation](https://docs.docker.com/compose/how-tos/environment-variables/variable-interpolation). Please refer to this [docker-compose.yml](https://downloads.ris-kafka.com/docker-compose.yml) file for more information. You can export or prepend these environment variables before running the `docker stack deploy` command above.
 
 This will start all collector instances with automatic leader election and failover capabilities:
 - Only one instance actively sends data at a time
