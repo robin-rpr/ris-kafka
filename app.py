@@ -21,6 +21,8 @@ BACKUP_SIZE = int(os.getenv("RRC_BACKUP_SIZE", 1000000))
 BATCH_SIZE = int(os.getenv("RRC_BATCH_SIZE", 1000))
 ZOOKEEPER_CONNECT = os.getenv("RRC_ZOOKEEPER_CONNECT")
 KAFKA_CONNECT = os.getenv("RRC_KAFKA_CONNECT")
+KAFKA_USERNAME = os.getenv("RRC_KAFKA_USERNAME")
+KAFKA_PASSWORD = os.getenv("RRC_KAFKA_PASSWORD")
 LOG_LEVEL = os.getenv("RRC_LOG_LEVEL", "INFO").upper()
 RIS_HOST = os.getenv("RRC_HOST").lower()
 
@@ -121,7 +123,7 @@ async def consumer_task(queue, backup):
                 batch.append(marshal)
 
                 # Sort and reset batch
-                if len(batch) == BATCH_SIZE:     
+                if len(batch) == BATCH_SIZE:
                     # Sort Messages                   
                     ordered = sorted(batch, key=lambda item: (
                         int(ipaddress.ip_address(item["peer"])), # Group by peer (same peer together)
@@ -371,32 +373,34 @@ async def sender_task(producer, queue):
                 # Wait until we are the leader
                 await asyncio.sleep(1)
     except asyncio.CancelledError:
-        # If we are interrupted amid an active message delivery transaction
-        if not db.get(b"batch_transacting") == b'\x01':
-            # Ensure all messages got delivered
-            while db.get(b"batch_reported") == b'\x00':
-                # If not all messages have been reported
-                if reported_size < produced_size:
-                    logger.warning("Messages still in queue or transit. Delaying shutdown by 1000ms")
-                    await asyncio.sleep(1)
-                    producer.flush()
-                    continue
+        if db is not None:
+            # If we are interrupted amid an active message delivery transaction
+            if not db.get(b"batch_transacting") == b'\x01':
+                # Ensure all messages got delivered
+                while db.get(b"batch_reported") == b'\x00':
+                    # If not all messages have been reported
+                    if reported_size < produced_size:
+                        logger.warning("Messages still in queue or transit. Delaying shutdown by 1000ms")
+                        await asyncio.sleep(1)
+                        producer.flush()
+                        continue
 
-                # If all messages have been reported
-                if reported_size == produced_size:
-                    logger.info("Outstanding messages delivered")
-                    db.set(b"batch_id", latest['id'].encode('utf-8'))
-                    db.set(b"batch_reported", b'\x01')
-        # Close RocksDB
-        db.close()
+                    # If all messages have been reported
+                    if reported_size == produced_size:
+                        logger.info("Outstanding messages delivered")
+                        db.set(b"batch_id", latest['id'].encode('utf-8'))
+                        db.set(b"batch_reported", b'\x01')
+            # Close RocksDB
+            db.close()
         raise
 
 # Logging Task
-async def logging_task():
+async def logging_task(queue, backup):
     global receive_counter
     global send_counter
     global is_leader
     global time_lag
+
     """
     A single task that continuously logs the current state of the system.
     """
@@ -413,7 +417,7 @@ async def logging_task():
             m, s = divmod(remainder, 60)
 
             # Log out
-            logger.info(f"host={RIS_HOST} leader={is_leader} receive={received_kbps:.2f} kbps send={sent_kbps:.2f} kbps lag={int(h)}h {int(m)}m {int(s)}s")
+            logger.info(f"host={RIS_HOST} leader={is_leader} receive={received_kbps:.2f} kbps send={sent_kbps:.2f} kbps lag={int(h)}h {int(m)}m {int(s)}s backup={backup.qsize()} queue={queue.qsize()}")
 
             # Reset counters
             receive_counter = 0 
@@ -438,24 +442,28 @@ def handle_shutdown(signum, frame, shutdown_event):
 
 # Main Coroutine
 async def main():
-    # Kafka Producer
-    producer = Producer({
-        'bootstrap.servers': KAFKA_CONNECT,
-        'enable.idempotence': True,
-        'acks': 'all',
-        'retries': 10,
-        'compression.type': 'lz4'
-    })
-
-    # Queues
-    queue = asyncio.Queue(maxsize=QUEUE_SIZE)
-    backup = asyncio.Queue(maxsize=BACKUP_SIZE)
-
     # Tasks
     tasks = []
 
+    logger.info("Starting up...")
+
     try:
-        logger.info("Starting up...")
+        # Kafka Producer
+        producer = Producer({
+            'bootstrap.servers': KAFKA_CONNECT,
+            'enable.idempotence': True,
+            'acks': 'all',
+            'retries': 10,
+            'compression.type': 'lz4',
+            'security.protocol': 'SASL_PLAINTEXT',
+            'sasl.mechanism': 'PLAIN',
+            'sasl.username': KAFKA_USERNAME,
+            'sasl.password': KAFKA_PASSWORD,
+        })
+
+        # Queues
+        queue = asyncio.Queue(maxsize=QUEUE_SIZE)
+        backup = asyncio.Queue(maxsize=BACKUP_SIZE)
 
         # Create an event to signal shutdown
         shutdown_event = asyncio.Event()
@@ -473,7 +481,7 @@ async def main():
         tasks.append(asyncio.create_task(sender_task(producer, queue)))
 
         # Start the logging task
-        tasks.append(asyncio.create_task(logging_task()))
+        tasks.append(asyncio.create_task(logging_task(queue, backup)))
 
         # Monitor tasks for exceptions
         for task in tasks:

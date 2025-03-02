@@ -25,6 +25,8 @@ services:
         environment:
             RRC_ZOOKEEPER_CONNECT: zookeeper:2181
             RRC_KAFKA_CONNECT: kafka:29092
+            RRC_KAFKA_USERNAME: admin
+            RRC_KAFKA_PASSWORD: admin-secret
             RRC_BACKUP_SIZE: 350000
             RRC_QUEUE_SIZE: 100000
             RRC_BATCH_SIZE: 10000
@@ -34,6 +36,7 @@ services:
             - kafbat
             - kafka
             - zookeeper
+            - acl
         working_dir: /app
         volumes:
             {%- if not production %}
@@ -185,11 +188,18 @@ services:
                             --add --deny-principal User:ANONYMOUS \
                             --operation Alter \
                             --topic '*' \
-                            --allow-host '*'
+                            --allow-host '*' && \
+                kafka-acls --bootstrap-server kafka:29092 \
+                            --command-config <(echo -e "security.protocol=SASL_PLAINTEXT\nsasl.mechanism=PLAIN") \
+                            --list
 
     kafbat:
         image: ghcr.io/kafbat/kafka-ui:latest
         restart: unless-stopped
+        {%- if not production %}
+        ports:
+            - "8080:8080"
+        {%- endif %}
         deploy:
             restart_policy:
                 condition: any
@@ -205,6 +215,12 @@ services:
             KAFKA_CLUSTERS_0_NAME: ris-kafka
             KAFKA_CLUSTERS_0_BOOTSTRAP_SERVERS: kafka:29092
             KAFKA_CLUSTERS_0_READONLY: "true"
+            KAFKA_CLUSTERS_0_PROPERTIES_SECURITY_PROTOCOL: SASL_PLAINTEXT
+            KAFKA_CLUSTERS_0_PROPERTIES_SASL_MECHANISM: PLAIN
+            KAFKA_CLUSTERS_0_PROPERTIES_SASL_JAAS_CONFIG: |
+                org.apache.kafka.common.security.plain.PlainLoginModule required
+                username="admin"
+                password="admin-secret";
 
     {%- if production %}
     traefik:
