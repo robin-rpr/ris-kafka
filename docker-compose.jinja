@@ -74,10 +74,6 @@ services:
                     - node.labels.ris-kafka-kafka == 1
             restart_policy:
                 condition: any
-        secrets:
-            - ris_kafka_broker_password
-        depends_on:
-            - zookeeper
         volumes:
             - kafka_data:/var/lib/kafka/data
         ports:
@@ -108,29 +104,28 @@ services:
             KAFKA_COMPRESSION_TYPE: lz4
             KAFKA_NUM_NETWORK_THREADS: 24
             KAFKA_NUM_IO_THREADS: 24
-        command:
-            - /bin/sh
-            - -c
-            - |
-                PASSPHRASE=$$(openssl rand -base64 32) && \
-                echo 'KafkaServer {
-                org.apache.kafka.common.security.plain.PlainLoginModule required
-                serviceName="kafka"
-                username="broker-admin"
-                password="'$$PASSPHRASE'";
-                };
-                KafkaController {
-                org.apache.kafka.common.security.plain.PlainLoginModule required
-                username="broker-admin"
-                password="'$$PASSPHRASE'";
-                };
-                Client {
-                org.apache.kafka.common.security.plain.PlainLoginModule required
-                username="broker-admin"
-                password="'$$PASSPHRASE'";
-                };' > /tmp/kafka_jaas.conf && \
-                export KAFKA_OPTS="-Djava.security.auth.login.config=/tmp/kafka_jaas.conf" && \
-                /etc/confluent/docker/run
+            KAFKA_LISTENER_NAME_INTERNAL_SASL_ENABLED_MECHANISMS: PLAIN
+            KAFKA_LISTENER_NAME_INTERNAL_PLAIN_SASL_JAAS_CONFIG: |
+                org.apache.kafka.common.security.plain.PlainLoginModule required \
+                username="admin" \
+                password="admin-secret" \
+                user_admin="admin-secret" \
+                user_mds="mds-secret";
+
+            KAFKA_LISTENER_NAME_CONTROLLER_SASL_ENABLED_MECHANISMS: PLAIN
+            KAFKA_LISTENER_NAME_CONTROLLER_PLAIN_SASL_JAAS_CONFIG: |
+                org.apache.kafka.common.security.plain.PlainLoginModule required \
+                username="admin" \
+                password="admin-secret" \
+                user_admin="admin-secret" \
+                user_mds="mds-secret";
+
+            KAFKA_SASL_JAAS_CONFIG: |
+                org.apache.kafka.common.security.plain.PlainLoginModule required \
+                username="admin" \
+                password="admin-secret";
+
+            KAFKA_SASL_MECHANISM_CONTROLLER_PROTOCOL: "PLAIN"
 
     acl:
         image: confluentinc/cp-kafka:latest
@@ -140,38 +135,53 @@ services:
         deploy:
             restart_policy:
                 condition: on-failure
+        environment:
+            KAFKA_OPTS: "-Djava.security.auth.login.config=/etc/kafka/jaas.conf"
+            KAFKA_SECURITY_PROTOCOL: SASL_PLAINTEXT
         command:
-            - /bin/sh
+            - /bin/bash
             - -c
             - |
+                echo 'KafkaClient {
+                    org.apache.kafka.common.security.plain.PlainLoginModule required
+                    username="admin"
+                    password="admin-secret";
+                };' > /etc/kafka/jaas.conf && \
                 sleep 10 && \
                 kafka-acls --bootstrap-server kafka:29092 \
-                            --add --allow-principal User:broker-admin \
+                            --command-config <(echo -e "security.protocol=SASL_PLAINTEXT\nsasl.mechanism=PLAIN") \
+                            --add --allow-principal User:admin \
                             --operation All \
-                            --cluster \
+                            --topic '*' \
+                            --group '*' \
                             --allow-host '*' && \
                 kafka-acls --bootstrap-server kafka:29092 \
+                            --command-config <(echo -e "security.protocol=SASL_PLAINTEXT\nsasl.mechanism=PLAIN") \
                             --add --allow-principal User:ANONYMOUS \
                             --operation Read \
                             --topic '*' \
                             --group '*' \
                             --allow-host '*' && \
                 kafka-acls --bootstrap-server kafka:29092 \
+                            --command-config <(echo -e "security.protocol=SASL_PLAINTEXT\nsasl.mechanism=PLAIN") \
                             --add --deny-principal User:ANONYMOUS \
                             --operation Write \
                             --topic '*' \
                             --allow-host '*' && \
                 kafka-acls --bootstrap-server kafka:29092 \
+                            --command-config <(echo -e "security.protocol=SASL_PLAINTEXT\nsasl.mechanism=PLAIN") \
                             --add --deny-principal User:ANONYMOUS \
                             --operation Create \
                             --topic '*' \
                             --allow-host '*' && \
                 kafka-acls --bootstrap-server kafka:29092 \
+                            --command-config <(echo -e "security.protocol=SASL_PLAINTEXT\nsasl.mechanism=PLAIN") \
                             --add --deny-principal User:ANONYMOUS \
                             --operation Delete \
                             --topic '*' \
                             --allow-host '*' && \
                 kafka-acls --bootstrap-server kafka:29092 \
+                            --command-config <(echo -e "security.protocol=SASL_PLAINTEXT\nsasl.mechanism=PLAIN") \
                             --add --deny-principal User:ANONYMOUS \
                             --operation Alter \
                             --topic '*' \
@@ -238,8 +248,3 @@ volumes:
     {%- for host in ris %}
     {{ host }}_data:
     {%- endfor %}
-
-# Define secrets
-secrets:
-  ris_kafka_broker_password:
-    external: true
