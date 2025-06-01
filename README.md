@@ -94,17 +94,9 @@ jinja2 docker-compose.jinja values.yaml | docker compose -f - up
 ## Production Deployment
 
 For production deployment, we use Docker Swarm, but any other orchestration tool may be used.
-The recommended system requirements are a minimum of 30GB of RAM and 6 vCPU cores.
+The recommended system requirements are a minimum of 16 GB of RAM and 8 vCPU cores.
 Additionally, by default Kafka is _allowed_ to scale up to each 24 Network and I/O threads.
 
-1. **Specify the node affinity:**
-```sh
-docker node update --label-add ris-kafka-zookeeper=1 <node-name>
-docker node update --label-add ris-kafka-kafka=1 <node-name>
-docker node update --label-add ris-kafka-rrc=1 <node-name>
-```
-
-2. **Finally, deploy the service:**
 ```sh
 curl -fsSL https://downloads.ris-kafka.com/docker-compose.yml | docker stack deploy -c - ris-kafka
 ```
