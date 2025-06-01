@@ -13,7 +13,7 @@ services:
                 condition: any
             placement:
                 constraints:
-                    - node.labels.ris-kafka-rrc == 1
+                    - node.role == worker
         healthcheck:
             test: ["CMD-SHELL", "ldb --db=/var/lib/rocksdb get hardlock --value_hex | grep -q '^0x01$$' && exit 1 || exit 0"]
             interval: 30s
@@ -55,7 +55,7 @@ services:
                 condition: any
             placement:
                 constraints:
-                    - node.labels.ris-kafka-zookeeper == 1
+                    - node.role == manager
         healthcheck:
             test: ["CMD-SHELL", "nc -z localhost 2181 || exit 1"]
             interval: 30s
@@ -74,7 +74,7 @@ services:
         deploy:
             placement:
                 constraints:
-                    - node.labels.ris-kafka-kafka == 1
+                    - node.role == manager
             restart_policy:
                 condition: any
         volumes:
@@ -136,6 +136,9 @@ services:
             - kafka
         restart: unless-stopped
         deploy:
+            placement:
+                constraints:
+                    - node.role == manager
             restart_policy:
                 condition: on-failure
         environment:
@@ -203,6 +206,9 @@ services:
         deploy:
             restart_policy:
                 condition: any
+            placement:
+                constraints:
+                    - node.role == manager
             labels:
                 - "traefik.enable=true"
                 - "traefik.http.routers.riskafka.rule=Host(`ris-kafka.com`)"
