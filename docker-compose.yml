@@ -1,14 +1,14 @@
 version: '3'
 services:
     rrc00:
-        image: robinrpr/ris-kafka:1.2.18
+        image: robinrpr/ris-kafka:1.2.19
         deploy:
             replicas: ${RRC_REPLICA_COUNT:-2}
             restart_policy:
                 condition: any
             placement:
                 constraints:
-                    - node.labels.ris-kafka-rrc == 1
+                    - node.role == worker
         healthcheck:
             test: ["CMD-SHELL", "ldb --db=/var/lib/rocksdb get hardlock --value_hex | grep -q '^0x01$$' && exit 1 || exit 0"]
             interval: 30s
@@ -39,14 +39,14 @@ services:
             python app.py
     
     rrc01:
-        image: robinrpr/ris-kafka:1.2.18
+        image: robinrpr/ris-kafka:1.2.19
         deploy:
             replicas: ${RRC_REPLICA_COUNT:-2}
             restart_policy:
                 condition: any
             placement:
                 constraints:
-                    - node.labels.ris-kafka-rrc == 1
+                    - node.role == worker
         healthcheck:
             test: ["CMD-SHELL", "ldb --db=/var/lib/rocksdb get hardlock --value_hex | grep -q '^0x01$$' && exit 1 || exit 0"]
             interval: 30s
@@ -77,14 +77,14 @@ services:
             python app.py
     
     rrc03:
-        image: robinrpr/ris-kafka:1.2.18
+        image: robinrpr/ris-kafka:1.2.19
         deploy:
             replicas: ${RRC_REPLICA_COUNT:-2}
             restart_policy:
                 condition: any
             placement:
                 constraints:
-                    - node.labels.ris-kafka-rrc == 1
+                    - node.role == worker
         healthcheck:
             test: ["CMD-SHELL", "ldb --db=/var/lib/rocksdb get hardlock --value_hex | grep -q '^0x01$$' && exit 1 || exit 0"]
             interval: 30s
@@ -115,14 +115,14 @@ services:
             python app.py
     
     rrc04:
-        image: robinrpr/ris-kafka:1.2.18
+        image: robinrpr/ris-kafka:1.2.19
         deploy:
             replicas: ${RRC_REPLICA_COUNT:-2}
             restart_policy:
                 condition: any
             placement:
                 constraints:
-                    - node.labels.ris-kafka-rrc == 1
+                    - node.role == worker
         healthcheck:
             test: ["CMD-SHELL", "ldb --db=/var/lib/rocksdb get hardlock --value_hex | grep -q '^0x01$$' && exit 1 || exit 0"]
             interval: 30s
@@ -153,14 +153,14 @@ services:
             python app.py
     
     rrc05:
-        image: robinrpr/ris-kafka:1.2.18
+        image: robinrpr/ris-kafka:1.2.19
         deploy:
             replicas: ${RRC_REPLICA_COUNT:-2}
             restart_policy:
                 condition: any
             placement:
                 constraints:
-                    - node.labels.ris-kafka-rrc == 1
+                    - node.role == worker
         healthcheck:
             test: ["CMD-SHELL", "ldb --db=/var/lib/rocksdb get hardlock --value_hex | grep -q '^0x01$$' && exit 1 || exit 0"]
             interval: 30s
@@ -191,14 +191,14 @@ services:
             python app.py
     
     rrc06:
-        image: robinrpr/ris-kafka:1.2.18
+        image: robinrpr/ris-kafka:1.2.19
         deploy:
             replicas: ${RRC_REPLICA_COUNT:-2}
             restart_policy:
                 condition: any
             placement:
                 constraints:
-                    - node.labels.ris-kafka-rrc == 1
+                    - node.role == worker
         healthcheck:
             test: ["CMD-SHELL", "ldb --db=/var/lib/rocksdb get hardlock --value_hex | grep -q '^0x01$$' && exit 1 || exit 0"]
             interval: 30s
@@ -229,14 +229,14 @@ services:
             python app.py
     
     rrc07:
-        image: robinrpr/ris-kafka:1.2.18
+        image: robinrpr/ris-kafka:1.2.19
         deploy:
             replicas: ${RRC_REPLICA_COUNT:-2}
             restart_policy:
                 condition: any
             placement:
                 constraints:
-                    - node.labels.ris-kafka-rrc == 1
+                    - node.role == worker
         healthcheck:
             test: ["CMD-SHELL", "ldb --db=/var/lib/rocksdb get hardlock --value_hex | grep -q '^0x01$$' && exit 1 || exit 0"]
             interval: 30s
@@ -267,14 +267,14 @@ services:
             python app.py
     
     rrc10:
-        image: robinrpr/ris-kafka:1.2.18
+        image: robinrpr/ris-kafka:1.2.19
         deploy:
             replicas: ${RRC_REPLICA_COUNT:-2}
             restart_policy:
                 condition: any
             placement:
                 constraints:
-                    - node.labels.ris-kafka-rrc == 1
+                    - node.role == worker
         healthcheck:
             test: ["CMD-SHELL", "ldb --db=/var/lib/rocksdb get hardlock --value_hex | grep -q '^0x01$$' && exit 1 || exit 0"]
             interval: 30s
@@ -305,14 +305,14 @@ services:
             python app.py
     
     rrc11:
-        image: robinrpr/ris-kafka:1.2.18
+        image: robinrpr/ris-kafka:1.2.19
         deploy:
             replicas: ${RRC_REPLICA_COUNT:-2}
             restart_policy:
                 condition: any
             placement:
                 constraints:
-                    - node.labels.ris-kafka-rrc == 1
+                    - node.role == worker
         healthcheck:
             test: ["CMD-SHELL", "ldb --db=/var/lib/rocksdb get hardlock --value_hex | grep -q '^0x01$$' && exit 1 || exit 0"]
             interval: 30s
@@ -343,14 +343,14 @@ services:
             python app.py
     
     rrc12:
-        image: robinrpr/ris-kafka:1.2.18
+        image: robinrpr/ris-kafka:1.2.19
         deploy:
             replicas: ${RRC_REPLICA_COUNT:-2}
             restart_policy:
                 condition: any
             placement:
                 constraints:
-                    - node.labels.ris-kafka-rrc == 1
+                    - node.role == worker
         healthcheck:
             test: ["CMD-SHELL", "ldb --db=/var/lib/rocksdb get hardlock --value_hex | grep -q '^0x01$$' && exit 1 || exit 0"]
             interval: 30s
@@ -381,14 +381,14 @@ services:
             python app.py
     
     rrc13:
-        image: robinrpr/ris-kafka:1.2.18
+        image: robinrpr/ris-kafka:1.2.19
         deploy:
             replicas: ${RRC_REPLICA_COUNT:-2}
             restart_policy:
                 condition: any
             placement:
                 constraints:
-                    - node.labels.ris-kafka-rrc == 1
+                    - node.role == worker
         healthcheck:
             test: ["CMD-SHELL", "ldb --db=/var/lib/rocksdb get hardlock --value_hex | grep -q '^0x01$$' && exit 1 || exit 0"]
             interval: 30s
@@ -419,14 +419,14 @@ services:
             python app.py
     
     rrc14:
-        image: robinrpr/ris-kafka:1.2.18
+        image: robinrpr/ris-kafka:1.2.19
         deploy:
             replicas: ${RRC_REPLICA_COUNT:-2}
             restart_policy:
                 condition: any
             placement:
                 constraints:
-                    - node.labels.ris-kafka-rrc == 1
+                    - node.role == worker
         healthcheck:
             test: ["CMD-SHELL", "ldb --db=/var/lib/rocksdb get hardlock --value_hex | grep -q '^0x01$$' && exit 1 || exit 0"]
             interval: 30s
@@ -457,14 +457,14 @@ services:
             python app.py
     
     rrc15:
-        image: robinrpr/ris-kafka:1.2.18
+        image: robinrpr/ris-kafka:1.2.19
         deploy:
             replicas: ${RRC_REPLICA_COUNT:-2}
             restart_policy:
                 condition: any
             placement:
                 constraints:
-                    - node.labels.ris-kafka-rrc == 1
+                    - node.role == worker
         healthcheck:
             test: ["CMD-SHELL", "ldb --db=/var/lib/rocksdb get hardlock --value_hex | grep -q '^0x01$$' && exit 1 || exit 0"]
             interval: 30s
@@ -495,14 +495,14 @@ services:
             python app.py
     
     rrc16:
-        image: robinrpr/ris-kafka:1.2.18
+        image: robinrpr/ris-kafka:1.2.19
         deploy:
             replicas: ${RRC_REPLICA_COUNT:-2}
             restart_policy:
                 condition: any
             placement:
                 constraints:
-                    - node.labels.ris-kafka-rrc == 1
+                    - node.role == worker
         healthcheck:
             test: ["CMD-SHELL", "ldb --db=/var/lib/rocksdb get hardlock --value_hex | grep -q '^0x01$$' && exit 1 || exit 0"]
             interval: 30s
@@ -533,14 +533,14 @@ services:
             python app.py
     
     rrc18:
-        image: robinrpr/ris-kafka:1.2.18
+        image: robinrpr/ris-kafka:1.2.19
         deploy:
             replicas: ${RRC_REPLICA_COUNT:-2}
             restart_policy:
                 condition: any
             placement:
                 constraints:
-                    - node.labels.ris-kafka-rrc == 1
+                    - node.role == worker
         healthcheck:
             test: ["CMD-SHELL", "ldb --db=/var/lib/rocksdb get hardlock --value_hex | grep -q '^0x01$$' && exit 1 || exit 0"]
             interval: 30s
@@ -571,14 +571,14 @@ services:
             python app.py
     
     rrc19:
-        image: robinrpr/ris-kafka:1.2.18
+        image: robinrpr/ris-kafka:1.2.19
         deploy:
             replicas: ${RRC_REPLICA_COUNT:-2}
             restart_policy:
                 condition: any
             placement:
                 constraints:
-                    - node.labels.ris-kafka-rrc == 1
+                    - node.role == worker
         healthcheck:
             test: ["CMD-SHELL", "ldb --db=/var/lib/rocksdb get hardlock --value_hex | grep -q '^0x01$$' && exit 1 || exit 0"]
             interval: 30s
@@ -609,14 +609,14 @@ services:
             python app.py
     
     rrc20:
-        image: robinrpr/ris-kafka:1.2.18
+        image: robinrpr/ris-kafka:1.2.19
         deploy:
             replicas: ${RRC_REPLICA_COUNT:-2}
             restart_policy:
                 condition: any
             placement:
                 constraints:
-                    - node.labels.ris-kafka-rrc == 1
+                    - node.role == worker
         healthcheck:
             test: ["CMD-SHELL", "ldb --db=/var/lib/rocksdb get hardlock --value_hex | grep -q '^0x01$$' && exit 1 || exit 0"]
             interval: 30s
@@ -647,14 +647,14 @@ services:
             python app.py
     
     rrc21:
-        image: robinrpr/ris-kafka:1.2.18
+        image: robinrpr/ris-kafka:1.2.19
         deploy:
             replicas: ${RRC_REPLICA_COUNT:-2}
             restart_policy:
                 condition: any
             placement:
                 constraints:
-                    - node.labels.ris-kafka-rrc == 1
+                    - node.role == worker
         healthcheck:
             test: ["CMD-SHELL", "ldb --db=/var/lib/rocksdb get hardlock --value_hex | grep -q '^0x01$$' && exit 1 || exit 0"]
             interval: 30s
@@ -685,14 +685,14 @@ services:
             python app.py
     
     rrc22:
-        image: robinrpr/ris-kafka:1.2.18
+        image: robinrpr/ris-kafka:1.2.19
         deploy:
             replicas: ${RRC_REPLICA_COUNT:-2}
             restart_policy:
                 condition: any
             placement:
                 constraints:
-                    - node.labels.ris-kafka-rrc == 1
+                    - node.role == worker
         healthcheck:
             test: ["CMD-SHELL", "ldb --db=/var/lib/rocksdb get hardlock --value_hex | grep -q '^0x01$$' && exit 1 || exit 0"]
             interval: 30s
@@ -723,14 +723,14 @@ services:
             python app.py
     
     rrc23:
-        image: robinrpr/ris-kafka:1.2.18
+        image: robinrpr/ris-kafka:1.2.19
         deploy:
             replicas: ${RRC_REPLICA_COUNT:-2}
             restart_policy:
                 condition: any
             placement:
                 constraints:
-                    - node.labels.ris-kafka-rrc == 1
+                    - node.role == worker
         healthcheck:
             test: ["CMD-SHELL", "ldb --db=/var/lib/rocksdb get hardlock --value_hex | grep -q '^0x01$$' && exit 1 || exit 0"]
             interval: 30s
@@ -761,14 +761,14 @@ services:
             python app.py
     
     rrc24:
-        image: robinrpr/ris-kafka:1.2.18
+        image: robinrpr/ris-kafka:1.2.19
         deploy:
             replicas: ${RRC_REPLICA_COUNT:-2}
             restart_policy:
                 condition: any
             placement:
                 constraints:
-                    - node.labels.ris-kafka-rrc == 1
+                    - node.role == worker
         healthcheck:
             test: ["CMD-SHELL", "ldb --db=/var/lib/rocksdb get hardlock --value_hex | grep -q '^0x01$$' && exit 1 || exit 0"]
             interval: 30s
@@ -799,14 +799,14 @@ services:
             python app.py
     
     rrc25:
-        image: robinrpr/ris-kafka:1.2.18
+        image: robinrpr/ris-kafka:1.2.19
         deploy:
             replicas: ${RRC_REPLICA_COUNT:-2}
             restart_policy:
                 condition: any
             placement:
                 constraints:
-                    - node.labels.ris-kafka-rrc == 1
+                    - node.role == worker
         healthcheck:
             test: ["CMD-SHELL", "ldb --db=/var/lib/rocksdb get hardlock --value_hex | grep -q '^0x01$$' && exit 1 || exit 0"]
             interval: 30s
@@ -837,14 +837,14 @@ services:
             python app.py
     
     rrc26:
-        image: robinrpr/ris-kafka:1.2.18
+        image: robinrpr/ris-kafka:1.2.19
         deploy:
             replicas: ${RRC_REPLICA_COUNT:-2}
             restart_policy:
                 condition: any
             placement:
                 constraints:
-                    - node.labels.ris-kafka-rrc == 1
+                    - node.role == worker
         healthcheck:
             test: ["CMD-SHELL", "ldb --db=/var/lib/rocksdb get hardlock --value_hex | grep -q '^0x01$$' && exit 1 || exit 0"]
             interval: 30s
@@ -883,7 +883,7 @@ services:
                 condition: any
             placement:
                 constraints:
-                    - node.labels.ris-kafka-zookeeper == 1
+                    - node.role == manager
         healthcheck:
             test: ["CMD-SHELL", "nc -z localhost 2181 || exit 1"]
             interval: 30s
@@ -892,7 +892,7 @@ services:
         volumes:
             - zookeeper_data:/var/lib/zookeeper
         environment:
-            ZOOKEEPER_MAX_CLIENT_CNXNS: 200
+            ZOOKEEPER_MAX_CLIENT_CNXNS: ${ZOOKEEPER_MAX_CLIENT_CNXNS:-200}
             ZOOKEEPER_CLIENT_PORT: 2181
             ZOOKEEPER_TICK_TIME: 2000
 
@@ -902,7 +902,7 @@ services:
         deploy:
             placement:
                 constraints:
-                    - node.labels.ris-kafka-kafka == 1
+                    - node.role == manager
             restart_policy:
                 condition: any
         volumes:
@@ -964,6 +964,9 @@ services:
             - kafka
         restart: unless-stopped
         deploy:
+            placement:
+                constraints:
+                    - node.role == manager
             restart_policy:
                 condition: on-failure
         environment:
@@ -1027,12 +1030,6 @@ services:
         deploy:
             restart_policy:
                 condition: any
-            labels:
-                - "traefik.enable=true"
-                - "traefik.http.routers.riskafka.rule=Host(`ris-kafka.com`)"
-                - "traefik.http.routers.riskafka.entrypoints=websecure"
-                - "traefik.http.routers.riskafka.tls.certresolver=riskafka"
-                - "traefik.http.services.riskafka.loadbalancer.server.port=8080"
         depends_on:
             - kafka
         environment:
@@ -1045,40 +1042,28 @@ services:
                 org.apache.kafka.common.security.plain.PlainLoginModule required
                 username="admin"
                 password="admin-secret";
-    traefik:
-        image: traefik:v2.4
-        ports:
-            - "80:80"
-            - "443:443"
+    # Cloudflared Tunnel
+    cloudflared:
+        image: cloudflare/cloudflared:latest
+        restart: unless-stopped
         deploy:
-            restart_policy:
-                condition: any
-            placement:
-                constraints:
-                    - node.role == manager
-        entrypoint:
-            - sh
-            - -c
-        command: >
-            "touch /data/acme.json && chmod 600 /data/acme.json && traefik \
-            --entrypoints.web.address=:80 \
-            --entrypoints.web.http.redirections.entryPoint.to=websecure \
-            --entrypoints.web.http.redirections.entryPoint.scheme=https \
-            --entrypoints.web.http.redirections.entryPoint.permanent=true \
-            --entrypoints.websecure.address=:443 \
-            --providers.docker.swarmMode=true \
-            --providers.docker.exposedbydefault=false \
-            --certificatesresolvers.riskafka.acme.httpchallenge.entrypoint=web \
-            --certificatesresolvers.riskafka.acme.email=hostmaster@ris-kafka.com \
-            --certificatesresolvers.riskafka.acme.storage=/data/acme.json"
-        volumes:
-            - /var/run/docker.sock:/var/run/docker.sock:ro
-            - traefik_data:/data
+        placement:
+            constraints:
+                - node.role == manager
+        healthcheck:
+        test: ["CMD", "cloudflared", "--version"]
+        interval: 30s
+        timeout: 10s
+        retries: 3
+        start_period: 10s
+        depends_on:
+            - web
+        entrypoint: |
+            cloudflared tunnel run --token ${CLOUDFLARE_TUNNEL_TOKEN}
 
 # Define volumes
 volumes:
     zookeeper_data:
-    traefik_data:
     kafka_data:
     rrc00_data:
     rrc01_data:
