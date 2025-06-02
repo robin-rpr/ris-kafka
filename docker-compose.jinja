@@ -206,15 +206,6 @@ services:
         deploy:
             restart_policy:
                 condition: any
-            placement:
-                constraints:
-                    - node.role == manager
-            labels:
-                - "traefik.enable=true"
-                - "traefik.http.routers.riskafka.rule=Host(`ris-kafka.com`)"
-                - "traefik.http.routers.riskafka.entrypoints=websecure"
-                - "traefik.http.routers.riskafka.tls.certresolver=riskafka"
-                - "traefik.http.services.riskafka.loadbalancer.server.port=8080"
         depends_on:
             - kafka
         environment:
@@ -229,43 +220,29 @@ services:
                 password="admin-secret";
 
     {%- if production %}
-    traefik:
-        image: traefik:v2.4
-        ports:
-            - "80:80"
-            - "443:443"
+    # Cloudflared Tunnel
+    cloudflared:
+        image: cloudflare/cloudflared:latest
+        restart: unless-stopped
         deploy:
-            restart_policy:
-                condition: any
-            placement:
-                constraints:
-                    - node.role == manager
-        entrypoint:
-            - sh
-            - -c
-        command: >
-            "touch /data/acme.json && chmod 600 /data/acme.json && traefik \
-            --entrypoints.web.address=:80 \
-            --entrypoints.web.http.redirections.entryPoint.to=websecure \
-            --entrypoints.web.http.redirections.entryPoint.scheme=https \
-            --entrypoints.web.http.redirections.entryPoint.permanent=true \
-            --entrypoints.websecure.address=:443 \
-            --providers.docker.swarmMode=true \
-            --providers.docker.exposedbydefault=false \
-            --certificatesresolvers.riskafka.acme.httpchallenge.entrypoint=web \
-            --certificatesresolvers.riskafka.acme.email=hostmaster@ris-kafka.com \
-            --certificatesresolvers.riskafka.acme.storage=/data/acme.json"
-        volumes:
-            - /var/run/docker.sock:/var/run/docker.sock:ro
-            - traefik_data:/data
+        placement:
+            constraints:
+                - node.role == manager
+        healthcheck:
+        test: ["CMD", "cloudflared", "--version"]
+        interval: 30s
+        timeout: 10s
+        retries: 3
+        start_period: 10s
+        depends_on:
+            - web
+        entrypoint: |
+            cloudflared tunnel run --token ${CLOUDFLARE_TUNNEL_TOKEN}
     {%- endif %}
 
 # Define volumes
 volumes:
     zookeeper_data:
-    {%- if production %}
-    traefik_data:
-    {%- endif %}
     kafka_data:
     {%- for host in ris %}
     {{ host }}_data:
