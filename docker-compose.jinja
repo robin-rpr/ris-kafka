@@ -136,11 +136,11 @@ services:
             - kafka
         restart: unless-stopped
         deploy:
+            restart_policy:
+                condition: on-failure
             placement:
                 constraints:
                     - node.role == manager
-            restart_policy:
-                condition: on-failure
         environment:
             KAFKA_OPTS: "-Djava.security.auth.login.config=/etc/kafka/jaas.conf"
             KAFKA_SECURITY_PROTOCOL: SASL_PLAINTEXT
@@ -206,6 +206,9 @@ services:
         deploy:
             restart_policy:
                 condition: any
+            placement:
+                constraints:
+                    - node.role == manager
         depends_on:
             - kafka
         environment:
