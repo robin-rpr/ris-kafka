@@ -228,9 +228,9 @@ services:
         image: cloudflare/cloudflared:latest
         restart: unless-stopped
         deploy:
-        placement:
-            constraints:
-                - node.role == manager
+            placement:
+                constraints:
+                    - node.role == manager
         healthcheck:
             test: ["CMD", "cloudflared", "--version"]
             interval: 30s
