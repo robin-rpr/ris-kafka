@@ -98,7 +98,7 @@ The recommended system requirements are a minimum of 16 GB of RAM and 8 vCPU cor
 Additionally, by default Kafka is _allowed_ to scale up to each 24 Network and I/O threads.
 
 ```sh
-export CLOUDFLARE_TUNNEL_TOKEN=<...> # Get one at https://one.dash.cloudflare.com/
+export CLOUDFLARE_TUNNEL_TOKEN=<...> # See https://one.dash.cloudflare.com/
 curl -fsSL https://downloads.ris-kafka.com/docker-compose.yml | docker stack deploy -c - ris-kafka
 ```
 
