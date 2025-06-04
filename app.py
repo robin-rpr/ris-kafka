@@ -135,11 +135,11 @@ async def consumer_task(queue, backup):
                         # If we have a backup, use it
                         if backup.qsize() > 0:
                             is_failover = True
-                            logger.info("Initiating failover recovery")
+                            logger.critical("Failover triggered...")
                             while not backup.empty():
                                 item = await backup.get()
                                 await queue.put(item)
-                            logger.info("Failover recovery completed")
+                            logger.warning("Failover completed")
                             is_failover = False
                             is_waiting = False
                         else:
@@ -460,6 +460,24 @@ async def main():
             'sasl.username': KAFKA_USERNAME,
             'sasl.password': KAFKA_PASSWORD,
         })
+
+        # Wait for Kafka to be ready
+        logger.info("Waiting for Kafka connection...")
+        max_retries = 30  # 30 retries with exponential backoff
+        retry_count = 0
+        while retry_count < max_retries:
+            try:
+                # Try to get metadata to verify connection
+                producer.list_topics(timeout=10)
+                logger.info("Successfully connected to Kafka")
+                break
+            except Exception as e:
+                retry_count += 1
+                if retry_count == max_retries:
+                    raise Exception(f"Failed to connect to Kafka after {max_retries} attempts: {str(e)}")
+                wait_time = min(2 ** retry_count, 30)  # Exponential backoff with 30s max
+                logger.warning(f"Kafka not ready, retrying in {wait_time} seconds... (Attempt {retry_count}/{max_retries})")
+                await asyncio.sleep(wait_time)
 
         # Queues
         queue = asyncio.Queue(maxsize=QUEUE_SIZE)

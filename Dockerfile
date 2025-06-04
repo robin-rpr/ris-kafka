@@ -14,9 +14,7 @@ RUN apt-get install -y librdkafka-dev
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y && \
     . "$HOME/.cargo/env"
 ENV PATH="/root/.cargo/bin:${PATH}"
-RUN apt-get install -y software-properties-common gnupg && \
-    apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 4F4EA0AAE5267A6C && \
-    apt-get update && \
+RUN apt-get update && \
     apt-get install -y librocksdb-dev rocksdb-tools
 
 # Clean up

@@ -10,7 +10,7 @@ services:
         deploy:
             replicas: {% raw %}${RRC_REPLICA_COUNT:-2}{% endraw %}
             restart_policy:
-                condition: any
+                condition: none
             placement:
                 constraints:
                     - node.role == worker
@@ -19,7 +19,7 @@ services:
             interval: 30s
             timeout: 10s
             retries: 5
-        restart: unless-stopped
+        restart: no
         stop_signal: SIGTERM  # Wind down collector safely before stopping
         stop_grace_period: 20s # Wait for 20 seconds before forcefully stopping
         environment:
@@ -44,7 +44,7 @@ services:
             {%- endif %}
             - {{ host }}_data:/var/lib/rocksdb
         entrypoint: >
-            python app.py
+            bash -c "sleep $(({{ loop.index0 }} * {{ delay }})) && python app.py"
     {% endfor %}
     
     zookeeper:
@@ -94,6 +94,7 @@ services:
             KAFKA_SASL_ENABLED_MECHANISMS: "PLAIN"
             KAFKA_SASL_MECHANISM_INTER_BROKER_PROTOCOL: "PLAIN"
             KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+            KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
             KAFKA_AUTHORIZER_CLASS_NAME: org.apache.kafka.metadata.authorizer.StandardAuthorizer
             KAFKA_ALLOW_EVERYONE_IF_NO_ACL_FOUND: "false"
             KAFKA_SUPER_USERS: "User:admin"
