@@ -7,7 +7,7 @@ services:
         {%- else %}
         build: .
         {%- endif %}
-        restart: no
+        restart: "no"
         deploy:
             replicas: {% raw %}${RRC_REPLICA_COUNT:-2}{% endraw %}
             restart_policy:
