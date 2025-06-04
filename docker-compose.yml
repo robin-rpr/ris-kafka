@@ -1,8 +1,8 @@
 version: '3'
 services:
     rrc00:
-        image: robinrpr/ris-kafka:1.3.3
-        restart: no
+        image: robinrpr/ris-kafka:1.3.4
+        restart: "no"
         deploy:
             replicas: ${RRC_REPLICA_COUNT:-2}
             restart_policy:
@@ -39,8 +39,8 @@ services:
             bash -c "sleep $$((0 * 120)) && python app.py"
     
     rrc01:
-        image: robinrpr/ris-kafka:1.3.3
-        restart: no
+        image: robinrpr/ris-kafka:1.3.4
+        restart: "no"
         deploy:
             replicas: ${RRC_REPLICA_COUNT:-2}
             restart_policy:
@@ -77,8 +77,8 @@ services:
             bash -c "sleep $$((1 * 120)) && python app.py"
     
     rrc03:
-        image: robinrpr/ris-kafka:1.3.3
-        restart: no
+        image: robinrpr/ris-kafka:1.3.4
+        restart: "no"
         deploy:
             replicas: ${RRC_REPLICA_COUNT:-2}
             restart_policy:
@@ -115,8 +115,8 @@ services:
             bash -c "sleep $$((2 * 120)) && python app.py"
     
     rrc04:
-        image: robinrpr/ris-kafka:1.3.3
-        restart: no
+        image: robinrpr/ris-kafka:1.3.4
+        restart: "no"
         deploy:
             replicas: ${RRC_REPLICA_COUNT:-2}
             restart_policy:
@@ -153,8 +153,8 @@ services:
             bash -c "sleep $$((3 * 120)) && python app.py"
     
     rrc05:
-        image: robinrpr/ris-kafka:1.3.3
-        restart: no
+        image: robinrpr/ris-kafka:1.3.4
+        restart: "no"
         deploy:
             replicas: ${RRC_REPLICA_COUNT:-2}
             restart_policy:
@@ -191,8 +191,8 @@ services:
             bash -c "sleep $$((4 * 120)) && python app.py"
     
     rrc06:
-        image: robinrpr/ris-kafka:1.3.3
-        restart: no
+        image: robinrpr/ris-kafka:1.3.4
+        restart: "no"
         deploy:
             replicas: ${RRC_REPLICA_COUNT:-2}
             restart_policy:
@@ -229,8 +229,8 @@ services:
             bash -c "sleep $$((5 * 120)) && python app.py"
     
     rrc07:
-        image: robinrpr/ris-kafka:1.3.3
-        restart: no
+        image: robinrpr/ris-kafka:1.3.4
+        restart: "no"
         deploy:
             replicas: ${RRC_REPLICA_COUNT:-2}
             restart_policy:
@@ -267,8 +267,8 @@ services:
             bash -c "sleep $$((6 * 120)) && python app.py"
     
     rrc10:
-        image: robinrpr/ris-kafka:1.3.3
-        restart: no
+        image: robinrpr/ris-kafka:1.3.4
+        restart: "no"
         deploy:
             replicas: ${RRC_REPLICA_COUNT:-2}
             restart_policy:
@@ -305,8 +305,8 @@ services:
             bash -c "sleep $$((7 * 120)) && python app.py"
     
     rrc11:
-        image: robinrpr/ris-kafka:1.3.3
-        restart: no
+        image: robinrpr/ris-kafka:1.3.4
+        restart: "no"
         deploy:
             replicas: ${RRC_REPLICA_COUNT:-2}
             restart_policy:
@@ -343,8 +343,8 @@ services:
             bash -c "sleep $$((8 * 120)) && python app.py"
     
     rrc12:
-        image: robinrpr/ris-kafka:1.3.3
-        restart: no
+        image: robinrpr/ris-kafka:1.3.4
+        restart: "no"
         deploy:
             replicas: ${RRC_REPLICA_COUNT:-2}
             restart_policy:
@@ -381,8 +381,8 @@ services:
             bash -c "sleep $$((9 * 120)) && python app.py"
     
     rrc13:
-        image: robinrpr/ris-kafka:1.3.3
-        restart: no
+        image: robinrpr/ris-kafka:1.3.4
+        restart: "no"
         deploy:
             replicas: ${RRC_REPLICA_COUNT:-2}
             restart_policy:
@@ -419,8 +419,8 @@ services:
             bash -c "sleep $$((10 * 120)) && python app.py"
     
     rrc14:
-        image: robinrpr/ris-kafka:1.3.3
-        restart: no
+        image: robinrpr/ris-kafka:1.3.4
+        restart: "no"
         deploy:
             replicas: ${RRC_REPLICA_COUNT:-2}
             restart_policy:
@@ -457,8 +457,8 @@ services:
             bash -c "sleep $$((11 * 120)) && python app.py"
     
     rrc15:
-        image: robinrpr/ris-kafka:1.3.3
-        restart: no
+        image: robinrpr/ris-kafka:1.3.4
+        restart: "no"
         deploy:
             replicas: ${RRC_REPLICA_COUNT:-2}
             restart_policy:
@@ -495,8 +495,8 @@ services:
             bash -c "sleep $$((12 * 120)) && python app.py"
     
     rrc16:
-        image: robinrpr/ris-kafka:1.3.3
-        restart: no
+        image: robinrpr/ris-kafka:1.3.4
+        restart: "no"
         deploy:
             replicas: ${RRC_REPLICA_COUNT:-2}
             restart_policy:
@@ -533,8 +533,8 @@ services:
             bash -c "sleep $$((13 * 120)) && python app.py"
     
     rrc18:
-        image: robinrpr/ris-kafka:1.3.3
-        restart: no
+        image: robinrpr/ris-kafka:1.3.4
+        restart: "no"
         deploy:
             replicas: ${RRC_REPLICA_COUNT:-2}
             restart_policy:
@@ -571,8 +571,8 @@ services:
             bash -c "sleep $$((14 * 120)) && python app.py"
     
     rrc19:
-        image: robinrpr/ris-kafka:1.3.3
-        restart: no
+        image: robinrpr/ris-kafka:1.3.4
+        restart: "no"
         deploy:
             replicas: ${RRC_REPLICA_COUNT:-2}
             restart_policy:
@@ -609,8 +609,8 @@ services:
             bash -c "sleep $$((15 * 120)) && python app.py"
     
     rrc20:
-        image: robinrpr/ris-kafka:1.3.3
-        restart: no
+        image: robinrpr/ris-kafka:1.3.4
+        restart: "no"
         deploy:
             replicas: ${RRC_REPLICA_COUNT:-2}
             restart_policy:
@@ -647,8 +647,8 @@ services:
             bash -c "sleep $$((16 * 120)) && python app.py"
     
     rrc21:
-        image: robinrpr/ris-kafka:1.3.3
-        restart: no
+        image: robinrpr/ris-kafka:1.3.4
+        restart: "no"
         deploy:
             replicas: ${RRC_REPLICA_COUNT:-2}
             restart_policy:
@@ -685,8 +685,8 @@ services:
             bash -c "sleep $$((17 * 120)) && python app.py"
     
     rrc22:
-        image: robinrpr/ris-kafka:1.3.3
-        restart: no
+        image: robinrpr/ris-kafka:1.3.4
+        restart: "no"
         deploy:
             replicas: ${RRC_REPLICA_COUNT:-2}
             restart_policy:
@@ -723,8 +723,8 @@ services:
             bash -c "sleep $$((18 * 120)) && python app.py"
     
     rrc23:
-        image: robinrpr/ris-kafka:1.3.3
-        restart: no
+        image: robinrpr/ris-kafka:1.3.4
+        restart: "no"
         deploy:
             replicas: ${RRC_REPLICA_COUNT:-2}
             restart_policy:
@@ -761,8 +761,8 @@ services:
             bash -c "sleep $$((19 * 120)) && python app.py"
     
     rrc24:
-        image: robinrpr/ris-kafka:1.3.3
-        restart: no
+        image: robinrpr/ris-kafka:1.3.4
+        restart: "no"
         deploy:
             replicas: ${RRC_REPLICA_COUNT:-2}
             restart_policy:
@@ -799,8 +799,8 @@ services:
             bash -c "sleep $$((20 * 120)) && python app.py"
     
     rrc25:
-        image: robinrpr/ris-kafka:1.3.3
-        restart: no
+        image: robinrpr/ris-kafka:1.3.4
+        restart: "no"
         deploy:
             replicas: ${RRC_REPLICA_COUNT:-2}
             restart_policy:
@@ -837,8 +837,8 @@ services:
             bash -c "sleep $$((21 * 120)) && python app.py"
     
     rrc26:
-        image: robinrpr/ris-kafka:1.3.3
-        restart: no
+        image: robinrpr/ris-kafka:1.3.4
+        restart: "no"
         deploy:
             replicas: ${RRC_REPLICA_COUNT:-2}
             restart_policy:
