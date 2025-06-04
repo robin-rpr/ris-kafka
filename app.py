@@ -16,7 +16,7 @@ import os
 # Environment Variables
 WEBSOCKET_URI = "wss://ris-live.ripe.net/v1/ws/"
 WEBSOCKET_IDENTITY = f"ris-kafka-{socket.gethostname()}"
-QUEUE_SIZE = int(os.getenv("RRC_QUEUE_SIZE", 10000))
+QUEUE_SIZE = int(os.getenv("RRC_QUEUE_SIZE", 100000))
 BACKUP_SIZE = int(os.getenv("RRC_BACKUP_SIZE", 1000000))
 BATCH_SIZE = int(os.getenv("RRC_BATCH_SIZE", 1000))
 ZOOKEEPER_CONNECT = os.getenv("RRC_ZOOKEEPER_CONNECT")
