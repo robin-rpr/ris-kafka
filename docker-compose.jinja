@@ -44,7 +44,7 @@ services:
             {%- endif %}
             - {{ host }}_data:/var/lib/rocksdb
         entrypoint: >
-            bash -c "sleep $(({{ loop.index0 }} * {{ delay }})) && python app.py"
+            bash -c "sleep $$(({{ loop.index0 }} * {{ delay }})) && python app.py"
     {% endfor %}
     
     zookeeper:
