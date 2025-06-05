@@ -14,7 +14,7 @@ services:
                 condition: none
             placement:
                 constraints:
-                    - node.role == worker
+                    - node.role == manager
         healthcheck:
             test: ["CMD-SHELL", "ldb --db=/var/lib/rocksdb get hardlock --value_hex | grep -q '^0x01$$' && exit 1 || exit 0"]
             interval: 30s
