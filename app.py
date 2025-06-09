@@ -142,6 +142,10 @@ async def consumer_task(queue, backup):
                             logger.warning("Failover completed")
                             is_failover = False
                             is_waiting = False
+                            
+                            # Prune backup queue back to normal size
+                            while backup.qsize() > BACKUP_SIZE:
+                                await backup.get()
                         else:
                             is_failover = False
                             is_waiting = False
@@ -154,8 +158,8 @@ async def consumer_task(queue, backup):
                     else:
                         # If we are not the leader, add items to backup
                         for item in ordered:
-                            if backup.full():
-                                # Discard oldest message
+                            if not is_failover and backup.full():
+                                # Discard oldest message only if not in failover mode
                                 await backup.get()
                             await backup.put(item)
                     batch = []
@@ -187,12 +191,29 @@ async def sender_task(producer, queue):
 
         # Delivery Report Callback
         # NOTE: Delivery reports may arrive out of order
-        def delivery_report(err, _):
+        def delivery_report(err, msg):
             nonlocal reported_size
             if err is None:
                 reported_size += 1
             else:
-                raise Exception(f"Message delivery failed: {err}")
+                if err.code() == 3: # UNKNOWN_TOPIC_OR_PART
+                    logger.warning(f"Topic not ready, retrying message delivery: {err}")
+                    try:
+                        # Retry the message delivery
+                        producer.produce(
+                            topic=msg.topic(),
+                            key=msg.key(),
+                            value=msg.value(),
+                            timestamp=msg.timestamp(),
+                            callback=delivery_report
+                        )
+                        # Poll to ensure the message is queued
+                        producer.poll(0)
+                    except Exception as e:
+                        logger.error(f"Failed to retry message delivery: {e}")
+                        raise Exception(f"Message delivery failed: {err}")
+                else:
+                    raise Exception(f"Message delivery failed: {err}")
 
         while True:
             if is_leader:
