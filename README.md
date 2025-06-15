@@ -39,7 +39,7 @@ consumer = Consumer({
 })
 ```
 
-You can check the current status of this public service at [status.superclustr.net](https://status.superclustr.net).
+You can check the current status of this public service at [status.superclustr.net](https://status.superclustr.net).<br>
 See a full production-ready example implementation in [this file](https://github.com/bgpdata/relay/blob/main/tasks/kafka.py).
 
 ## Features
