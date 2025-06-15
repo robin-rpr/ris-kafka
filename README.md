@@ -21,7 +21,12 @@ This service connects to the [RIS Live](https://ris-live.ripe.net/) websocket en
 
 We provide a public read-only cluster at `stream.ris-kafka.com:9092`:
 
+```bash
+pip install confluent-kafka
+```
+
 ```python
+from confluent_kafka import Consumer
 # Example Python Kafka Consumer
 consumer = Consumer({
     'bootstrap.servers': 'stream.ris-kafka.com:9092',
@@ -35,13 +40,16 @@ consumer = Consumer({
 ```
 
 You can check the current status of this public service at [status.superclustr.net](https://status.superclustr.net).
+See a full production-ready example implementation in [this file](https://github.com/bgpdata/relay/blob/main/tasks/kafka.py).
 
 ## Features
 
 - Real-time BGP update streaming
 - Native BMPv3 protocol support
 - Horizontally scalable architecture
-- Docker containerized deployment
+- Fast message buffering and sorting
+- Fully portable containerized deployment
+- Compatible topic naming with RouteViews Stream
 - High Availability with automatic failover
   - Collector instances can run with unlimited replicas
   - Automatic leader election using Zookeeper
@@ -97,8 +105,10 @@ For production deployment, we use Docker Swarm, but any other orchestration tool
 The recommended system requirements are a minimum of 16 GB of RAM and 8 vCPU cores.
 Additionally, by default Kafka is _allowed_ to scale up to each 24 Network and I/O threads.
 
+> **Note:** For optimal failover and redundancy capabilities during network interruptions or WebSocket failures to RIS Live Servers, it is recommended to distribute the Collectors across multiple physical hosts and independent networks. This configuration is not pre-configured by default and requires a high-performance distributed file system (e.g., Lustre) to maintain RocksDB checkpoint writing performance.
+
 ```sh
-export CLOUDFLARE_TUNNEL_TOKEN=<...> # See https://one.dash.cloudflare.com/
+# Customize the .env file, then:
 curl -fsSL https://downloads.ris-kafka.com/docker-compose.yml | docker stack deploy -c - ris-kafka
 ```
 

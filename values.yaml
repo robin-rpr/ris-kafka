@@ -1,7 +1,9 @@
 production: false
 delay: 120 # Seconds
-# RIS Remote Route Collectors
-# https://ris.ripe.net/docs/route-collectors/
+
+# RIS Route Collectors
+# @Link: https://www.ripe.net/analyse/internet-measurements/routing-information-service-ris/
+# @Collectors: https://ris.ripe.net/docs/route-collectors/
 ris:
   - rrc00 # Amsterdam, RIPE NCC, global
   - rrc01 # London, LINX/LONAP, regional
