@@ -32,7 +32,7 @@ consumer = Consumer({
     'bootstrap.servers': 'stream.ris-kafka.com:9092',
     'group.id': 'my-example-group',
     'partition.assignment.strategy': 'roundrobin',
-    'enable.auto.commit': False,
+    'enable.auto.commit': True,
     'security.protocol': 'PLAINTEXT',
     'fetch.max.bytes': 50 * 1024 * 1024, # 50 MB
     'session.timeout.ms': 30000, # For stable group membership
